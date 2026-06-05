@@ -110,7 +110,7 @@ export default function QuickExpense() {
   }
 
   return (
-    <section className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
+    <>
       {/* Input */}
       <div className="space-y-3">
         <textarea
@@ -229,6 +229,6 @@ export default function QuickExpense() {
           </div>
         </div>
       )}
-    </section>
+    </>
   );
 }

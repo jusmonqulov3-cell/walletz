@@ -190,7 +190,7 @@ export default function ReceiptScanner() {
   }
 
   return (
-    <section className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
+    <>
       <input
         ref={fileInputRef}
         type="file"
@@ -350,6 +350,6 @@ export default function ReceiptScanner() {
           </div>
         </div>
       )}
-    </section>
+    </>
   );
 }

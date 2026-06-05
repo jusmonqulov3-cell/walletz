@@ -4,10 +4,8 @@ import { formatAmount } from "@/lib/format";
 import { getTashkentPeriods } from "@/lib/dates";
 import { CATEGORIES, type Category } from "@/lib/categories";
 import AppShell from "@/components/AppShell";
-import QuickExpense from "./QuickExpense";
+import ExpenseInput from "./ExpenseInput";
 import FinancialCoach from "./FinancialCoach";
-import ReceiptScanner from "./ReceiptScanner";
-import VoiceExpense from "./VoiceExpense";
 import BudgetCard from "./BudgetCard";
 import ExpenseSearch from "./ExpenseSearch";
 
@@ -119,14 +117,8 @@ export default async function DashboardPage() {
         {/* Proactive financial coach */}
         <FinancialCoach />
 
-        {/* Quick input */}
-        <QuickExpense />
-
-        {/* Receipt-photo scanner */}
-        <ReceiptScanner />
-
-        {/* Voice expense entry */}
-        <VoiceExpense />
+        {/* Unified expense input: text / receipt / voice tabs */}
+        <ExpenseInput />
 
         {/* Category breakdown */}
         {breakdown.length > 0 && (

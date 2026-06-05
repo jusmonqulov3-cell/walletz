@@ -190,7 +190,7 @@ export default function VoiceExpense() {
   }
 
   return (
-    <section className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
+    <>
       {/* Controls */}
       {recording ? (
         <button
@@ -310,6 +310,6 @@ export default function VoiceExpense() {
           </div>
         </div>
       )}
-    </section>
+    </>
   );
 }
