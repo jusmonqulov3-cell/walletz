@@ -304,3 +304,49 @@ create policy "debts_delete_own"
   on public.debts for delete
   to authenticated
   using (user_id = auth.uid());
+
+-- ---------------------------------------------------------------------------
+-- Investment / portfolio holdings
+-- ---------------------------------------------------------------------------
+-- buy_price and manual_price are in UZS per unit. Per type:
+--   'kripto'   — symbol = CoinGecko id (e.g. "bitcoin", "ethereum", "pax-gold")
+--   'valyuta'  — symbol = currency code (e.g. "USD", "EUR", "RUB")
+--   'aksiya'   — manual_price = current UZS price per share (user-updated)
+--   'jamgarma' — quantity = the UZS amount (unit price treated as 1)
+
+create table if not exists public.investments (
+  id           uuid primary key default gen_random_uuid(),
+  user_id      uuid not null references auth.users (id) on delete cascade,
+  type         text not null check (type in ('valyuta', 'kripto', 'aksiya', 'jamgarma')),
+  name         text not null,
+  symbol       text,
+  quantity     numeric not null,
+  buy_price    numeric,
+  manual_price numeric,
+  created_at   timestamptz not null default now()
+);
+
+create index if not exists investments_user_id_idx on public.investments (user_id);
+
+alter table public.investments enable row level security;
+
+create policy "investments_select_own"
+  on public.investments for select
+  to authenticated
+  using (user_id = auth.uid());
+
+create policy "investments_insert_own"
+  on public.investments for insert
+  to authenticated
+  with check (user_id = auth.uid());
+
+create policy "investments_update_own"
+  on public.investments for update
+  to authenticated
+  using (user_id = auth.uid())
+  with check (user_id = auth.uid());
+
+create policy "investments_delete_own"
+  on public.investments for delete
+  to authenticated
+  using (user_id = auth.uid());
