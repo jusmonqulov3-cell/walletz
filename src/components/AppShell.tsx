@@ -7,6 +7,7 @@ import { signOut } from "@/app/auth/actions";
 const NAV = [
   { href: "/dashboard", label: "Dashboard" },
   { href: "/income", label: "Daromad" },
+  { href: "/goals", label: "Maqsadlar" },
   { href: "/chat", label: "AI Chat" },
   { href: "/telegram", label: "Telegram" },
 ];
