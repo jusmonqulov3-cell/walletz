@@ -47,6 +47,44 @@ export async function generateJSON(
   }
 }
 
+/**
+ * Calls Gemini in JSON mode with an inline image part plus a system
+ * instruction, returning the parsed object. Used for receipt-photo scanning.
+ *
+ * @param systemInstruction Instructions describing the task and JSON shape.
+ * @param imageBase64 The image bytes, base64-encoded (no data: URI prefix).
+ * @param mimeType The image MIME type, e.g. "image/jpeg".
+ * @returns The parsed JSON object returned by the model.
+ * @throws If the request fails or the response is not valid JSON.
+ */
+export async function generateJSONFromImage(
+  systemInstruction: string,
+  imageBase64: string,
+  mimeType: string,
+): Promise<unknown> {
+  const model = genAI.getGenerativeModel({
+    model: MODEL,
+    systemInstruction,
+    generationConfig: {
+      responseMimeType: "application/json",
+    },
+  });
+
+  try {
+    const result = await model.generateContent([
+      { inlineData: { data: imageBase64, mimeType } },
+    ]);
+    const text = result.response.text();
+    return JSON.parse(text);
+  } catch (err) {
+    throw new Error(
+      `Gemini image parsing failed: ${
+        err instanceof Error ? err.message : String(err)
+      }`,
+    );
+  }
+}
+
 export type ChatMessage = {
   role: "user" | "model";
   text: string;

@@ -263,3 +263,44 @@ create policy "goals_delete_own"
   on public.goals for delete
   to authenticated
   using (user_id = auth.uid());
+
+-- ---------------------------------------------------------------------------
+-- Debt tracker (qarzlar): money the user borrowed from / lent to people
+-- ---------------------------------------------------------------------------
+
+create table if not exists public.debts (
+  id         uuid primary key default gen_random_uuid(),
+  user_id    uuid not null references auth.users (id) on delete cascade,
+  person     text not null,
+  amount     numeric not null,
+  -- 'borrowed' = the user took money from person; 'lent' = the user gave money.
+  direction  text not null check (direction in ('borrowed', 'lent')),
+  note       text,
+  settled    boolean not null default false,
+  created_at timestamptz not null default now()
+);
+
+create index if not exists debts_user_id_idx on public.debts (user_id);
+
+alter table public.debts enable row level security;
+
+create policy "debts_select_own"
+  on public.debts for select
+  to authenticated
+  using (user_id = auth.uid());
+
+create policy "debts_insert_own"
+  on public.debts for insert
+  to authenticated
+  with check (user_id = auth.uid());
+
+create policy "debts_update_own"
+  on public.debts for update
+  to authenticated
+  using (user_id = auth.uid())
+  with check (user_id = auth.uid());
+
+create policy "debts_delete_own"
+  on public.debts for delete
+  to authenticated
+  using (user_id = auth.uid());

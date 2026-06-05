@@ -8,6 +8,7 @@ const NAV = [
   { href: "/dashboard", label: "Dashboard" },
   { href: "/income", label: "Daromad" },
   { href: "/goals", label: "Maqsadlar" },
+  { href: "/debts", label: "Qarzlar" },
   { href: "/chat", label: "AI Chat" },
   { href: "/telegram", label: "Telegram" },
 ];

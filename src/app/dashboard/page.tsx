@@ -5,6 +5,7 @@ import { getTashkentPeriods } from "@/lib/dates";
 import { CATEGORIES, type Category } from "@/lib/categories";
 import AppShell from "@/components/AppShell";
 import QuickExpense from "./QuickExpense";
+import ReceiptScanner from "./ReceiptScanner";
 import BudgetCard from "./BudgetCard";
 import ExpenseSearch from "./ExpenseSearch";
 
@@ -115,6 +116,9 @@ export default async function DashboardPage() {
 
         {/* Quick input */}
         <QuickExpense />
+
+        {/* Receipt-photo scanner */}
+        <ReceiptScanner />
 
         {/* Category breakdown */}
         {breakdown.length > 0 && (
