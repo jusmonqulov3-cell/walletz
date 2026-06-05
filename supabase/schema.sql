@@ -166,3 +166,61 @@ values
   (null, 'O''yin-kulgi', '🎮', true),
   (null, 'Boshqa',       '📦', true)
 on conflict do nothing;
+
+-- ---------------------------------------------------------------------------
+-- Telegram bot: account links + one-time connect codes
+-- ---------------------------------------------------------------------------
+
+create table if not exists public.telegram_links (
+  id                uuid primary key default gen_random_uuid(),
+  user_id           uuid not null references auth.users (id) on delete cascade,
+  telegram_id       bigint unique not null,
+  telegram_username text,
+  created_at        timestamptz not null default now()
+);
+
+create table if not exists public.telegram_codes (
+  code       text primary key,
+  user_id    uuid not null references auth.users (id) on delete cascade,
+  expires_at timestamptz not null,
+  used       boolean not null default false,
+  created_at timestamptz not null default now()
+);
+
+create index if not exists telegram_links_user_id_idx on public.telegram_links (user_id);
+create index if not exists telegram_codes_user_id_idx on public.telegram_codes (user_id);
+
+alter table public.telegram_links enable row level security;
+alter table public.telegram_codes enable row level security;
+
+-- Users can read/insert/delete only their own rows. The webhook uses the
+-- service-role key, which bypasses RLS entirely.
+create policy "telegram_links_select_own"
+  on public.telegram_links for select
+  to authenticated
+  using (user_id = auth.uid());
+
+create policy "telegram_links_insert_own"
+  on public.telegram_links for insert
+  to authenticated
+  with check (user_id = auth.uid());
+
+create policy "telegram_links_delete_own"
+  on public.telegram_links for delete
+  to authenticated
+  using (user_id = auth.uid());
+
+create policy "telegram_codes_select_own"
+  on public.telegram_codes for select
+  to authenticated
+  using (user_id = auth.uid());
+
+create policy "telegram_codes_insert_own"
+  on public.telegram_codes for insert
+  to authenticated
+  with check (user_id = auth.uid());
+
+create policy "telegram_codes_delete_own"
+  on public.telegram_codes for delete
+  to authenticated
+  using (user_id = auth.uid());

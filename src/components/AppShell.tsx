@@ -8,6 +8,7 @@ const NAV = [
   { href: "/dashboard", label: "Dashboard" },
   { href: "/income", label: "Daromad" },
   { href: "/chat", label: "AI Chat" },
+  { href: "/telegram", label: "Telegram" },
 ];
 
 export default function AppShell({
