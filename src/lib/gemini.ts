@@ -85,6 +85,45 @@ export async function generateJSONFromImage(
   }
 }
 
+/**
+ * Calls Gemini in JSON mode with an inline audio part plus a system
+ * instruction, returning the parsed object. Used for voice expense entry —
+ * Gemini transcribes and parses the speech in one call.
+ *
+ * @param systemInstruction Instructions describing the task and JSON shape.
+ * @param audioBase64 The audio bytes, base64-encoded (no data: URI prefix).
+ * @param mimeType The audio MIME type, e.g. "audio/ogg".
+ * @returns The parsed JSON object returned by the model.
+ * @throws If the request fails or the response is not valid JSON.
+ */
+export async function generateJSONFromAudio(
+  systemInstruction: string,
+  audioBase64: string,
+  mimeType: string,
+): Promise<unknown> {
+  const model = genAI.getGenerativeModel({
+    model: MODEL,
+    systemInstruction,
+    generationConfig: {
+      responseMimeType: "application/json",
+    },
+  });
+
+  try {
+    const result = await model.generateContent([
+      { inlineData: { data: audioBase64, mimeType } },
+    ]);
+    const text = result.response.text();
+    return JSON.parse(text);
+  } catch (err) {
+    throw new Error(
+      `Gemini audio parsing failed: ${
+        err instanceof Error ? err.message : String(err)
+      }`,
+    );
+  }
+}
+
 export type ChatMessage = {
   role: "user" | "model";
   text: string;

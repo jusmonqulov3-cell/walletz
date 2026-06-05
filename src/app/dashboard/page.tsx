@@ -7,6 +7,7 @@ import AppShell from "@/components/AppShell";
 import QuickExpense from "./QuickExpense";
 import FinancialCoach from "./FinancialCoach";
 import ReceiptScanner from "./ReceiptScanner";
+import VoiceExpense from "./VoiceExpense";
 import BudgetCard from "./BudgetCard";
 import ExpenseSearch from "./ExpenseSearch";
 
@@ -123,6 +124,9 @@ export default async function DashboardPage() {
 
         {/* Receipt-photo scanner */}
         <ReceiptScanner />
+
+        {/* Voice expense entry */}
+        <VoiceExpense />
 
         {/* Category breakdown */}
         {breakdown.length > 0 && (

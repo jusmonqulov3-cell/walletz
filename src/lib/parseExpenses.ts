@@ -43,7 +43,10 @@ const MERCHANT_OVERRIDES: { keywords: string[]; category: Category }[] = [
   },
 ];
 
-function applyMerchantOverride(note: string, category: Category): Category {
+export function applyMerchantOverride(
+  note: string,
+  category: Category,
+): Category {
   const lower = note.toLowerCase();
   for (const { keywords, category: forced } of MERCHANT_OVERRIDES) {
     if (keywords.some((k) => lower.includes(k))) return forced;
