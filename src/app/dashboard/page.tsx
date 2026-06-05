@@ -5,6 +5,7 @@ import { getTashkentPeriods } from "@/lib/dates";
 import { CATEGORIES, type Category } from "@/lib/categories";
 import AppShell from "@/components/AppShell";
 import QuickExpense from "./QuickExpense";
+import FinancialCoach from "./FinancialCoach";
 import ReceiptScanner from "./ReceiptScanner";
 import BudgetCard from "./BudgetCard";
 import ExpenseSearch from "./ExpenseSearch";
@@ -113,6 +114,9 @@ export default async function DashboardPage() {
           <StatCard label="Bu oy" value={monthTotal} />
           <BudgetCard monthTotal={monthTotal} limit={limit} />
         </div>
+
+        {/* Proactive financial coach */}
+        <FinancialCoach />
 
         {/* Quick input */}
         <QuickExpense />
