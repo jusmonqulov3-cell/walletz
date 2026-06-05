@@ -1,0 +1,1471 @@
+<!DOCTYPE html>
+<html lang="uz"><head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PulNazorat</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<style>/* cyrillic-ext */
+@font-face {
+  font-family: 'Geist';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("2968b196-4bdf-4c13-9bd7-aea4542b3239") format('woff2');
+  unicode-range: U+0460-052F, U+1C80-1C8A, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+/* cyrillic */
+@font-face {
+  font-family: 'Geist';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("932cb210-1143-4724-93ad-74b6735677c3") format('woff2');
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+/* vietnamese */
+@font-face {
+  font-family: 'Geist';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("a2fd1ba5-b383-462c-b063-e8ac2d076f78") format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB;
+}
+/* latin-ext */
+@font-face {
+  font-family: 'Geist';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("550ed1b0-b6a8-46d7-b81a-3f1e1f431f35") format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'Geist';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("75abb547-bca6-4600-a69b-ab6be0e6d79a") format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+/* cyrillic-ext */
+@font-face {
+  font-family: 'Geist';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("2968b196-4bdf-4c13-9bd7-aea4542b3239") format('woff2');
+  unicode-range: U+0460-052F, U+1C80-1C8A, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+/* cyrillic */
+@font-face {
+  font-family: 'Geist';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("932cb210-1143-4724-93ad-74b6735677c3") format('woff2');
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+/* vietnamese */
+@font-face {
+  font-family: 'Geist';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("a2fd1ba5-b383-462c-b063-e8ac2d076f78") format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB;
+}
+/* latin-ext */
+@font-face {
+  font-family: 'Geist';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("550ed1b0-b6a8-46d7-b81a-3f1e1f431f35") format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'Geist';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("75abb547-bca6-4600-a69b-ab6be0e6d79a") format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+/* cyrillic-ext */
+@font-face {
+  font-family: 'Geist';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("2968b196-4bdf-4c13-9bd7-aea4542b3239") format('woff2');
+  unicode-range: U+0460-052F, U+1C80-1C8A, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+/* cyrillic */
+@font-face {
+  font-family: 'Geist';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("932cb210-1143-4724-93ad-74b6735677c3") format('woff2');
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+/* vietnamese */
+@font-face {
+  font-family: 'Geist';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("a2fd1ba5-b383-462c-b063-e8ac2d076f78") format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB;
+}
+/* latin-ext */
+@font-face {
+  font-family: 'Geist';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("550ed1b0-b6a8-46d7-b81a-3f1e1f431f35") format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'Geist';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("75abb547-bca6-4600-a69b-ab6be0e6d79a") format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+/* cyrillic-ext */
+@font-face {
+  font-family: 'Geist';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("2968b196-4bdf-4c13-9bd7-aea4542b3239") format('woff2');
+  unicode-range: U+0460-052F, U+1C80-1C8A, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+/* cyrillic */
+@font-face {
+  font-family: 'Geist';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("932cb210-1143-4724-93ad-74b6735677c3") format('woff2');
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+/* vietnamese */
+@font-face {
+  font-family: 'Geist';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("a2fd1ba5-b383-462c-b063-e8ac2d076f78") format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB;
+}
+/* latin-ext */
+@font-face {
+  font-family: 'Geist';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("550ed1b0-b6a8-46d7-b81a-3f1e1f431f35") format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'Geist';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("75abb547-bca6-4600-a69b-ab6be0e6d79a") format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+/* cyrillic-ext */
+@font-face {
+  font-family: 'Geist Mono';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("1d9d7349-fba9-4285-94b4-6c350f4b457a") format('woff2');
+  unicode-range: U+0460-052F, U+1C80-1C8A, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+/* cyrillic */
+@font-face {
+  font-family: 'Geist Mono';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("615e541d-39bc-46b5-825a-bd8d314d38aa") format('woff2');
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+/* symbols2 */
+@font-face {
+  font-family: 'Geist Mono';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("622c6587-be9f-453d-8208-f347c7e700aa") format('woff2');
+  unicode-range: U+2000-2001, U+2004-2008, U+200A, U+23B8-23BD, U+2500-259F;
+}
+/* vietnamese */
+@font-face {
+  font-family: 'Geist Mono';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("a1896234-1f37-4762-aa63-dbb05f2590ff") format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB;
+}
+/* latin-ext */
+@font-face {
+  font-family: 'Geist Mono';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("bd99583d-e3d5-4902-9af4-6b57c4fdc8c2") format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'Geist Mono';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("e8eb4921-5dfd-4e10-b04e-1eb44e3576de") format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+/* cyrillic-ext */
+@font-face {
+  font-family: 'Geist Mono';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("1d9d7349-fba9-4285-94b4-6c350f4b457a") format('woff2');
+  unicode-range: U+0460-052F, U+1C80-1C8A, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+/* cyrillic */
+@font-face {
+  font-family: 'Geist Mono';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("615e541d-39bc-46b5-825a-bd8d314d38aa") format('woff2');
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+/* symbols2 */
+@font-face {
+  font-family: 'Geist Mono';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("622c6587-be9f-453d-8208-f347c7e700aa") format('woff2');
+  unicode-range: U+2000-2001, U+2004-2008, U+200A, U+23B8-23BD, U+2500-259F;
+}
+/* vietnamese */
+@font-face {
+  font-family: 'Geist Mono';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("a1896234-1f37-4762-aa63-dbb05f2590ff") format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB;
+}
+/* latin-ext */
+@font-face {
+  font-family: 'Geist Mono';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("bd99583d-e3d5-4902-9af4-6b57c4fdc8c2") format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'Geist Mono';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("e8eb4921-5dfd-4e10-b04e-1eb44e3576de") format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+/* cyrillic-ext */
+@font-face {
+  font-family: 'Geist Mono';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("1d9d7349-fba9-4285-94b4-6c350f4b457a") format('woff2');
+  unicode-range: U+0460-052F, U+1C80-1C8A, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+/* cyrillic */
+@font-face {
+  font-family: 'Geist Mono';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("615e541d-39bc-46b5-825a-bd8d314d38aa") format('woff2');
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+/* symbols2 */
+@font-face {
+  font-family: 'Geist Mono';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("622c6587-be9f-453d-8208-f347c7e700aa") format('woff2');
+  unicode-range: U+2000-2001, U+2004-2008, U+200A, U+23B8-23BD, U+2500-259F;
+}
+/* vietnamese */
+@font-face {
+  font-family: 'Geist Mono';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("a1896234-1f37-4762-aa63-dbb05f2590ff") format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB;
+}
+/* latin-ext */
+@font-face {
+  font-family: 'Geist Mono';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("bd99583d-e3d5-4902-9af4-6b57c4fdc8c2") format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'Geist Mono';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("e8eb4921-5dfd-4e10-b04e-1eb44e3576de") format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+</style>
+<style>/* ===== PulNazorat shared design system ===== */
+:root{
+  --bg:#ECECEB;
+  --app-bg:#FBFBFA;
+  --card:#FFFFFF;
+  --border:#ECECEC;
+  --border-strong:#E2E2E1;
+  --fg:#19191C;
+  --muted:#71717A;
+  --muted-2:#9A9AA2;
+  --subtle:#F3F3F3;
+  --track:#EFEFEF;
+  --accent:#5E6AD2;
+  --accent-strong:#525ec5;
+  --accent-weak:rgba(94,106,210,.10);
+  --positive:#2F9E68;
+  --positive-weak:rgba(47,158,104,.12);
+  --negative:#D24B53;
+  --negative-weak:rgba(210,75,83,.12);
+  --warn:#C9924F;
+  --warn-weak:rgba(201,146,79,.14);
+  /* category palette */
+  --c-food:#6B72C9;
+  --c-transport:#569A97;
+  --c-utility:#C9924F;
+  --c-fun:#B97AA3;
+  --c-health:#6E9D63;
+  --c-other:#9AA0AC;
+  --r-card:14px;
+  --r-sm:10px;
+  --shadow:0 1px 2px rgba(20,20,30,.04), 0 8px 24px rgba(20,20,30,.05);
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;}
+body{
+  font-family:"Geist",-apple-system,system-ui,sans-serif;
+  background:var(--bg);
+  color:var(--fg);
+  -webkit-font-smoothing:antialiased;
+  text-rendering:optimizeLegibility;
+  display:flex;align-items:flex-start;justify-content:center;
+  padding:32px 16px;min-height:100vh;
+}
+.mono{font-family:"Geist Mono",ui-monospace,monospace;font-variant-numeric:tabular-nums;font-feature-settings:"tnum" 1;letter-spacing:-.01em;}
+
+/* device */
+.device{
+  width:390px;height:844px;background:var(--app-bg);
+  border-radius:44px;border:1px solid var(--border-strong);
+  box-shadow:var(--shadow);position:relative;overflow:hidden;
+  display:flex;flex-direction:column;
+}
+.statusbar{height:50px;flex:0 0 50px;display:flex;align-items:center;justify-content:space-between;padding:0 28px 0 32px;font-size:14px;font-weight:600;color:var(--fg);}
+.statusbar .sb-right{display:flex;align-items:center;gap:7px;}
+.sb-bar{display:flex;align-items:flex-end;gap:2px;height:11px;}
+.sb-bar i{width:3px;background:var(--fg);border-radius:1px;display:block;}
+.sb-bar i:nth-child(1){height:4px;}
+.sb-bar i:nth-child(2){height:6px;}
+.sb-bar i:nth-child(3){height:8px;}
+.sb-bar i:nth-child(4){height:11px;}
+.sb-batt{width:22px;height:11px;border:1.4px solid var(--fg);border-radius:3px;position:relative;padding:1.5px;}
+.sb-batt::after{content:"";position:absolute;right:-3px;top:3px;width:2px;height:5px;background:var(--fg);border-radius:0 1px 1px 0;}
+.sb-batt i{display:block;height:100%;width:72%;background:var(--fg);border-radius:1px;}
+
+/* scroll area */
+.screen{flex:1;overflow-y:auto;overflow-x:hidden;padding:0 16px 100px;scrollbar-width:none;}
+.screen::-webkit-scrollbar{display:none;}
+
+/* app bar / page head */
+.appbar{display:flex;align-items:center;justify-content:space-between;padding:6px 2px 16px;}
+.appbar .date{font-size:12.5px;color:var(--muted);font-weight:500;}
+.appbar .greet{font-size:21px;font-weight:600;letter-spacing:-.02em;margin-top:2px;}
+.appbar .title{font-size:24px;font-weight:600;letter-spacing:-.025em;}
+.appbar .sub{font-size:12.5px;color:var(--muted);font-weight:500;margin-top:3px;}
+.appbar .actions{display:flex;align-items:center;gap:8px;}
+.icon-btn{width:38px;height:38px;border-radius:11px;border:1px solid var(--border);background:var(--card);display:flex;align-items:center;justify-content:center;color:var(--fg);cursor:pointer;transition:background .15s ease,border-color .15s ease;text-decoration:none;}
+.icon-btn:hover{background:var(--subtle);}
+.icon-btn svg{width:19px;height:19px;}
+.avatar{width:38px;height:38px;border-radius:50%;background:linear-gradient(145deg,#6E76D6,#8A7BE0);color:#fff;font-size:13px;font-weight:600;display:flex;align-items:center;justify-content:center;letter-spacing:.02em;cursor:pointer;text-decoration:none;}
+
+/* card / section */
+.card{background:var(--card);border:1px solid var(--border);border-radius:var(--r-card);}
+.section{margin-top:22px;}
+.section-head{display:flex;align-items:center;justify-content:space-between;margin:0 2px 11px;}
+.section-head h2{font-size:15px;font-weight:600;letter-spacing:-.01em;}
+.section-head a,.section-head .link{font-size:13px;color:var(--accent);text-decoration:none;font-weight:500;cursor:pointer;background:none;border:none;font-family:inherit;}
+.section-head a:hover,.section-head .link:hover{text-decoration:underline;}
+
+/* progress bar */
+.bar{height:7px;border-radius:99px;background:var(--track);overflow:hidden;}
+.bar i{display:block;height:100%;border-radius:99px;background:var(--accent);}
+
+/* stat grid */
+.stat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;}
+.stat{background:var(--card);border:1px solid var(--border);border-radius:var(--r-card);padding:13px 13px 14px;}
+.stat .lbl{font-size:12px;color:var(--muted);font-weight:500;}
+.stat .val{margin-top:9px;display:flex;align-items:baseline;gap:3px;}
+.stat .val b{font-size:19px;font-weight:600;}
+.stat .val span{font-size:11.5px;color:var(--muted);font-weight:500;}
+.stat .delta{margin-top:7px;display:inline-flex;align-items:center;gap:3px;font-size:11px;font-weight:500;}
+.stat .delta svg{width:11px;height:11px;}
+.delta.up{color:var(--negative);}
+.delta.down{color:var(--positive);}
+.delta.gain{color:var(--positive);}
+.delta.loss{color:var(--negative);}
+
+/* buttons / forms */
+.btn{width:100%;border:none;background:var(--accent);color:#fff;font-family:inherit;font-size:14px;font-weight:600;padding:13px;border-radius:var(--r-sm);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px;transition:background .15s ease,transform .05s ease;text-decoration:none;}
+.btn:hover{background:var(--accent-strong);}
+.btn:active{transform:scale(.99);}
+.btn svg{width:17px;height:17px;}
+.btn.ghost{background:var(--card);color:var(--fg);border:1px solid var(--border);}
+.btn.ghost:hover{background:var(--subtle);}
+.seg{display:flex;background:var(--subtle);border-radius:10px;padding:3px;gap:3px;}
+.seg button{flex:1;border:none;background:transparent;font-family:inherit;font-size:13px;font-weight:500;color:var(--muted);padding:8px 0;border-radius:8px;cursor:pointer;transition:all .15s ease;}
+.seg button.active{background:var(--card);color:var(--fg);box-shadow:0 1px 2px rgba(20,20,30,.06);font-weight:600;}
+.field-label{font-size:12px;color:var(--muted);font-weight:500;margin:0 2px 7px;}
+.amount-field{display:flex;align-items:baseline;gap:8px;border:1px solid var(--border);border-radius:var(--r-sm);padding:13px 14px;transition:border-color .15s ease,box-shadow .15s ease;background:var(--card);}
+.amount-field:focus-within{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-weak);}
+.amount-field input{flex:1;border:none;outline:none;font-family:"Geist Mono",monospace;font-variant-numeric:tabular-nums;font-size:24px;font-weight:600;color:var(--fg);background:transparent;min-width:0;}
+.amount-field input::placeholder{color:#C9C9CE;}
+.amount-field .cur{font-size:13px;color:var(--muted);font-weight:500;}
+.input{width:100%;border:1px solid var(--border);border-radius:var(--r-sm);padding:12px 14px;font-family:inherit;font-size:14px;color:var(--fg);background:var(--card);outline:none;transition:border-color .15s ease,box-shadow .15s ease;}
+.input::placeholder{color:var(--muted-2);}
+.input:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-weak);}
+.chips{display:flex;flex-wrap:wrap;gap:7px;}
+.chip{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;font-weight:500;color:var(--fg);border:1px solid var(--border);background:var(--card);border-radius:99px;padding:7px 11px;cursor:pointer;transition:all .15s ease;font-family:inherit;}
+.chip .cdot{width:7px;height:7px;border-radius:99px;}
+.chip:hover{background:var(--subtle);}
+.chip.active{border-color:var(--accent);background:var(--accent-weak);color:var(--accent);}
+
+/* badge / pill */
+.badge-pill{display:inline-flex;align-items:center;gap:6px;font-size:11.5px;font-weight:500;padding:4px 9px;border-radius:99px;background:var(--subtle);color:var(--muted);}
+.pill-select{display:flex;align-items:center;gap:5px;font-size:12px;font-weight:500;color:var(--muted);border:1px solid var(--border);border-radius:8px;padding:5px 9px;background:var(--card);cursor:pointer;font-family:inherit;}
+.pill-select svg{width:13px;height:13px;}
+
+/* coach tip */
+.tip{display:flex;gap:12px;padding:14px;align-items:flex-start;}
+.tip + .tip{margin-top:10px;}
+.tip .ic{flex:0 0 34px;width:34px;height:34px;border-radius:10px;background:var(--accent-weak);color:var(--accent);display:flex;align-items:center;justify-content:center;}
+.tip.warn .ic{background:var(--warn-weak);color:var(--warn);}
+.tip.danger .ic{background:var(--negative-weak);color:var(--negative);}
+.tip .ic svg{width:18px;height:18px;}
+.tip .body{flex:1;}
+.tip .body .tt{font-size:13px;font-weight:600;letter-spacing:-.005em;}
+.tip .body .tx{font-size:12.5px;color:var(--muted);line-height:1.45;margin-top:3px;text-wrap:pretty;}
+
+/* generic list */
+.list{overflow:hidden;}
+.li{display:flex;align-items:center;gap:12px;padding:13px 15px;border-top:1px solid var(--border);}
+.li:first-child{border-top:none;}
+.li .badge{flex:0 0 38px;width:38px;height:38px;border-radius:11px;display:flex;align-items:center;justify-content:center;}
+.li .badge span{width:11px;height:11px;border-radius:4px;}
+.li .meta{flex:1;min-width:0;}
+.li .meta .m1{font-size:13.5px;font-weight:600;}
+.li .meta .m2{font-size:12px;color:var(--muted);margin-top:2px;}
+.li .right{text-align:right;flex:0 0 auto;}
+.li .right .ramt{font-size:13.5px;font-weight:600;}
+.li .right .ramt.pos{color:var(--positive);}
+.li .right .ramt.neg{color:var(--negative);}
+.li .right .rdate{font-size:11px;color:var(--muted-2);margin-top:2px;}
+
+/* toggle switch */
+.switch{position:relative;width:42px;height:25px;flex:0 0 42px;display:inline-block;cursor:pointer;}
+.switch input{opacity:0;width:0;height:0;}
+.switch .slider{position:absolute;inset:0;background:var(--track);border-radius:99px;transition:background .2s ease;}
+.switch .slider::before{content:"";position:absolute;height:19px;width:19px;left:3px;top:3px;background:#fff;border-radius:50%;box-shadow:0 1px 2px rgba(0,0,0,.15);transition:transform .2s ease;}
+.switch input:checked + .slider{background:var(--accent);}
+.switch input:checked + .slider::before{transform:translateX(17px);}
+
+/* empty state */
+.empty{display:flex;flex-direction:column;align-items:center;text-align:center;padding:38px 24px;}
+.empty .eic{width:52px;height:52px;border-radius:15px;background:var(--subtle);color:var(--muted);display:flex;align-items:center;justify-content:center;margin-bottom:14px;}
+.empty .eic svg{width:24px;height:24px;}
+.empty .et{font-size:14.5px;font-weight:600;}
+.empty .ex{font-size:12.5px;color:var(--muted);margin-top:5px;line-height:1.45;max-width:240px;text-wrap:pretty;}
+
+/* skeleton */
+.skel{background:linear-gradient(100deg,var(--subtle) 30%,#eaeaea 50%,var(--subtle) 70%);background-size:200% 100%;animation:shimmer 1.4s infinite;border-radius:6px;}
+@keyframes shimmer{from{background-position:200% 0;}to{background-position:-200% 0;}}
+
+/* hero metric card */
+.hero{background:var(--card);border:1px solid var(--border);border-radius:var(--r-card);padding:18px 18px 20px;}
+.hero.accent{background:linear-gradient(160deg,#5E6AD2,#6E63C9);border-color:transparent;color:#fff;}
+.hero .h-lbl{font-size:12.5px;color:var(--muted);font-weight:500;}
+.hero.accent .h-lbl{color:rgba(255,255,255,.78);}
+.hero .h-val{font-size:32px;font-weight:600;letter-spacing:-.02em;margin-top:7px;display:flex;align-items:baseline;gap:6px;}
+.hero .h-val .u{font-size:14px;color:var(--muted);font-weight:500;}
+.hero.accent .h-val .u{color:rgba(255,255,255,.8);}
+.hero .h-meta{margin-top:12px;display:flex;align-items:center;gap:12px;font-size:12.5px;color:var(--muted);font-weight:500;}
+.hero.accent .h-meta{color:rgba(255,255,255,.8);}
+.hero .h-delta{display:inline-flex;align-items:center;gap:3px;font-weight:600;}
+.hero .h-delta svg{width:13px;height:13px;}
+.hero .h-delta.gain{color:var(--positive);}
+.hero .h-delta.loss{color:var(--negative);}
+.hero.accent .h-delta{color:#fff;}
+.card-pad{padding:16px;}
+
+/* source / breakdown bars */
+.srow{padding:13px 2px;border-top:1px solid var(--border);}
+.srow:first-child{border-top:none;}
+.srow .top{display:flex;align-items:center;justify-content:space-between;margin-bottom:9px;}
+.srow .nm{display:flex;align-items:center;gap:8px;font-size:13.5px;font-weight:500;}
+.srow .nm .cdot{width:9px;height:9px;border-radius:3px;}
+.srow .am{font-size:13px;font-weight:600;}
+.srow .am .pct{color:var(--muted);font-weight:500;margin-left:6px;}
+
+/* goal card */
+.goal{padding:16px;}
+.goal + .goal{margin-top:12px;}
+.goal .g-top{display:flex;align-items:center;gap:12px;margin-bottom:13px;}
+.goal .g-ic{width:40px;height:40px;border-radius:11px;display:flex;align-items:center;justify-content:center;flex:0 0 40px;}
+.goal .g-ic svg{width:20px;height:20px;}
+.goal .g-name{flex:1;}
+.goal .g-name .gt{font-size:14px;font-weight:600;}
+.goal .g-name .gd{font-size:12px;color:var(--muted);margin-top:2px;}
+.goal .g-pct{font-size:13px;font-weight:600;}
+.goal .g-foot{margin-top:11px;display:flex;align-items:baseline;justify-content:space-between;}
+.goal .g-foot .cur{font-size:15px;font-weight:600;}
+.goal .g-foot .tgt{font-size:12.5px;color:var(--muted);font-weight:500;}
+
+/* row card (debts / holdings) */
+.rowc{display:flex;align-items:center;gap:13px;padding:14px 15px;border-top:1px solid var(--border);}
+.rowc:first-child{border-top:none;}
+.rowc .rc-ic{width:40px;height:40px;border-radius:11px;flex:0 0 40px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:600;}
+.rowc .rc-mid{flex:1;min-width:0;}
+.rowc .rc-mid .t{font-size:14px;font-weight:600;}
+.rowc .rc-mid .s{font-size:12px;color:var(--muted);margin-top:2px;}
+.rowc .rc-right{text-align:right;}
+.rowc .rc-right .a{font-size:14px;font-weight:600;}
+.rowc .rc-right .a.pos{color:var(--positive);}
+.rowc .rc-right .a.neg{color:var(--negative);}
+.rowc .rc-right .b{font-size:11.5px;color:var(--muted);margin-top:2px;}
+
+/* tab bar */
+.tabbar{position:absolute;left:0;right:0;bottom:0;height:80px;background:rgba(251,251,250,.86);backdrop-filter:saturate(180%) blur(18px);-webkit-backdrop-filter:saturate(180%) blur(18px);border-top:1px solid var(--border);display:flex;align-items:flex-start;justify-content:space-around;padding:9px 8px 0;}
+.tab{display:flex;flex-direction:column;align-items:center;gap:4px;color:var(--muted-2);cursor:pointer;flex:1;background:none;border:none;font-family:inherit;transition:color .15s ease;padding-top:2px;text-decoration:none;}
+.tab svg{width:23px;height:23px;}
+.tab span{font-size:10px;font-weight:500;}
+.tab:hover{color:var(--muted);}
+.tab.active{color:var(--accent);}
+.tab.active span{font-weight:600;}
+</style>
+<style>
+.page{display:flex;width:100%;justify-content:center;}
+/* === dashboard === */
+.budget{margin-top:10px;background:var(--card);border:1px solid var(--border);border-radius:var(--r-card);padding:15px 16px 16px;}
+  .budget .top{display:flex;align-items:center;justify-content:space-between;}
+  .budget .top .lbl{font-size:12.5px;color:var(--muted);font-weight:500;}
+  .budget .top .pct{font-size:12.5px;color:var(--fg);font-weight:600;}
+  .budget .amt{margin-top:8px;display:flex;align-items:baseline;gap:5px;}
+  .budget .amt b{font-size:20px;font-weight:600;}
+  .budget .amt span{font-size:12.5px;color:var(--muted);font-weight:500;}
+  .budget .bar{margin-top:13px;}
+  .budget .foot{margin-top:10px;display:flex;align-items:center;justify-content:space-between;font-size:12px;color:var(--muted);font-weight:500;}
+  .budget .foot b{color:var(--fg);font-weight:600;}
+
+  .chart-card{padding:18px 16px 6px;}
+  .chart-card .ch-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;}
+  .chart-card .ch-head h3{font-size:14.5px;font-weight:600;}
+  .donut-wrap{display:flex;justify-content:center;padding:6px 0 4px;position:relative;}
+  .donut-center{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;pointer-events:none;}
+  .donut-center .t-lbl{font-size:10.5px;color:var(--muted-2);font-weight:500;letter-spacing:.02em;text-transform:uppercase;}
+  .donut-center .t-val{font-size:26px;font-weight:600;line-height:1.1;margin-top:2px;}
+  .donut-center .t-unit{font-size:11.5px;color:var(--muted);font-weight:500;margin-top:1px;}
+  .legend{padding:6px 2px 14px;display:flex;flex-direction:column;}
+  .legend .row{display:flex;align-items:center;gap:9px;padding:8px 4px;border-top:1px solid var(--border);}
+  .legend .row:first-child{border-top:none;}
+  .legend .dot{width:9px;height:9px;border-radius:3px;flex:0 0 9px;}
+  .legend .nm{font-size:13px;font-weight:500;flex:1;}
+  .legend .pc{font-size:11.5px;color:var(--muted);width:34px;text-align:right;}
+  .legend .am{font-size:12.5px;font-weight:500;width:78px;text-align:right;}
+  .input-card{padding:16px;}
+  .input-card .amount-field{margin-top:14px;}
+  .input-card .chips{margin-top:13px;}
+  .input-card .btn{margin-top:14px;}
+/* === kirim === */
+.income-form .amount-field{margin-top:0;}
+  .income-form .field-label{margin-top:14px;}
+  .income-form .chips{margin-top:7px;}
+  .income-form .btn{margin-top:16px;}
+/* === qarzlar === */
+.balcards{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:12px;}
+  .balc{background:var(--card);border:1px solid var(--border);border-radius:var(--r-card);padding:14px;}
+  .balc .l{font-size:12px;color:var(--muted);font-weight:500;display:flex;align-items:center;gap:6px;}
+  .balc .l .d{width:8px;height:8px;border-radius:99px;}
+  .balc .v{margin-top:9px;font-size:18px;font-weight:600;}
+/* === investments === */
+.pf-card{padding:18px 18px 14px;}
+  .pf-card .h-lbl{font-size:12.5px;color:var(--muted);font-weight:500;}
+  .pf-card .h-val{font-size:32px;font-weight:600;letter-spacing:-.02em;margin-top:7px;display:flex;align-items:baseline;gap:6px;}
+  .pf-card .h-val .u{font-size:14px;color:var(--muted);font-weight:500;}
+  .pf-card .pl{margin-top:10px;display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:600;color:var(--positive);}
+  .pf-card .pl svg{width:14px;height:14px;}
+  .pf-card .pl .muted{color:var(--muted);font-weight:500;}
+  .chart{margin-top:14px;position:relative;}
+  .rangebar{margin-top:10px;}
+  .rangebar .seg button{font-size:12px;padding:7px 0;}
+/* === chat === */
+.chat-screen{padding-bottom:204px;}
+  .chat-head{display:flex;align-items:center;gap:11px;padding:6px 2px 16px;}
+  .chat-head .ava{width:40px;height:40px;border-radius:12px;background:linear-gradient(150deg,#6E76D6,#8A7BE0);display:flex;align-items:center;justify-content:center;}
+  .chat-head .ava svg{width:21px;height:21px;color:#fff;}
+  .chat-head .ti{font-size:16px;font-weight:600;}
+  .chat-head .st{font-size:12px;color:var(--positive);font-weight:500;display:flex;align-items:center;gap:5px;margin-top:2px;}
+  .chat-head .st .d{width:6px;height:6px;border-radius:99px;background:var(--positive);}
+
+  .day{ text-align:center;font-size:11px;color:var(--muted-2);font-weight:500;margin:6px 0 14px;}
+  .msg{display:flex;margin-bottom:12px;}
+  .msg .bub{max-width:80%;padding:11px 14px;font-size:13.5px;line-height:1.5;border-radius:16px;text-wrap:pretty;}
+  .msg.ai{justify-content:flex-start;}
+  .msg.ai .bub{background:var(--card);border:1px solid var(--border);border-bottom-left-radius:5px;color:var(--fg);}
+  .msg.me{justify-content:flex-end;}
+  .msg.me .bub{background:var(--accent);color:#fff;border-bottom-right-radius:5px;}
+  .msg .bub b{font-weight:600;}
+  .msg .bub .mono{font-size:13px;}
+  .msg-time{font-size:10.5px;color:var(--muted-2);margin:2px 4px 0;font-weight:500;}
+  .msg.me .msg-wrap{align-items:flex-end;display:flex;flex-direction:column;}
+
+  .insight{background:var(--accent-weak);border:1px solid rgba(94,106,210,.2);border-radius:14px;padding:12px 14px;font-size:13px;line-height:1.5;color:var(--fg);}
+  .insight .it{font-weight:600;display:flex;align-items:center;gap:7px;margin-bottom:5px;color:var(--accent);}
+  .insight .it svg{width:15px;height:15px;}
+
+  .composer{position:absolute;left:0;right:0;bottom:80px;background:rgba(251,251,250,.92);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-top:1px solid var(--border);padding:11px 14px 12px;}
+  .sugg{display:flex;gap:8px;overflow-x:auto;padding-bottom:10px;scrollbar-width:none;}
+  .sugg::-webkit-scrollbar{display:none;}
+  .sugg .s{flex:0 0 auto;font-size:12.5px;font-weight:500;color:var(--accent);background:var(--card);border:1px solid var(--border);border-radius:99px;padding:7px 13px;cursor:pointer;white-space:nowrap;}
+  .sugg .s:hover{background:var(--accent-weak);}
+  .inbar{display:flex;align-items:center;gap:9px;}
+  .inbar .tf{flex:1;display:flex;align-items:center;border:1px solid var(--border);background:var(--card);border-radius:99px;padding:0 6px 0 15px;transition:border-color .15s ease,box-shadow .15s ease;}
+  .inbar .tf:focus-within{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-weak);}
+  .inbar .tf input{flex:1;border:none;outline:none;background:transparent;font-family:inherit;font-size:14px;color:var(--fg);padding:11px 0;}
+  .inbar .send{width:38px;height:38px;border-radius:50%;background:var(--accent);border:none;display:flex;align-items:center;justify-content:center;cursor:pointer;flex:0 0 38px;transition:background .15s ease;}
+  .inbar .send:hover{background:var(--accent-strong);}
+  .inbar .send svg{width:18px;height:18px;color:#fff;}
+/* === telegram === */
+.tg-logo{width:60px;height:60px;border-radius:18px;background:linear-gradient(160deg,#37AEE2,#1E96C8);display:flex;align-items:center;justify-content:center;}
+  .tg-logo svg{width:34px;height:34px;color:#fff;}
+  .connect-hero{display:flex;flex-direction:column;align-items:center;text-align:center;padding:26px 22px 24px;}
+  .connect-hero .t{font-size:18px;font-weight:600;margin-top:16px;letter-spacing:-.01em;}
+  .connect-hero .x{font-size:13px;color:var(--muted);line-height:1.5;margin-top:7px;max-width:270px;text-wrap:pretty;}
+  .steps{margin-top:6px;}
+  .step{display:flex;gap:13px;padding:13px 2px;border-top:1px solid var(--border);align-items:flex-start;}
+  .step:first-child{border-top:none;}
+  .step .n{flex:0 0 26px;width:26px;height:26px;border-radius:50%;background:var(--accent-weak);color:var(--accent);font-size:12.5px;font-weight:600;display:flex;align-items:center;justify-content:center;}
+  .step .st-b .stt{font-size:13.5px;font-weight:600;}
+  .step .st-b .stx{font-size:12.5px;color:var(--muted);margin-top:2px;line-height:1.45;}
+
+  .status-card{display:flex;align-items:center;gap:13px;padding:16px;}
+  .status-card .av{width:46px;height:46px;border-radius:13px;background:linear-gradient(160deg,#37AEE2,#1E96C8);display:flex;align-items:center;justify-content:center;flex:0 0 46px;}
+  .status-card .av svg{width:25px;height:25px;color:#fff;}
+  .status-card .sc-b{flex:1;}
+  .status-card .sc-b .n{font-size:14.5px;font-weight:600;}
+  .status-card .sc-b .h{font-size:12.5px;color:var(--muted);margin-top:2px;}
+  .status-card .ok{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:600;color:var(--positive);background:var(--positive-weak);padding:5px 9px;border-radius:99px;}
+  .status-card .ok .d{width:6px;height:6px;border-radius:99px;background:var(--positive);}
+
+  .pref{display:flex;align-items:center;gap:13px;padding:14px 16px;border-top:1px solid var(--border);}
+  .pref:first-child{border-top:none;}
+  .pref .pf-b{flex:1;}
+  .pref .pf-b .t{font-size:13.5px;font-weight:550;font-weight:600;}
+  .pref .pf-b .s{font-size:12px;color:var(--muted);margin-top:2px;}
+
+  .state-switch{display:flex;justify-content:center;margin-bottom:16px;}
+  .state-switch .seg{width:230px;}
+</style>
+
+</head>
+<body>
+<div class="page" id="dashboard">
+<div class="device" data-active="dashboard" data-screen-label="Dashboard">
+    <div class="screen">
+      <div class="appbar">
+        <div>
+          <div class="date">5-iyun, payshanba</div>
+          <div class="greet">Xayrli kun, Akmal</div>
+        </div>
+        <div class="actions">
+          <a class="icon-btn" href="#investments" aria-label="Investitsiya">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17l5-5 3 3 7-7"></path><path d="M14 8h5v5"></path></svg>
+          </a>
+          <a class="avatar" href="#telegram">AK</a>
+        </div>
+      </div>
+
+      <div class="stat-grid">
+        <div class="stat">
+          <div class="lbl">Bugun</div>
+          <div class="val"><b class="mono">185</b><span>ming</span></div>
+          <div class="delta down"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 7l10 10M17 17V8M17 17H8"></path></svg>12%</div>
+        </div>
+        <div class="stat">
+          <div class="lbl">Hafta</div>
+          <div class="val"><b class="mono">1.24</b><span>mln</span></div>
+          <div class="delta up"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M17 7v9M17 7H8"></path></svg>6%</div>
+        </div>
+        <div class="stat">
+          <div class="lbl">Oy</div>
+          <div class="val"><b class="mono">4.85</b><span>mln</span></div>
+          <div class="delta up"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M17 7v9M17 7H8"></path></svg>9%</div>
+        </div>
+      </div>
+
+      <div class="budget">
+        <div class="top">
+          <div class="lbl">Oylik budjet</div>
+          <div class="pct">81%</div>
+        </div>
+        <div class="amt"><b class="mono">4.85</b><span>/ 6 mln so'm</span></div>
+        <div class="bar"><i style="width:81%"></i></div>
+        <div class="foot"><span><b class="mono">1.15 mln</b> so'm qoldi</span><span>25 kun qoldi</span></div>
+      </div>
+
+      <div class="section">
+        <div class="card chart-card">
+          <div class="ch-head">
+            <h3>Xarajatlar taqsimoti</h3>
+            <button class="pill-select">Iyun
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"></path></svg>
+            </button>
+          </div>
+          <div class="donut-wrap">
+            <svg id="donut" width="200" height="200" viewBox="0 0 200 200"></svg>
+            <div class="donut-center">
+              <div class="t-lbl">Jami</div>
+              <div class="t-val mono">4.85</div>
+              <div class="t-unit">mln so'm</div>
+            </div>
+          </div>
+          <div class="legend" id="legend"></div>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-head"><h2>Yangi yozuv</h2></div>
+        <div class="card input-card">
+          <div class="seg">
+            <button class="active" data-tab="exp">Xarajat</button>
+            <button data-tab="inc">Kirim</button>
+          </div>
+          <div class="amount-field">
+            <input class="mono" type="text" inputmode="numeric" placeholder="0" value="85 000" aria-label="Summa">
+            <span class="cur">so'm</span>
+          </div>
+          <div class="chips">
+            <button class="chip active" data-c="food"><span class="cdot" style="background:var(--c-food)"></span>Oziq-ovqat</button>
+            <button class="chip" data-c="transport"><span class="cdot" style="background:var(--c-transport)"></span>Transport</button>
+            <button class="chip" data-c="utility"><span class="cdot" style="background:var(--c-utility)"></span>Kommunal</button>
+            <button class="chip" data-c="fun"><span class="cdot" style="background:var(--c-fun)"></span>Ko'ngilochar</button>
+            <button class="chip" data-c="health"><span class="cdot" style="background:var(--c-health)"></span>Sog'liq</button>
+          </div>
+          <button class="btn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"></path></svg>
+            Qo'shish
+          </button>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-head"><h2>Murabbiy maslahatlari</h2></div>
+        <div class="card tip warn">
+          <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17l5-5 3 3 7-7"></path><path d="M14 8h5v5"></path></svg></div>
+          <div class="body">
+            <div class="tt">Transport 18% oshdi</div>
+            <div class="tx">Bu hafta taksi xarajatlari oshdi. Jamoat transportidan foydalanib, oyiga ~240 ming so'm tejashingiz mumkin.</div>
+          </div>
+        </div>
+        <div class="card tip">
+          <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path></svg></div>
+          <div class="body">
+            <div class="tt">Budjet maromida</div>
+            <div class="tx">Oy oxirigacha 25 kun qoldi. Kuniga ~46 ming so'm sarflasangiz, budjet ichida qolasiz.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-head"><h2>So'nggi yozuvlar</h2><a href="javascript:void(0)">Barchasi</a></div>
+        <div class="card list" id="recent"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="page" id="kirim">
+<div class="device" data-active="kirim" data-screen-label="Income">
+    <div class="screen">
+      <div class="appbar">
+        <div>
+          <div class="title">Kirim</div>
+          <div class="sub">Iyun oyi · daromad manbalari</div>
+        </div>
+        <div class="actions">
+          <button class="icon-btn" aria-label="Filtr">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16M7 12h10M10 18h4"></path></svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- hero -->
+      <div class="hero accent">
+        <div class="h-lbl">Oylik daromad</div>
+        <div class="h-val mono">9 550 000 <span class="u">so'm</span></div>
+        <div class="h-meta">
+          <span class="h-delta"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M17 7v9M17 7H8"></path></svg>14%</span>
+          <span>o'tgan oyga nisbatan</span>
+        </div>
+      </div>
+
+      <!-- net -->
+      <div class="stat-grid" style="margin-top:12px;grid-template-columns:repeat(2,1fr);">
+        <div class="stat">
+          <div class="lbl">Sof balans</div>
+          <div class="val"><b class="mono" style="color:var(--positive)">+4.70</b><span>mln</span></div>
+          <div style="font-size:11.5px;color:var(--muted);margin-top:6px;font-weight:500;">Kirim − xarajat</div>
+        </div>
+        <div class="stat">
+          <div class="lbl">Jamg'arma darajasi</div>
+          <div class="val"><b class="mono">49</b><span>%</span></div>
+          <div style="font-size:11.5px;color:var(--muted);margin-top:6px;font-weight:500;">Daromaddan saqlandi</div>
+        </div>
+      </div>
+
+      <!-- sources breakdown -->
+      <div class="section">
+        <div class="section-head"><h2>Daromad manbalari</h2></div>
+        <div class="card card-pad" id="sources"></div>
+      </div>
+
+      <!-- add income -->
+      <div class="section">
+        <div class="section-head"><h2>Yangi kirim</h2></div>
+        <div class="card card-pad income-form">
+          <div class="amount-field">
+            <input class="mono" type="text" inputmode="numeric" placeholder="0" aria-label="Summa">
+            <span class="cur">so'm</span>
+          </div>
+          <div class="field-label">Manba</div>
+          <div class="chips">
+            <button class="chip active" data-c="salary"><span class="cdot" style="background:#2F9E68"></span>Ish haqi</button>
+            <button class="chip" data-c="freelance"><span class="cdot" style="background:#569A97"></span>Freelance</button>
+            <button class="chip" data-c="rent"><span class="cdot" style="background:#6B72C9"></span>Ijara</button>
+            <button class="chip" data-c="dividend"><span class="cdot" style="background:#C9924F"></span>Dividend</button>
+            <button class="chip" data-c="other"><span class="cdot" style="background:#9AA0AC"></span>Boshqa</button>
+          </div>
+          <button class="btn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"></path></svg>
+            Qo'shish
+          </button>
+        </div>
+      </div>
+
+      <!-- recent income -->
+      <div class="section">
+        <div class="section-head"><h2>So'nggi kirimlar</h2><a href="javascript:void(0)">Barchasi</a></div>
+        <div class="card list" id="recentInc"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="page" id="maqsadlar">
+<div class="device" data-active="maqsadlar" data-screen-label="Goals">
+    <div class="screen">
+      <div class="appbar">
+        <div>
+          <div class="title">Maqsadlar</div>
+          <div class="sub">3 ta faol jamg'arma</div>
+        </div>
+        <div class="actions">
+          <button class="icon-btn" aria-label="Yangi maqsad">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"></path></svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- hero -->
+      <div class="hero">
+        <div class="h-lbl">Jami jamg'arilgan</div>
+        <div class="h-val mono">73 000 000 <span class="u">so'm</span></div>
+        <div class="h-meta">
+          <span>165 mln so'm maqsaddan</span>
+          <span class="h-delta gain"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M17 7v9M17 7H8"></path></svg>44%</span>
+        </div>
+        <div class="bar" style="margin-top:13px;"><i style="width:44%"></i></div>
+      </div>
+
+      <!-- goals list -->
+      <div class="section">
+        <div class="section-head"><h2>Faol maqsadlar</h2></div>
+        <div id="goals"></div>
+      </div>
+
+      <!-- completed -->
+      <div class="section">
+        <div class="section-head"><h2>Yakunlangan</h2></div>
+        <div class="card goal" style="opacity:.7;">
+          <div class="g-top">
+            <div class="g-ic" style="background:var(--positive-weak);color:var(--positive);">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"></path></svg>
+            </div>
+            <div class="g-name">
+              <div class="gt">Yangi telefon</div>
+              <div class="gd">Aprelda yakunlandi</div>
+            </div>
+            <div class="g-pct" style="color:var(--positive)">100%</div>
+          </div>
+          <div class="bar"><i style="width:100%;background:var(--positive)"></i></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="page" id="qarzlar">
+<div class="device" data-active="qarzlar" data-screen-label="Debts">
+    <div class="screen">
+      <div class="appbar">
+        <div>
+          <div class="title">Qarzlar</div>
+          <div class="sub">Olingan va berilgan</div>
+        </div>
+        <div class="actions">
+          <button class="icon-btn" aria-label="Yangi qarz">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"></path></svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- net hero -->
+      <div class="hero">
+        <div class="h-lbl">Sof balans</div>
+        <div class="h-val mono" style="color:var(--positive)">+2 300 000 <span class="u">so'm</span></div>
+        <div class="h-meta"><span>Sizga ko'proq qarzdor</span></div>
+      </div>
+
+      <div class="balcards">
+        <div class="balc">
+          <div class="l"><span class="d" style="background:var(--positive)"></span>Menga qarzdor</div>
+          <div class="v mono" style="color:var(--positive)">+4.50 mln</div>
+        </div>
+        <div class="balc">
+          <div class="l"><span class="d" style="background:var(--negative)"></span>Men qarzdorman</div>
+          <div class="v mono" style="color:var(--negative)">−2.20 mln</div>
+        </div>
+      </div>
+
+      <!-- they owe me -->
+      <div class="section">
+        <div class="section-head"><h2>Menga qarzdor</h2><a href="javascript:void(0)">Barchasi</a></div>
+        <div class="card list" id="owedToMe"></div>
+      </div>
+
+      <!-- I owe -->
+      <div class="section">
+        <div class="section-head"><h2>Men qarzdorman</h2><a href="javascript:void(0)">Barchasi</a></div>
+        <div class="card list" id="iOwe"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="page" id="investments">
+<div class="device" data-active="" data-screen-label="Investments">
+    <div class="screen">
+      <div class="appbar">
+        <div>
+          <a class="sub" href="#dashboard" style="display:inline-flex;align-items:center;gap:5px;text-decoration:none;color:var(--muted);">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"></path></svg>Asosiy
+          </a>
+          <div class="title">Investitsiya</div>
+        </div>
+      </div>
+
+      <!-- portfolio card -->
+      <div class="card pf-card">
+        <div class="h-lbl">Portfel qiymati</div>
+        <div class="h-val mono">29 700 000 <span class="u">so'm</span></div>
+        <div class="pl">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M17 7v9M17 7H8"></path></svg>
+          +2 700 000 so'm <span class="muted">(+10.0%)</span>
+        </div>
+        <div class="chart">
+          <svg id="spark" width="100%" height="120" viewBox="0 0 326 120" preserveAspectRatio="none"></svg>
+        </div>
+        <div class="rangebar">
+          <div class="seg">
+            <button data-r="1h">1H</button>
+            <button data-r="1o" class="active">1O</button>
+            <button data-r="6o">6O</button>
+            <button data-r="1y">1Y</button>
+            <button data-r="all">Hammasi</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- holdings -->
+      <div class="section">
+        <div class="section-head"><h2>Aktivlar</h2><a href="javascript:void(0)">Qo'shish</a></div>
+        <div class="card list" id="holdings"></div>
+      </div>
+
+      <!-- allocation note tip -->
+      <div class="section">
+        <div class="card tip">
+          <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17l5-5 3 3 7-7"></path><path d="M14 8h5v5"></path></svg></div>
+          <div class="body">
+            <div class="tt">Portfel diversifikatsiyasi</div>
+            <div class="tx">Aktivlaringizning 27% kriptovalutada. Xavfni kamaytirish uchun ulushni 20% gacha tushirishni o'ylab ko'ring.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="page" id="chat">
+<div class="device" data-active="chat" data-screen-label="Chat">
+    <div class="screen chat-screen">
+      <div class="chat-head">
+        <div class="ava"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a4 4 0 0 1 4 4v1a4 4 0 0 1-8 0V7a4 4 0 0 1 4-4z"></path><path d="M5 21v-1a7 7 0 0 1 14 0v1"></path></svg></div>
+        <div>
+          <div class="ti">Murabbiy AI</div>
+          <div class="st"><span class="d"></span>Onlayn</div>
+        </div>
+      </div>
+
+      <div class="day">Bugun</div>
+
+      <div class="msg ai"><div class="bub">Assalomu alaykum, Akmal! Men sizning shaxsiy moliyaviy murabbiyingizman. Bu oy xarajatlaringizni tahlil qildim 👇</div></div>
+
+      <div class="msg ai"><div class="bub insight" style="max-width:88%;">
+        <div class="it"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17l5-5 3 3 7-7"></path><path d="M14 8h5v5"></path></svg>Asosiy kuzatuv</div>
+        Transport xarajatlari bu hafta <b>18% oshdi</b> — asosan taksi. Jamoat transportiga o'tsangiz, oyiga <b class="mono">~240 000</b> so'm tejaysiz.
+      </div></div>
+
+      <div class="msg me"><div class="msg-wrap"><div class="bub">Bu oy qancha tejay olaman?</div><div class="msg-time">14:32</div></div></div>
+
+      <div class="msg ai"><div class="bub">Joriy sur'atda oy oxirigacha <b class="mono">1 150 000</b> so'm budjetingiz qoladi. Agar ko'ngilochar xarajatlarni 15% kamaytirsangiz, jami <b class="mono">~430 000</b> so'm jamg'arishingiz mumkin.</div></div>
+
+      <div class="msg me"><div class="msg-wrap"><div class="bub">Sayohat maqsadimga qanday yetaman?</div><div class="msg-time">14:33</div></div></div>
+
+      <div class="msg ai"><div class="bub">Sayohat fondida <b class="mono">8 000 000</b> / 15 000 000 so'm bor (53%). Oyiga <b class="mono">1 000 000</b> so'm ajratsangiz, <b>2026-yil avgust</b>ga yetib borasiz. Avtomatik o'tkazma sozlaymizmi?</div></div>
+    </div>
+
+    <div class="composer">
+      <div class="sugg">
+        <button class="s">Avtomatik o'tkazma sozlash</button>
+        <button class="s">Budjet maslahati</button>
+        <button class="s">Xarajatlarni tahlil qil</button>
+      </div>
+      <div class="inbar">
+        <div class="tf"><input type="text" placeholder="Murabbiyga yozing…"></div>
+        <button class="send" aria-label="Yuborish"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2L11 13"></path><path d="M22 2l-7 20-4-9-9-4 20-7z"></path></svg></button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="page" id="telegram">
+<div class="device" data-active="" data-screen-label="Telegram">
+    <div class="screen">
+      <div class="appbar">
+        <div>
+          <a class="sub" href="#dashboard" style="display:inline-flex;align-items:center;gap:5px;text-decoration:none;color:var(--muted);">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"></path></svg>Asosiy
+          </a>
+          <div class="title">Telegram</div>
+        </div>
+      </div>
+
+      <!-- demo state switch (for review) -->
+      <div class="state-switch">
+        <div class="seg" id="stateSeg">
+          <button class="active" data-s="connected">Ulangan</button>
+          <button data-s="disconnected">Ulanmagan</button>
+        </div>
+      </div>
+
+      <!-- CONNECTED -->
+      <div id="connected">
+        <div class="card status-card">
+          <div class="av"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M21.9 4.3l-3.3 15.6c-.25 1.1-.9 1.37-1.83.85l-5.05-3.72-2.44 2.35c-.27.27-.5.5-1 .5l.36-5.13L18.3 6.3c.4-.36-.09-.56-.63-.2L6.13 13.3l-5.06-1.58c-1.1-.34-1.12-1.1.23-1.63L20.5 2.7c.92-.34 1.72.2 1.4 1.6z"></path></svg></div>
+          <div class="sc-b">
+            <div class="n">@akmal_dev</div>
+            <div class="h">PulNazorat boti bilan bog'langan</div>
+          </div>
+          <span class="ok"><span class="d"></span>Faol</span>
+        </div>
+
+        <div class="section">
+          <div class="section-head"><h2>Bildirishnomalar</h2></div>
+          <div class="card">
+            <div class="pref">
+              <div class="pf-b"><div class="t">Kunlik hisobot</div><div class="s">Har kuni 21:00 da xulosani yuboradi</div></div>
+              <label class="switch"><input type="checkbox" checked=""><span class="slider"></span></label>
+            </div>
+            <div class="pref">
+              <div class="pf-b"><div class="t">Budjet ogohlantirishi</div><div class="s">80% ga yetganda xabar beradi</div></div>
+              <label class="switch"><input type="checkbox" checked=""><span class="slider"></span></label>
+            </div>
+            <div class="pref">
+              <div class="pf-b"><div class="t">Tez xarajat kiritish</div><div class="s">Botda to'g'ridan-to'g'ri yozish</div></div>
+              <label class="switch"><input type="checkbox"><span class="slider"></span></label>
+            </div>
+          </div>
+        </div>
+
+        <div class="section">
+          <div class="card tip">
+            <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8v4l3 2"></path><circle cx="12" cy="12" r="9"></circle></svg></div>
+            <div class="body"><div class="tt">So'nggi sinxronlash</div><div class="tx">Bugun, 14:32 da yangilandi. Botga "/qoshish 50000 taksi" yozib xarajat qo'shing.</div></div>
+          </div>
+        </div>
+
+        <div class="section">
+          <button class="btn ghost" style="color:var(--negative);border-color:rgba(210,75,83,.25);">Ulanishni uzish</button>
+        </div>
+      </div>
+
+      <!-- DISCONNECTED -->
+      <div id="disconnected" style="display:none;">
+        <div class="card connect-hero">
+          <div class="tg-logo"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M21.9 4.3l-3.3 15.6c-.25 1.1-.9 1.37-1.83.85l-5.05-3.72-2.44 2.35c-.27.27-.5.5-1 .5l.36-5.13L18.3 6.3c.4-.36-.09-.56-.63-.2L6.13 13.3l-5.06-1.58c-1.1-.34-1.12-1.1.23-1.63L20.5 2.7c.92-.34 1.72.2 1.4 1.6z"></path></svg></div>
+          <div class="t">Telegram'ga ulang</div>
+          <div class="x">Botga ulanib, xarajatlarni tez kiriting va kunlik moliyaviy hisobotlarni qabul qiling.</div>
+        </div>
+
+        <div class="section">
+          <div class="section-head"><h2>Qanday ulanadi</h2></div>
+          <div class="card card-pad steps">
+            <div class="step"><div class="n">1</div><div class="st-b"><div class="stt">Botni oching</div><div class="stx">Quyidagi tugmani bosing — Telegram'da @PulNazoratBot ochiladi.</div></div></div>
+            <div class="step"><div class="n">2</div><div class="st-b"><div class="stt">Start bosing</div><div class="stx">Botda "Start" tugmasini bosib, hisobingizni tasdiqlang.</div></div></div>
+            <div class="step"><div class="n">3</div><div class="st-b"><div class="stt">Tayyor</div><div class="stx">Endi xarajatlarni to'g'ridan-to'g'ri Telegram orqali kiriting.</div></div></div>
+          </div>
+        </div>
+
+        <div class="section">
+          <button class="btn" style="background:#1E96C8;">
+            <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18"><path d="M21.9 4.3l-3.3 15.6c-.25 1.1-.9 1.37-1.83.85l-5.05-3.72-2.44 2.35c-.27.27-.5.5-1 .5l.36-5.13L18.3 6.3c.4-.36-.09-.56-.63-.2L6.13 13.3l-5.06-1.58c-1.1-.34-1.12-1.1.23-1.63L20.5 2.7c.92-.34 1.72.2 1.4 1.6z"></path></svg>
+            Telegram'da ulash
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+
+window.fmt=function(n){return Math.round(n).toLocaleString('ru-RU').replace(/[\u00A0,]/g,' ');};
+window.signed=function(n){var s=fmt(Math.abs(n));return (n>0?'+':n<0?'\u2212':'')+s;};
+var STATUSBAR='<div class=\"statusbar\">'+'<div class=\"sb-time\">9:41</div>'+'<div class=\"sb-right\">'+'<div class=\"sb-bar\"><i></i><i></i><i></i><i></i></div>'+'<svg width=\"16\" height=\"12\" viewBox=\"0 0 16 12\" fill=\"none\"><path d=\"M8 2.2c2 0 3.8.8 5 2M8 2.2c-2 0-3.8.8-5 2M8 6c1 0 1.9.4 2.5 1M8 6c-1 0-1.9.4-2.5 1\" stroke=\"#19191C\" stroke-width=\"1.4\" stroke-linecap=\"round\"/><circle cx=\"8\" cy=\"9.6\" r=\"1.1\" fill=\"#19191C\"/></svg>'+'<div class=\"sb-batt\"><i></i></div>'+'</div>'+'</div>';
+var TABS=[
+ {id:'dashboard',href:'#dashboard',label:'Asosiy',icon:'<path d="M3 10.5L12 3l9 7.5"/><path d="M5 9.5V20a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V9.5"/><path d="M9.5 21v-6h5v6"/>'},
+ {id:'kirim',href:'#kirim',label:'Kirim',icon:'<rect x="3" y="6" width="18" height="13" rx="2.5"/><path d="M3 10h18"/><circle cx="16.5" cy="14.5" r="1.4"/>'},
+ {id:'maqsadlar',href:'#maqsadlar',label:'Maqsadlar',icon:'<circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="4.6"/><circle cx="12" cy="12" r="1"/>'},
+ {id:'qarzlar',href:'#qarzlar',label:'Qarzlar',icon:'<path d="M16 4l4 4-4 4"/><path d="M20 8H7"/><path d="M8 20l-4-4 4-4"/><path d="M4 16h13"/>'},
+ {id:'chat',href:'#chat',label:'Chat',icon:'<path d="M20 11.5a8 8 0 0 1-11.6 7.1L4 20l1.4-4.2A8 8 0 1 1 20 11.5z"/>'}
+];
+function buildTabbar(active){
+ var html='<nav class="tabbar">';
+ TABS.forEach(function(t){
+  html+='<a class="tab'+(t.id===active?' active':'')+'" href="'+t.href+'"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">'+t.icon+'</svg><span>'+t.label+'</span></a>';
+ });
+ return html+'</nav>';
+}
+var PAGE_IDS=['dashboard','kirim','maqsadlar','qarzlar','investments','chat','telegram'];
+function route(){
+ var h=(location.hash||'#dashboard').slice(1);
+ if(PAGE_IDS.indexOf(h)<0) h='dashboard';
+ PAGE_IDS.forEach(function(id){var el=document.getElementById(id); if(el) el.style.display=(id===h)?'flex':'none';});
+ if(h==='chat'){var cs=document.querySelector('#chat .chat-screen'); if(cs) cs.scrollTop=cs.scrollHeight;}
+ window.scrollTo(0,0);
+}
+function __init(){
+ document.querySelectorAll('.device').forEach(function(dev){
+  var active=dev.getAttribute('data-active')||'';
+  dev.insertAdjacentHTML('afterbegin',STATUSBAR);
+  dev.insertAdjacentHTML('beforeend',buildTabbar(active));
+ });
+ document.addEventListener('click',function(e){
+  var seg=e.target.closest('.seg button');
+  if(seg){seg.parentElement.querySelectorAll('button').forEach(function(x){x.classList.remove('active');});seg.classList.add('active');}
+  var chip=e.target.closest('.chips .chip');
+  if(chip&&!chip.hasAttribute('data-nogroup')){chip.parentElement.querySelectorAll('.chip').forEach(function(x){x.classList.remove('active');});chip.classList.add('active');}
+ });
+ route();
+}
+if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',__init);}else{__init();}
+window.addEventListener('hashchange',route);
+
+</script>
+<script>
+(function(){
+var cats = [
+    {name:"Oziq-ovqat", value:1650000, color:"#6B72C9"},
+    {name:"Transport",  value:920000,  color:"#569A97"},
+    {name:"Kommunal",   value:740000,  color:"#C9924F"},
+    {name:"Ko'ngilochar",value:580000, color:"#B97AA3"},
+    {name:"Sog'liq",    value:510000,  color:"#6E9D63"},
+    {name:"Boshqa",     value:450000,  color:"#9AA0AC"}
+  ];
+  var total = cats.reduce(function(s,c){return s+c.value;},0);
+
+  (function(){
+    var svg = document.getElementById('donut');
+    var cx=100, cy=100, r=74, sw=22, gap=5;
+    var C = 2*Math.PI*r;
+    var bg = document.createElementNS('http://www.w3.org/2000/svg','circle');
+    bg.setAttribute('cx',cx); bg.setAttribute('cy',cy); bg.setAttribute('r',r);
+    bg.setAttribute('fill','none'); bg.setAttribute('stroke','#F1F1F2'); bg.setAttribute('stroke-width',sw);
+    svg.appendChild(bg);
+    var acc = 0;
+    cats.forEach(function(c){
+      var len = (c.value/total)*C;
+      var dash = Math.max(len-gap, 1);
+      var el = document.createElementNS('http://www.w3.org/2000/svg','circle');
+      el.setAttribute('cx',cx); el.setAttribute('cy',cy); el.setAttribute('r',r);
+      el.setAttribute('fill','none'); el.setAttribute('stroke',c.color); el.setAttribute('stroke-width',sw);
+      el.setAttribute('stroke-linecap','round');
+      el.setAttribute('stroke-dasharray', dash+' '+(C-dash));
+      el.setAttribute('stroke-dashoffset', (-acc).toFixed(2));
+      el.setAttribute('transform','rotate(-90 '+cx+' '+cy+')');
+      svg.appendChild(el);
+      acc += len;
+    });
+  })();
+
+  (function(){
+    var L = document.getElementById('legend');
+    cats.forEach(function(c){
+      var pc = Math.round(c.value/total*100);
+      var row = document.createElement('div');
+      row.className='row';
+      row.innerHTML = '<span class="dot" style="background:'+c.color+'"></span><span class="nm">'+c.name+'</span><span class="pc">'+pc+'%</span><span class="am mono">'+fmt(c.value)+'</span>';
+      L.appendChild(row);
+    });
+  })();
+
+  (function(){
+    var recent = [
+      {m:"Korzinka",   c:"Oziq-ovqat",  color:"#6B72C9", bg:"rgba(107,114,201,.12)", amt:-85000,  d:"Bugun, 14:32"},
+      {m:"Yandex Go",  c:"Transport",   color:"#569A97", bg:"rgba(86,154,151,.12)",  amt:-24000,  d:"Bugun, 09:10"},
+      {m:"Oylik maosh",c:"Ish haqi",    color:"#2F9E68", bg:"rgba(47,158,104,.12)",  amt:6200000, d:"Kecha"},
+      {m:"Spotify",    c:"Ko'ngilochar",color:"#B97AA3", bg:"rgba(185,122,163,.12)", amt:-55000,  d:"Kecha"},
+      {m:"Internet",   c:"Kommunal",    color:"#C9924F", bg:"rgba(201,146,79,.12)",  amt:-180000, d:"4-iyun"}
+    ];
+    var R = document.getElementById('recent');
+    recent.forEach(function(it){
+      var pos = it.amt>0;
+      var li = document.createElement('div');
+      li.className='li';
+      li.innerHTML = '<div class="badge" style="background:'+it.bg+'"><span style="background:'+it.color+'"></span></div>'+
+        '<div class="meta"><div class="m1">'+it.m+'</div><div class="m2">'+it.c+'</div></div>'+
+        '<div class="right"><div class="ramt mono'+(pos?' pos':'')+'">'+(pos?'+':'\u2212')+fmt(Math.abs(it.amt))+'</div><div class="rdate">'+it.d+'</div></div>';
+      R.appendChild(li);
+    });
+  })();
+})();
+
+(function(){
+var sources = [
+    {name:"Ish haqi",  value:6200000, color:"#2F9E68"},
+    {name:"Freelance", value:1800000, color:"#569A97"},
+    {name:"Ijara",     value:1200000, color:"#6B72C9"},
+    {name:"Dividend",  value:350000,  color:"#C9924F"}
+  ];
+  var stotal = sources.reduce(function(s,c){return s+c.value;},0);
+  (function(){
+    var S = document.getElementById('sources');
+    sources.forEach(function(c){
+      var pc = Math.round(c.value/stotal*100);
+      var row = document.createElement('div');
+      row.className='srow';
+      row.innerHTML =
+        '<div class="top"><div class="nm"><span class="cdot" style="background:'+c.color+'"></span>'+c.name+'</div>'+
+        '<div class="am mono">'+fmt(c.value)+'<span class="pct">'+pc+'%</span></div></div>'+
+        '<div class="bar"><i style="width:'+pc+'%;background:'+c.color+'"></i></div>';
+      S.appendChild(row);
+    });
+  })();
+
+  (function(){
+    var recent = [
+      {m:"Oylik maosh",     c:"Ish haqi",  color:"#2F9E68", bg:"rgba(47,158,104,.12)",  amt:6200000, d:"Kecha"},
+      {m:"Loyiha to'lovi",  c:"Freelance", color:"#569A97", bg:"rgba(86,154,151,.12)",  amt:1200000, d:"3-iyun"},
+      {m:"Kvartira ijarasi",c:"Ijara",     color:"#6B72C9", bg:"rgba(107,114,201,.12)", amt:1200000, d:"1-iyun"},
+      {m:"Aksiya dividend", c:"Dividend",  color:"#C9924F", bg:"rgba(201,146,79,.12)",  amt:350000,  d:"1-iyun"}
+    ];
+    var R = document.getElementById('recentInc');
+    recent.forEach(function(it){
+      var li = document.createElement('div');
+      li.className='li';
+      li.innerHTML = '<div class="badge" style="background:'+it.bg+'"><span style="background:'+it.color+'"></span></div>'+
+        '<div class="meta"><div class="m1">'+it.m+'</div><div class="m2">'+it.c+'</div></div>'+
+        '<div class="right"><div class="ramt mono pos">+'+fmt(it.amt)+'</div><div class="rdate">'+it.d+'</div></div>';
+      R.appendChild(li);
+    });
+  })();
+})();
+
+(function(){
+var goals = [
+    {name:"Yangi mashina", note:"2027-yil yanvar", cur:45000000, tgt:120000000, color:"#6B72C9", bg:"rgba(107,114,201,.12)",
+     icon:'<path d="M5 17h14M6.5 17l1-5.5a2 2 0 0 1 2-1.5h5a2 2 0 0 1 2 1.5l1 5.5"/><circle cx="8" cy="17.5" r="1.5"/><circle cx="16" cy="17.5" r="1.5"/>'},
+    {name:"Sayohat fondi", note:"2026-yil avgust", cur:8000000, tgt:15000000, color:"#569A97", bg:"rgba(86,154,151,.12)",
+     icon:'<path d="M10 3l11 4-4 11-3-7-7-3 3.5-1.3z"/><path d="M14 14l5 5"/>'},
+    {name:"Zaxira fond",   note:"Doimiy", cur:20000000, tgt:30000000, color:"#6E9D63", bg:"rgba(110,157,99,.12)",
+     icon:'<path d="M12 3l8 3v6c0 4.5-3.2 7.8-8 9-4.8-1.2-8-4.5-8-9V6z"/>'}
+  ];
+  (function(){
+    var G = document.getElementById('goals');
+    goals.forEach(function(g){
+      var pc = Math.round(g.cur/g.tgt*100);
+      var rem = g.tgt - g.cur;
+      var card = document.createElement('div');
+      card.className='card goal';
+      card.innerHTML =
+        '<div class="g-top">'+
+          '<div class="g-ic" style="background:'+g.bg+';color:'+g.color+'"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">'+g.icon+'</svg></div>'+
+          '<div class="g-name"><div class="gt">'+g.name+'</div><div class="gd">'+g.note+' · '+fmt(rem)+' so\'m qoldi</div></div>'+
+          '<div class="g-pct">'+pc+'%</div>'+
+        '</div>'+
+        '<div class="bar"><i style="width:'+pc+'%;background:'+g.color+'"></i></div>'+
+        '<div class="g-foot"><div class="cur mono">'+fmt(g.cur)+'</div><div class="tgt mono">/ '+fmt(g.tgt)+' so\'m</div></div>';
+      G.appendChild(card);
+    });
+  })();
+})();
+
+(function(){
+function initials(n){return n.split(' ').map(function(w){return w[0];}).join('').slice(0,2).toUpperCase();}
+  function renderDebts(elId, items, positive){
+    var R = document.getElementById(elId);
+    items.forEach(function(it){
+      var col = positive ? '#2F9E68' : '#D24B53';
+      var bg  = positive ? 'rgba(47,158,104,.12)' : 'rgba(210,75,83,.12)';
+      var row = document.createElement('div');
+      row.className='rowc';
+      row.innerHTML =
+        '<div class="rc-ic" style="background:'+bg+';color:'+col+'">'+initials(it.name)+'</div>'+
+        '<div class="rc-mid"><div class="t">'+it.name+'</div><div class="s">'+it.note+'</div></div>'+
+        '<div class="rc-right"><div class="a '+(positive?'pos':'neg')+' mono">'+(positive?'+':'\u2212')+fmt(it.amt)+'</div><div class="b">'+it.due+'</div></div>';
+      R.appendChild(row);
+    });
+  }
+  renderDebts('owedToMe', [
+    {name:"Jasur Karimov", note:"Naqd qarz", amt:3000000, due:"15-iyun gacha"},
+    {name:"Dilnoza Y.",    note:"Telefon uchun", amt:1200000, due:"Muddat yo'q"},
+    {name:"Sardor M.",     note:"Tushlik", amt:300000, due:"Tez orada"}
+  ], true);
+  renderDebts('iOwe', [
+    {name:"Aziz aka",      note:"Mashina ta'miri", amt:2000000, due:"20-iyun gacha"},
+    {name:"Hamkor do'kon", note:"Bo'lib to'lash", amt:200000, due:"30-iyun gacha"}
+  ], false);
+})();
+
+(function(){
+// ---- sparkline area chart ----
+  (function(){
+    var svg = document.getElementById('spark');
+    var W=326,H=120,pad=8;
+    var data=[24.1,23.6,24.8,25.2,24.9,26.1,25.7,27.0,26.4,27.8,28.5,27.9,29.1,28.7,29.7];
+    var min=Math.min.apply(null,data), max=Math.max.apply(null,data);
+    var dx=(W)/(data.length-1);
+    function y(v){return pad+(H-pad*2)*(1-(v-min)/(max-min));}
+    var pts=data.map(function(v,i){return [i*dx, y(v)];});
+    var line=pts.map(function(p,i){return (i?'L':'M')+p[0].toFixed(1)+' '+p[1].toFixed(1);}).join(' ');
+    var area=line+' L'+W+' '+H+' L0 '+H+' Z';
+    var ns='http://www.w3.org/2000/svg';
+    var defs=document.createElementNS(ns,'defs');
+    defs.innerHTML='<linearGradient id="g" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2F9E68" stop-opacity="0.18"/><stop offset="1" stop-color="#2F9E68" stop-opacity="0"/></linearGradient>';
+    svg.appendChild(defs);
+    var a=document.createElementNS(ns,'path'); a.setAttribute('d',area); a.setAttribute('fill','url(#g)'); svg.appendChild(a);
+    var l=document.createElementNS(ns,'path'); l.setAttribute('d',line); l.setAttribute('fill','none'); l.setAttribute('stroke','#2F9E68'); l.setAttribute('stroke-width','2'); l.setAttribute('stroke-linecap','round'); l.setAttribute('stroke-linejoin','round'); svg.appendChild(l);
+    var last=pts[pts.length-1];
+    var dot=document.createElementNS(ns,'circle'); dot.setAttribute('cx',last[0]); dot.setAttribute('cy',last[1]); dot.setAttribute('r','3.5'); dot.setAttribute('fill','#2F9E68'); dot.setAttribute('stroke','#fff'); dot.setAttribute('stroke-width','2'); svg.appendChild(dot);
+  })();
+
+  // ---- holdings ----
+  var holdings=[
+    {name:"Bitcoin",       type:"Kripto",     sym:"₿", color:"#C9924F", bg:"rgba(201,146,79,.14)", val:6800000, pl:36.0},
+    {name:"Oltin",         type:"Qimmatbaho", sym:"Au",color:"#B98A3A", bg:"rgba(185,138,58,.14)", val:11200000, pl:12.0},
+    {name:"Apple aksiya",  type:"Aksiya",     sym:"",  color:"#6B72C9", bg:"rgba(107,114,201,.14)",val:7400000, pl:-7.5},
+    {name:"O'zRe obligatsiya",type:"Obligatsiya",sym:"",color:"#569A97", bg:"rgba(86,154,151,.14)",val:4300000, pl:7.5}
+  ];
+  (function(){
+    var R=document.getElementById('holdings');
+    holdings.forEach(function(h){
+      var pos=h.pl>=0;
+      var sym=h.sym||h.name[0];
+      var row=document.createElement('div');
+      row.className='rowc';
+      row.innerHTML=
+        '<div class="rc-ic" style="background:'+h.bg+';color:'+h.color+'">'+sym+'</div>'+
+        '<div class="rc-mid"><div class="t">'+h.name+'</div><div class="s">'+h.type+'</div></div>'+
+        '<div class="rc-right"><div class="a mono">'+fmt(h.val)+'</div><div class="b '+(pos?'':'')+'" style="color:'+(pos?'var(--positive)':'var(--negative)')+'">'+(pos?'+':'\u2212')+Math.abs(h.pl).toFixed(1)+'%</div></div>';
+      R.appendChild(row);
+    });
+  })();
+})();
+
+(function(){
+(function(){
+    var screen=document.querySelector('.chat-screen');
+    screen.scrollTop=screen.scrollHeight;
+  })();
+})();
+
+(function(){
+document.getElementById('stateSeg').addEventListener('click', function(e){
+    var b=e.target.closest('button'); if(!b) return;
+    var s=b.getAttribute('data-s');
+    document.getElementById('connected').style.display = s==='connected' ? '' : 'none';
+    document.getElementById('disconnected').style.display = s==='disconnected' ? '' : 'none';
+  });
+})();
+</script>
+
+</body></html>

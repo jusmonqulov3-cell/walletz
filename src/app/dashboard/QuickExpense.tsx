@@ -112,30 +112,31 @@ export default function QuickExpense() {
   return (
     <>
       {/* Input */}
-      <div className="space-y-3">
+      <div>
         <textarea
           value={text}
           onChange={(e) => setText(e.target.value)}
           onKeyDown={handleKeyDown}
           rows={2}
           placeholder="Masalan: Taksi 20 Somsa 18 Qahva 15"
-          className="w-full resize-none rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-900 outline-none focus:border-gray-900 focus:ring-1 focus:ring-gray-900"
+          className="input resize-none"
         />
-        <div className="flex items-center justify-between">
-          <p className="text-xs text-gray-400">
-            Enter — tahlil qilish, Shift+Enter — yangi qator
+        <div className="mt-3 flex items-center justify-between gap-3">
+          <p className="text-[11.5px] text-muted">
+            Enter — tahlil, Shift+Enter — yangi qator
           </p>
           <button
             type="button"
             onClick={handleParse}
             disabled={parsing || !text.trim()}
-            className="rounded-lg bg-gray-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-gray-800 disabled:cursor-not-allowed disabled:opacity-60"
+            className="btn"
+            style={{ width: "auto", padding: "10px 16px" }}
           >
             {parsing ? "Tahlil qilinmoqda..." : "Qo'shish"}
           </button>
         </div>
         {parseError && (
-          <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-600">
+          <p className="mt-3 text-[12.5px] font-medium text-negative">
             {parseError}
           </p>
         )}
@@ -143,24 +144,31 @@ export default function QuickExpense() {
 
       {/* Editable preview */}
       {items.length > 0 && (
-        <div className="mt-5 border-t border-gray-100 pt-5">
-          <h3 className="mb-3 text-sm font-medium text-gray-700">
+        <div className="mt-4 border-t border-border pt-4">
+          <div className="field-label" style={{ margin: "0 0 9px" }}>
             Tasdiqlang ({items.length})
-          </h3>
-          <ul className="space-y-2">
+          </div>
+          <ul className="flex flex-col gap-2">
             {items.map((item, i) => (
               <li
                 key={i}
-                className="flex flex-wrap items-center gap-2 rounded-lg border border-gray-200 p-2"
+                className="flex flex-wrap items-center gap-2 rounded-[10px] border border-border p-2"
               >
                 <div className="flex min-w-0 flex-1 items-center gap-2">
                   <input
                     value={item.note}
                     onChange={(e) => updateItem(i, { note: e.target.value })}
-                    className="min-w-0 flex-1 rounded-md border border-gray-200 px-2 py-1.5 text-sm text-gray-900 outline-none focus:border-gray-900"
+                    className="input min-w-0 flex-1"
+                    style={{ padding: "8px 11px" }}
                   />
                   {item.confidence < 0.6 && (
-                    <span className="shrink-0 rounded-full bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-700">
+                    <span
+                      className="badge-pill shrink-0"
+                      style={{
+                        background: "var(--warn-weak)",
+                        color: "var(--warn)",
+                      }}
+                    >
                       tekshiring
                     </span>
                   )}
@@ -174,7 +182,8 @@ export default function QuickExpense() {
                   onChange={(e) =>
                     updateItem(i, { amount: Number(e.target.value) || 0 })
                   }
-                  className="w-28 rounded-md border border-gray-200 px-2 py-1.5 text-right text-sm text-gray-900 outline-none focus:border-gray-900"
+                  className="input mono w-28 text-right"
+                  style={{ padding: "8px 11px" }}
                 />
 
                 <select
@@ -182,7 +191,8 @@ export default function QuickExpense() {
                   onChange={(e) =>
                     updateItem(i, { category: e.target.value as Category })
                   }
-                  className="rounded-md border border-gray-200 px-2 py-1.5 text-sm text-gray-900 outline-none focus:border-gray-900"
+                  className="input"
+                  style={{ width: "auto", padding: "8px 28px 8px 11px" }}
                 >
                   {CATEGORIES.map((c) => (
                     <option key={c} value={c}>
@@ -195,7 +205,7 @@ export default function QuickExpense() {
                   type="button"
                   onClick={() => removeItem(i)}
                   aria-label="O'chirish"
-                  className="shrink-0 rounded-md px-2 py-1 text-sm text-gray-400 transition hover:bg-gray-100 hover:text-gray-700"
+                  className="shrink-0 rounded-md px-2 py-1 text-muted transition hover:bg-[var(--subtle)] hover:text-foreground"
                 >
                   ✕
                 </button>
@@ -204,15 +214,15 @@ export default function QuickExpense() {
           </ul>
 
           {saveError && (
-            <p className="mt-3 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-600">
+            <p className="mt-3 text-[12.5px] font-medium text-negative">
               {saveError}
             </p>
           )}
 
           <div className="mt-4 flex items-center justify-between">
-            <span className="text-sm text-gray-500">
+            <span className="text-[13px] text-muted">
               Jami:{" "}
-              <span className="font-medium text-gray-900">
+              <span className="mono font-semibold text-foreground">
                 {formatAmount(
                   items.reduce((sum, it) => sum + (it.amount || 0), 0),
                 )}
@@ -222,7 +232,8 @@ export default function QuickExpense() {
               type="button"
               onClick={handleSave}
               disabled={saving}
-              className="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-60"
+              className="btn"
+              style={{ width: "auto", padding: "10px 16px" }}
             >
               {saving ? "Saqlanmoqda..." : "Saqlash"}
             </button>

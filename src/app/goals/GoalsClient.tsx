@@ -105,75 +105,85 @@ function GoalCard({ goal }: { goal: Goal }) {
   }
 
   return (
-    <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
-      <div className="flex items-start justify-between gap-3">
-        <div className="min-w-0">
-          <h3 className="truncate font-semibold text-gray-900">{goal.title}</h3>
-          <p className="text-sm text-gray-500">
-            {formatAmount(saved)} / {formatAmount(target)}
-          </p>
+    <div className="card goal">
+      <div className="g-top">
+        <div
+          className="g-ic"
+          style={{
+            background: reached ? "var(--positive-weak)" : "var(--accent-weak)",
+            color: reached ? "var(--positive)" : "var(--accent)",
+          }}
+        >
+          {reached ? (
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M20 6L9 17l-5-5" />
+            </svg>
+          ) : (
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="12" cy="12" r="8" />
+              <circle cx="12" cy="12" r="3.4" />
+            </svg>
+          )}
+        </div>
+        <div className="g-name">
+          <div className="gt truncate">{goal.title}</div>
+          <div className="gd">
+            {goal.target_date && !reached
+              ? months !== null && months > 0
+                ? `${months} oy qoldi · oyiga ${formatAmount(requiredMonthly)}`
+                : "Muddat yaqin yoki o'tgan"
+              : reached
+                ? "Maqsadga yetdingiz 🎉"
+                : `Qoldi: ${formatAmount(remaining)}`}
+          </div>
+        </div>
+        <div
+          className="g-pct"
+          style={{ color: reached ? "var(--positive)" : "var(--accent)" }}
+        >
+          {Math.round(pct)}%
         </div>
         <button
           type="button"
           onClick={remove}
           disabled={deleting}
           aria-label="O'chirish"
-          className="shrink-0 rounded-md px-2 py-1 text-gray-400 transition hover:bg-gray-100 hover:text-gray-700 disabled:opacity-60"
+          className="ml-1 shrink-0 rounded-md px-1.5 py-1 text-muted transition hover:bg-[var(--subtle)] hover:text-foreground disabled:opacity-60"
         >
           ✕
         </button>
       </div>
 
-      {/* Progress */}
-      <div className="mt-3">
-        <div className="h-2 w-full overflow-hidden rounded-full bg-gray-100">
-          <div
-            className={`h-full rounded-full ${
-              reached ? "bg-emerald-500" : "bg-gray-900"
-            }`}
-            style={{ width: `${pct}%` }}
-          />
-        </div>
-        <div className="mt-1.5 flex items-center justify-between text-xs text-gray-500">
-          <span>{Math.round(pct)}%</span>
-          <span>
-            {reached ? "✅ Maqsadga yetdingiz!" : `Qoldi: ${formatAmount(remaining)}`}
-          </span>
-        </div>
+      <div className="bar">
+        <i
+          style={{
+            width: `${pct}%`,
+            background: reached ? "var(--positive)" : "var(--accent)",
+          }}
+        />
+      </div>
+      <div className="g-foot">
+        <span className="cur mono">{formatAmount(saved)}</span>
+        <span className="tgt">/ {formatAmount(target)}</span>
       </div>
 
-      {/* Target-date math */}
-      {goal.target_date && !reached && (
-        <p className="mt-3 text-sm text-gray-600">
-          {months !== null && months > 0 ? (
-            <>
-              {months} oy qoldi · oyiga{" "}
-              <span className="font-medium text-gray-900">
-                {formatAmount(requiredMonthly)}
-              </span>{" "}
-              jamlash kerak
-            </>
-          ) : (
-            <>Muddat yaqin yoki o&apos;tgan — {formatAmount(remaining)} qoldi</>
-          )}
-        </p>
-      )}
-
       {/* Contribute */}
-      <div className="mt-4 flex items-center gap-2">
+      <div className="mt-3.5 flex flex-wrap items-center gap-2">
         <input
           type="number"
           inputMode="numeric"
           value={amount}
           onChange={(e) => setAmount(e.target.value)}
           placeholder="Summa"
-          className="w-32 rounded-md border border-gray-300 px-2 py-1.5 text-sm text-gray-900 outline-none focus:border-gray-900"
+          className="input mono w-32"
+          style={{ padding: "9px 12px" }}
         />
         <button
           type="button"
           onClick={contribute}
           disabled={contributing || !amount}
-          className="rounded-lg bg-emerald-600 px-3 py-1.5 text-sm font-semibold text-white transition hover:bg-emerald-700 disabled:opacity-60"
+          className="btn"
+          style={{ width: "auto", padding: "9px 14px" }}
         >
           {contributing ? "..." : "Pul qo'shish"}
         </button>
@@ -181,17 +191,27 @@ function GoalCard({ goal }: { goal: Goal }) {
           type="button"
           onClick={getAdvice}
           disabled={adviceLoading}
-          className="rounded-lg border border-gray-300 px-3 py-1.5 text-sm font-medium text-gray-700 transition hover:bg-gray-100 disabled:opacity-60"
+          className="btn ghost"
+          style={{ width: "auto", padding: "9px 14px" }}
         >
           {adviceLoading ? "..." : "AI maslahat"}
         </button>
       </div>
 
-      {error && <p className="mt-2 text-sm text-red-600">{error}</p>}
+      {error && (
+        <p className="mt-2 text-[12.5px] font-medium text-negative">{error}</p>
+      )}
 
       {advice && (
-        <div className="mt-3 rounded-lg bg-gray-50 p-3 text-sm text-gray-700">
-          🤖 {advice}
+        <div className="insight mt-3">
+          <div className="it">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M9 18h6M10 22h4" />
+              <path d="M12 2a7 7 0 0 0-4 12.7c.6.5 1 1.3 1 2.1h6c0-.8.4-1.6 1-2.1A7 7 0 0 0 12 2z" />
+            </svg>
+            AI maslahat
+          </div>
+          {advice}
         </div>
       )}
     </div>
@@ -238,15 +258,15 @@ export default function GoalsClient({ goals }: { goals: Goal[] }) {
   }
 
   return (
-    <div className="space-y-6">
+    <div>
       {/* Create form */}
-      <section className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
+      <section className="card card-pad">
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
           <input
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             placeholder="Maqsad (masalan, MacBook)"
-            className="rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-900 outline-none focus:border-gray-900 sm:col-span-1"
+            className="input"
           />
           <input
             type="number"
@@ -254,26 +274,27 @@ export default function GoalsClient({ goals }: { goals: Goal[] }) {
             value={targetAmount}
             onChange={(e) => setTargetAmount(e.target.value)}
             placeholder="Summa (so'm)"
-            className="rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-900 outline-none focus:border-gray-900"
+            className="input mono"
           />
           <input
             type="date"
             value={targetDate}
             onChange={(e) => setTargetDate(e.target.value)}
-            className="rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-900 outline-none focus:border-gray-900"
+            className="input"
           />
         </div>
-        <div className="mt-3 flex items-center justify-between">
+        <div className="mt-3 flex items-center justify-between gap-3">
           {error ? (
-            <p className="text-sm text-red-600">{error}</p>
+            <p className="text-[12.5px] font-medium text-negative">{error}</p>
           ) : (
-            <span className="text-xs text-gray-400">Sana ixtiyoriy</span>
+            <span className="text-[11.5px] text-muted">Sana ixtiyoriy</span>
           )}
           <button
             type="button"
             onClick={createGoal}
             disabled={saving}
-            className="rounded-lg bg-gray-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-gray-800 disabled:opacity-60"
+            className="btn"
+            style={{ width: "auto", padding: "10px 16px" }}
           >
             {saving ? "..." : "Maqsad qo'shish"}
           </button>
@@ -281,19 +302,28 @@ export default function GoalsClient({ goals }: { goals: Goal[] }) {
       </section>
 
       {/* Goals list */}
-      {goals.length === 0 ? (
-        <div className="rounded-2xl border border-dashed border-gray-300 bg-white p-12 text-center">
-          <p className="text-base font-medium text-gray-900">
-            Birinchi maqsadingizni qo&apos;shing — masalan, MacBook uchun 10 mln
-          </p>
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          {goals.map((g) => (
-            <GoalCard key={g.id} goal={g} />
-          ))}
-        </div>
-      )}
+      <div className="section">
+        {goals.length === 0 ? (
+          <div className="card">
+            <div className="empty">
+              <div className="eic">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+                  <circle cx="12" cy="12" r="8" />
+                  <circle cx="12" cy="12" r="3.4" />
+                </svg>
+              </div>
+              <div className="et">Hali maqsad yo&apos;q</div>
+              <div className="ex">Birinchi maqsadingizni qo&apos;shing — masalan, MacBook uchun 10 mln.</div>
+            </div>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            {goals.map((g) => (
+              <GoalCard key={g.id} goal={g} />
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   );
 }

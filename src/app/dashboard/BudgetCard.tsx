@@ -47,85 +47,91 @@ export default function BudgetCard({
   const pct =
     limit && limit > 0 ? Math.min(100, (monthTotal / limit) * 100) : 0;
 
-  return (
-    <div className="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm">
-      <p className="text-xs font-medium text-gray-500">Qolgan budjet</p>
-
-      {editing || limit === null ? (
-        <div className="mt-2 space-y-2">
+  if (editing || limit === null) {
+    return (
+      <div className="budget">
+        <div className="top">
+          <div className="lbl">Oylik budjet</div>
+        </div>
+        <div className="amount-field" style={{ marginTop: 10 }}>
           <input
-            type="number"
+            className="mono"
+            type="text"
             inputMode="numeric"
-            min={0}
             value={value}
             onChange={(e) => setValue(e.target.value)}
-            placeholder="Oylik budjet"
-            className="w-full rounded-md border border-gray-300 px-2 py-1.5 text-sm text-gray-900 outline-none focus:border-gray-900"
+            placeholder="0"
+            aria-label="Oylik budjet"
           />
-          <div className="flex items-center gap-2">
-            <button
-              type="button"
-              onClick={save}
-              disabled={saving}
-              className="rounded-md bg-gray-900 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-gray-800 disabled:opacity-60"
-            >
-              {saving ? "..." : "Belgilash"}
-            </button>
-            {limit !== null && (
-              <button
-                type="button"
-                onClick={() => {
-                  setEditing(false);
-                  setError(null);
-                  setValue(String(limit));
-                }}
-                className="text-xs text-gray-400 hover:text-gray-700"
-              >
-                Bekor qilish
-              </button>
-            )}
-          </div>
-          {error && <p className="text-xs text-red-600">{error}</p>}
+          <span className="cur">so&apos;m</span>
         </div>
-      ) : (
-        <div className="mt-1">
-          <p
-            className={`text-lg font-semibold ${
-              over ? "text-red-600" : "text-gray-900"
-            }`}
+        <div className="mt-3 flex items-center gap-3">
+          <button
+            type="button"
+            onClick={save}
+            disabled={saving}
+            className="btn"
+            style={{ width: "auto", padding: "10px 16px" }}
           >
-            {formatAmount(remaining)}
-          </p>
-
-          <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-gray-100">
-            <div
-              className={`h-full rounded-full ${
-                over ? "bg-red-500" : "bg-emerald-500"
-              }`}
-              style={{ width: `${pct}%` }}
-            />
-          </div>
-
-          <div className="mt-1.5 flex items-center justify-between">
-            {over ? (
-              <span className="text-xs font-medium text-red-600">
-                Budjet oshib ketdi
-              </span>
-            ) : (
-              <span className="text-xs text-gray-400">
-                {formatAmount(limit)} dan
-              </span>
-            )}
+            {saving ? "..." : "Belgilash"}
+          </button>
+          {limit !== null && (
             <button
               type="button"
-              onClick={() => setEditing(true)}
-              className="text-xs text-gray-500 underline hover:text-gray-900"
+              onClick={() => {
+                setEditing(false);
+                setError(null);
+                setValue(String(limit));
+              }}
+              className="text-[12.5px] font-medium text-muted hover:text-foreground"
             >
-              o&apos;zgartirish
+              Bekor qilish
             </button>
-          </div>
+          )}
         </div>
-      )}
+        {error && (
+          <p className="mt-2 text-[12px] font-medium text-negative">{error}</p>
+        )}
+      </div>
+    );
+  }
+
+  return (
+    <div className="budget">
+      <div className="top">
+        <div className="lbl">Oylik budjet</div>
+        <div className="pct">{Math.round(pct)}%</div>
+      </div>
+      <div className="amt">
+        <b className="mono">{formatAmount(monthTotal)}</b>
+        <span>/ {formatAmount(limit)}</span>
+      </div>
+      <div className="bar">
+        <i
+          style={{
+            width: `${pct}%`,
+            background: over ? "var(--negative)" : "var(--accent)",
+          }}
+        />
+      </div>
+      <div className="foot">
+        {over ? (
+          <span style={{ color: "var(--negative)", fontWeight: 600 }}>
+            Budjet oshib ketdi
+          </span>
+        ) : (
+          <span>
+            <b className="mono">{formatAmount(remaining)}</b> qoldi
+          </span>
+        )}
+        <button
+          type="button"
+          onClick={() => setEditing(true)}
+          className="text-[12px] font-medium text-accent hover:underline"
+        >
+          o&apos;zgartirish
+        </button>
+      </div>
     </div>
   );
 }

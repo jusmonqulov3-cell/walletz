@@ -1,8 +1,9 @@
 import { redirect } from "next/navigation";
+import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { formatAmount } from "@/lib/format";
 import { getTashkentPeriods } from "@/lib/dates";
-import { CATEGORIES, type Category } from "@/lib/categories";
+import { CATEGORIES, categoryColor, type Category } from "@/lib/categories";
 import AppShell from "@/components/AppShell";
 import ExpenseInput from "./ExpenseInput";
 import FinancialCoach from "./FinancialCoach";
@@ -18,13 +19,34 @@ type RecentRow = {
   spent_at: string;
 };
 
+// Compact display of a so'm amount → { v, u } (presentation only).
+function compact(n: number): { v: string; u: string } {
+  if (n >= 1_000_000) {
+    const m = n / 1_000_000;
+    return { v: m >= 10 ? m.toFixed(1) : m.toFixed(2), u: "mln" };
+  }
+  if (n >= 1_000) return { v: String(Math.round(n / 1_000)), u: "ming" };
+  return { v: String(Math.round(n)), u: "so'm" };
+}
+
+const UZ_MONTHS = [
+  "yanvar", "fevral", "mart", "aprel", "may", "iyun",
+  "iyul", "avgust", "sentabr", "oktabr", "noyabr", "dekabr",
+];
+const UZ_DAYS = [
+  "yakshanba", "dushanba", "seshanba", "chorshanba",
+  "payshanba", "juma", "shanba",
+];
+
 function StatCard({ label, value }: { label: string; value: number }) {
+  const { v, u } = compact(value);
   return (
-    <div className="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm">
-      <p className="text-xs font-medium text-gray-500">{label}</p>
-      <p className="mt-1 text-lg font-semibold text-gray-900">
-        {formatAmount(value)}
-      </p>
+    <div className="stat">
+      <div className="lbl">{label}</div>
+      <div className="val">
+        <b className="mono">{v}</b>
+        <span>{u}</span>
+      </div>
     </div>
   );
 }
@@ -99,58 +121,124 @@ export default async function DashboardPage() {
     }))
     .sort((a, b) => b.total - a.total);
 
+  // Donut geometry: cumulative arc segments over a circle (r=80, C≈502.65).
+  const R = 80;
+  const C = 2 * Math.PI * R;
+  let offset = 0;
+  const segments = breakdown.map((b) => {
+    const frac = monthTotal > 0 ? b.total / monthTotal : 0;
+    const seg = {
+      color: categoryColor(b.category),
+      dash: frac * C,
+      offset,
+    };
+    offset += frac * C;
+    return seg;
+  });
+
+  const totalCompact = compact(monthTotal);
+
+  // Uzbek long date anchored to Tashkent (UTC+5).
+  const tash = new Date(new Date(startOfToday).getTime() + 5 * 3600 * 1000);
+  const dateLabel = `${tash.getUTCDate()}-${UZ_MONTHS[tash.getUTCMonth()]}, ${UZ_DAYS[tash.getUTCDay()]}`;
+  const name = (user.email ?? "").split("@")[0] || "foydalanuvchi";
+
   return (
     <AppShell>
-      <div className="mx-auto max-w-3xl space-y-8 px-4 py-8">
-        <h1 className="text-xl font-semibold text-gray-900">
-          Salom, {user.email}
-        </h1>
-
-        {/* Summary cards */}
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
-          <StatCard label="Bugun" value={todayTotal} />
-          <StatCard label="Bu hafta" value={weekTotal} />
-          <StatCard label="Bu oy" value={monthTotal} />
-          <BudgetCard monthTotal={monthTotal} limit={limit} />
+      <div className="mx-auto max-w-xl px-4 py-5">
+        {/* page header */}
+        <div className="appbar">
+          <div>
+            <div className="date">{dateLabel}</div>
+            <div className="greet">Xayrli kun, {name}</div>
+          </div>
+          <div className="actions">
+            <Link className="icon-btn" href="/investments" aria-label="Investitsiya">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M3 17l5-5 3 3 7-7" />
+                <path d="M14 8h5v5" />
+              </svg>
+            </Link>
+            <Link className="avatar" href="/telegram" aria-label="Telegram ulanish" title="Telegram ulanish">
+              {name.slice(0, 2).toUpperCase()}
+            </Link>
+          </div>
         </div>
 
-        {/* Proactive financial coach */}
-        <FinancialCoach />
+        {/* summary stats */}
+        <div className="stat-grid">
+          <StatCard label="Bugun" value={todayTotal} />
+          <StatCard label="Hafta" value={weekTotal} />
+          <StatCard label="Oy" value={monthTotal} />
+        </div>
 
-        {/* Unified expense input: text / receipt / voice tabs */}
-        <ExpenseInput />
+        {/* budget */}
+        <BudgetCard monthTotal={monthTotal} limit={limit} />
 
-        {/* Category breakdown */}
+        {/* category breakdown donut */}
         {breakdown.length > 0 && (
-          <section>
-            <h2 className="mb-3 text-sm font-medium text-gray-700">
-              Kategoriyalar bo&apos;yicha
-            </h2>
-            <ul className="space-y-3 rounded-2xl border border-gray-200 bg-white p-4">
-              {breakdown.map((c) => (
-                <li key={c.category}>
-                  <div className="mb-1 flex items-center justify-between text-sm">
-                    <span className="font-medium text-gray-900">
-                      {c.category}
-                    </span>
-                    <span className="text-gray-500">
-                      {formatAmount(c.total)} · {c.percent}%
-                    </span>
-                  </div>
-                  <div className="h-1.5 w-full overflow-hidden rounded-full bg-gray-100">
-                    <div
-                      className="h-full rounded-full bg-gray-900"
-                      style={{ width: `${c.percent}%` }}
+          <div className="section">
+            <div className="card chart-card">
+              <div className="ch-head">
+                <h3>Xarajatlar taqsimoti</h3>
+              </div>
+              <div className="donut-wrap">
+                <svg width="200" height="200" viewBox="0 0 200 200">
+                  <circle
+                    cx="100" cy="100" r={R} fill="none"
+                    stroke="var(--track)" strokeWidth="26"
+                  />
+                  {segments.map((s, i) => (
+                    <circle
+                      key={i}
+                      cx="100" cy="100" r={R} fill="none"
+                      stroke={s.color} strokeWidth="26"
+                      strokeDasharray={`${s.dash} ${C - s.dash}`}
+                      strokeDashoffset={-s.offset}
+                      transform="rotate(-90 100 100)"
                     />
+                  ))}
+                </svg>
+                <div className="donut-center">
+                  <div className="t-lbl">Jami</div>
+                  <div className="t-val mono">{totalCompact.v}</div>
+                  <div className="t-unit">{totalCompact.u} so&apos;m</div>
+                </div>
+              </div>
+              <div className="legend">
+                {breakdown.map((c) => (
+                  <div className="row" key={c.category}>
+                    <span className="dot" style={{ background: categoryColor(c.category) }} />
+                    <span className="nm">{c.category}</span>
+                    <span className="pc">{c.percent}%</span>
+                    <span className="am mono">{formatAmount(c.total)}</span>
                   </div>
-                </li>
-              ))}
-            </ul>
-          </section>
+                ))}
+              </div>
+            </div>
+          </div>
         )}
 
-        {/* Search + recent expenses */}
-        <ExpenseSearch recent={recent} />
+        {/* new entry (text / receipt / voice) */}
+        <div className="section">
+          <div className="section-head">
+            <h2>Yangi yozuv</h2>
+          </div>
+          <ExpenseInput />
+        </div>
+
+        {/* coach */}
+        <div className="section">
+          <div className="section-head">
+            <h2>Murabbiy maslahatlari</h2>
+          </div>
+          <FinancialCoach />
+        </div>
+
+        {/* search + recent */}
+        <div className="section">
+          <ExpenseSearch recent={recent} />
+        </div>
       </div>
     </AppShell>
   );

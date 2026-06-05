@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { formatAmount, formatDate } from "@/lib/format";
+import { categoryColor } from "@/lib/categories";
 
 type ExpenseRow = {
   id: string;
@@ -19,26 +20,24 @@ type SearchResult = {
 
 function ExpenseList({ rows }: { rows: ExpenseRow[] }) {
   return (
-    <ul className="divide-y divide-gray-100 overflow-hidden rounded-2xl border border-gray-200 bg-white">
+    <div className="card list">
       {rows.map((e) => (
-        <li
-          key={e.id}
-          className="flex items-center justify-between gap-3 px-4 py-3"
-        >
-          <div className="min-w-0">
-            <p className="truncate text-sm font-medium text-gray-900">
-              {e.note || "—"}
-            </p>
-            <p className="text-xs text-gray-500">
-              {e.category || "Boshqa"} · {formatDate(e.spent_at)}
-            </p>
+        <div className="li" key={e.id}>
+          <div className="badge" style={{ background: "var(--subtle)" }}>
+            <span style={{ background: categoryColor(e.category) }} />
           </div>
-          <span className="shrink-0 text-sm font-semibold text-gray-900">
-            {formatAmount(e.amount)}
-          </span>
-        </li>
+          <div className="meta">
+            <div className="m1 truncate">{e.note || "—"}</div>
+            <div className="m2">
+              {e.category || "Boshqa"} · {formatDate(e.spent_at)}
+            </div>
+          </div>
+          <div className="right">
+            <div className="ramt mono">{formatAmount(e.amount)}</div>
+          </div>
+        </div>
       ))}
-    </ul>
+    </div>
   );
 }
 
@@ -85,10 +84,8 @@ export default function ExpenseSearch({ recent }: { recent: ExpenseRow[] }) {
 
   return (
     <section>
-      <div className="mb-3 flex items-center justify-between gap-3">
-        <h2 className="text-sm font-medium text-gray-700">
-          {searching ? "Qidiruv natijalari" : "So'nggi xarajatlar"}
-        </h2>
+      <div className="section-head">
+        <h2>{searching ? "Qidiruv natijalari" : "So'nggi xarajatlar"}</h2>
       </div>
 
       {/* Search box */}
@@ -98,13 +95,14 @@ export default function ExpenseSearch({ recent }: { recent: ExpenseRow[] }) {
           onChange={(e) => setQuery(e.target.value)}
           onKeyDown={handleKeyDown}
           placeholder="Qidiruv: masalan, Taksi"
-          className="flex-1 rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-900 outline-none focus:border-gray-900 focus:ring-1 focus:ring-gray-900"
+          className="input flex-1"
         />
         <button
           type="button"
           onClick={runSearch}
           disabled={loading || !query.trim()}
-          className="rounded-lg bg-gray-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-gray-800 disabled:cursor-not-allowed disabled:opacity-60"
+          className="btn"
+          style={{ width: "auto", padding: "11px 16px" }}
         >
           {loading ? "..." : "Qidirish"}
         </button>
@@ -112,7 +110,8 @@ export default function ExpenseSearch({ recent }: { recent: ExpenseRow[] }) {
           <button
             type="button"
             onClick={clearSearch}
-            className="rounded-lg border border-gray-300 px-3 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-100"
+            className="btn ghost"
+            style={{ width: "auto", padding: "11px 14px" }}
           >
             Tozalash
           </button>
@@ -120,33 +119,41 @@ export default function ExpenseSearch({ recent }: { recent: ExpenseRow[] }) {
       </div>
 
       {error && (
-        <p className="mb-3 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-600">
-          {error}
-        </p>
+        <p className="mb-3 text-[12.5px] font-medium text-negative">{error}</p>
       )}
 
       {/* Results or recent */}
       {searching ? (
         <>
-          <p className="mb-3 text-sm text-gray-500">
+          <p className="mb-3 text-[13px] text-muted">
             Topildi: {result.count} ta · jami{" "}
-            <span className="font-medium text-gray-900">
+            <span className="mono font-semibold text-foreground">
               {formatAmount(result.total)}
             </span>
           </p>
           {result.count === 0 ? (
-            <div className="rounded-2xl border border-dashed border-gray-300 bg-white p-8 text-center text-sm text-gray-500">
-              Hech narsa topilmadi — boshqa so&apos;z kiriting
+            <div className="card">
+              <div className="empty">
+                <div className="et">Hech narsa topilmadi</div>
+                <div className="ex">Boshqa so&apos;z bilan urinib ko&apos;ring.</div>
+              </div>
             </div>
           ) : (
             <ExpenseList rows={result.expenses} />
           )}
         </>
       ) : recent.length === 0 ? (
-        <div className="rounded-2xl border border-dashed border-gray-300 bg-white p-12 text-center">
-          <p className="text-base font-medium text-gray-900">
-            Birinchi xarajatingizni kiriting ↑
-          </p>
+        <div className="card">
+          <div className="empty">
+            <div className="eic">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+                <rect x="3" y="5" width="18" height="16" rx="3" />
+                <path d="M3 10h18M8 3v4M16 3v4" />
+              </svg>
+            </div>
+            <div className="et">Hali xarajat yo&apos;q</div>
+            <div className="ex">Birinchi xarajatingizni yuqoridan kiriting.</div>
+          </div>
         </div>
       ) : (
         <ExpenseList rows={recent} />

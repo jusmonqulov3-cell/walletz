@@ -10,7 +10,7 @@ export default function ThemeToggle() {
       type="button"
       aria-label="Rejimni almashtirish"
       onClick={() => setTheme(resolvedTheme === "dark" ? "light" : "dark")}
-      className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-border text-muted transition-colors hover:bg-border/50 hover:text-foreground focus-visible:ring-2 focus-visible:ring-accent/40 outline-none"
+      className="inline-flex h-9 w-9 items-center justify-center rounded-[10px] border border-border bg-surface text-foreground transition-colors hover:bg-[var(--subtle)] focus-visible:ring-2 focus-visible:ring-accent/40 outline-none"
     >
       {/* CSS-driven: next-themes sets `.dark` before hydration, so icon
           visibility has no mismatch and needs no mounted state. */}

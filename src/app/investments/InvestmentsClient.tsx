@@ -21,11 +21,14 @@ export type ComputedHolding = {
   profitLoss: number | null;
 };
 
-const TYPE_META: Record<InvestmentType, { label: string; icon: string }> = {
-  valyuta: { label: "Valyuta", icon: "💵" },
-  kripto: { label: "Kripto", icon: "₿" },
-  aksiya: { label: "Aksiya", icon: "📈" },
-  jamgarma: { label: "Jamg'arma", icon: "🏦" },
+const TYPE_META: Record<
+  InvestmentType,
+  { label: string; icon: string; color: string }
+> = {
+  valyuta: { label: "Valyuta", icon: "💵", color: "#2F9E68" },
+  kripto: { label: "Kripto", icon: "₿", color: "#C9924F" },
+  aksiya: { label: "Aksiya", icon: "📈", color: "#5E6AD2" },
+  jamgarma: { label: "Jamg'arma", icon: "🏦", color: "#569A97" },
 };
 
 const TYPE_ORDER: InvestmentType[] = [
@@ -114,110 +117,123 @@ function HoldingRow({ holding }: { holding: ComputedHolding }) {
     }
   }
 
+  const color = TYPE_META[holding.type].color;
+
   return (
-    <li className="py-3">
-      <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-1">
-        <div className="min-w-0">
-          <p className="truncate text-sm font-medium text-gray-900">
+    <div className="border-t border-border px-[15px] py-3.5 first:border-t-0">
+      <div className="flex items-center gap-3">
+        <div
+          className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[11px] text-[15px]"
+          style={{ background: `${color}1f`, color }}
+        >
+          {TYPE_META[holding.type].icon}
+        </div>
+        <div className="min-w-0 flex-1">
+          <div className="truncate text-[14px] font-semibold text-foreground">
             {holding.name}
             {holding.symbol && (
-              <span className="ml-1 text-xs font-normal text-gray-400">
+              <span className="ml-1 text-[12px] font-normal text-[var(--muted-2)]">
                 {holding.symbol}
               </span>
             )}
-          </p>
-          <p className="text-xs text-gray-500">
+          </div>
+          <div className="mt-0.5 text-[12px] text-muted">
             {isJamgarma ? (
-              <>{formatAmount(holding.quantity)}</>
+              <span className="mono">{formatAmount(holding.quantity)}</span>
             ) : (
               <>
-                {formatQty(holding.quantity)} ×{" "}
-                {holding.priceMissing
-                  ? "narx yo'q"
-                  : formatAmount(holding.unitPriceUZS)}
+                <span className="mono">{formatQty(holding.quantity)}</span> ×{" "}
+                {holding.priceMissing ? (
+                  "narx yo'q"
+                ) : (
+                  <span className="mono">{formatAmount(holding.unitPriceUZS)}</span>
+                )}
               </>
             )}
-          </p>
+          </div>
         </div>
 
-        <div className="flex items-center gap-3">
-          <div className="text-right">
-            <p className="text-sm font-semibold text-gray-900">
-              {holding.priceMissing ? (
-                <span className="text-gray-400">narx yo&apos;q</span>
-              ) : (
-                formatAmount(holding.value)
-              )}
-            </p>
-            {holding.profitLoss != null && (
-              <p
-                className={`text-xs font-medium ${
-                  holding.profitLoss >= 0 ? "text-emerald-600" : "text-red-600"
-                }`}
-              >
-                {holding.profitLoss >= 0 ? "+" : "−"}
-                {formatAmount(Math.abs(holding.profitLoss))}
-              </p>
+        <div className="text-right">
+          <div className="text-[14px] font-semibold text-foreground">
+            {holding.priceMissing ? (
+              <span className="text-[var(--muted-2)]">narx yo&apos;q</span>
+            ) : (
+              <span className="mono">{formatAmount(holding.value)}</span>
             )}
           </div>
+          {holding.profitLoss != null && (
+            <div
+              className="mono text-[11.5px] font-medium"
+              style={{
+                color:
+                  holding.profitLoss >= 0 ? "var(--positive)" : "var(--negative)",
+              }}
+            >
+              {holding.profitLoss >= 0 ? "+" : "−"}
+              {formatAmount(Math.abs(holding.profitLoss))}
+            </div>
+          )}
+        </div>
 
-          <div className="flex items-center gap-1">
-            <button
-              type="button"
-              onClick={() => setEditing((v) => !v)}
-              aria-label="Tahrirlash"
-              className="rounded-md px-2 py-1 text-gray-400 transition hover:bg-gray-100 hover:text-gray-700"
-            >
-              ✎
-            </button>
-            <button
-              type="button"
-              onClick={remove}
-              disabled={busy}
-              aria-label="O'chirish"
-              className="rounded-md px-2 py-1 text-gray-400 transition hover:bg-gray-100 hover:text-gray-700 disabled:opacity-60"
-            >
-              ✕
-            </button>
-          </div>
+        <div className="flex items-center gap-0.5">
+          <button
+            type="button"
+            onClick={() => setEditing((v) => !v)}
+            aria-label="Tahrirlash"
+            className="rounded-md px-1.5 py-1 text-muted transition hover:bg-[var(--subtle)] hover:text-foreground"
+          >
+            ✎
+          </button>
+          <button
+            type="button"
+            onClick={remove}
+            disabled={busy}
+            aria-label="O'chirish"
+            className="rounded-md px-1.5 py-1 text-muted transition hover:bg-[var(--subtle)] hover:text-foreground disabled:opacity-60"
+          >
+            ✕
+          </button>
         </div>
       </div>
 
       {editing && (
-        <div className="mt-3 flex flex-wrap items-end gap-2 rounded-lg bg-gray-50 p-3">
-          <label className="text-xs text-gray-500">
+        <div className="mt-3 flex flex-wrap items-end gap-2 rounded-[10px] bg-[var(--subtle)] p-3">
+          <label className="text-[12px] text-muted">
             {qtyLabel}
             <input
               type="number"
               inputMode="decimal"
               value={quantity}
               onChange={(e) => setQuantity(e.target.value)}
-              className="mt-1 block w-28 rounded-md border border-gray-300 px-2 py-1.5 text-sm text-gray-900 outline-none focus:border-gray-900"
+              className="input mono mt-1 block w-28"
+              style={{ padding: "8px 11px" }}
             />
           </label>
 
           {isAksiya && (
-            <label className="text-xs text-gray-500">
+            <label className="text-[12px] text-muted">
               Joriy narx (so&apos;m)
               <input
                 type="number"
                 inputMode="numeric"
                 value={manualPrice}
                 onChange={(e) => setManualPrice(e.target.value)}
-                className="mt-1 block w-32 rounded-md border border-gray-300 px-2 py-1.5 text-sm text-gray-900 outline-none focus:border-gray-900"
+                className="input mono mt-1 block w-32"
+                style={{ padding: "8px 11px" }}
               />
             </label>
           )}
 
           {!isJamgarma && (
-            <label className="text-xs text-gray-500">
+            <label className="text-[12px] text-muted">
               Sotib olish narxi (so&apos;m)
               <input
                 type="number"
                 inputMode="numeric"
                 value={buyPrice}
                 onChange={(e) => setBuyPrice(e.target.value)}
-                className="mt-1 block w-32 rounded-md border border-gray-300 px-2 py-1.5 text-sm text-gray-900 outline-none focus:border-gray-900"
+                className="input mono mt-1 block w-32"
+                style={{ padding: "8px 11px" }}
               />
             </label>
           )}
@@ -226,15 +242,16 @@ function HoldingRow({ holding }: { holding: ComputedHolding }) {
             type="button"
             onClick={save}
             disabled={busy}
-            className="rounded-lg bg-gray-900 px-3 py-1.5 text-sm font-semibold text-white transition hover:bg-gray-800 disabled:opacity-60"
+            className="btn"
+            style={{ width: "auto", padding: "9px 14px" }}
           >
             {busy ? "..." : "Saqlash"}
           </button>
         </div>
       )}
 
-      {error && <p className="mt-2 text-xs text-red-600">{error}</p>}
-    </li>
+      {error && <p className="mt-2 text-[11.5px] text-negative">{error}</p>}
+    </div>
   );
 }
 
@@ -317,46 +334,39 @@ function AddForm() {
     }
   }
 
-  const inputCls =
-    "rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-900 outline-none focus:border-gray-900";
+  const inputCls = "input";
 
   return (
-    <section className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
-      <h2 className="mb-3 text-sm font-medium text-gray-700">Qo&apos;shish</h2>
-
+    <div className="card card-pad">
       {/* Type selector */}
-      <div className="mb-3 flex flex-wrap gap-1 rounded-lg bg-gray-100 p-1">
+      <div className="seg mb-3 flex-wrap">
         {TYPE_ORDER.map((t) => (
           <button
             key={t}
             type="button"
+            className={type === t ? "active" : ""}
             onClick={() => {
               setType(t);
               setError(null);
             }}
-            className={`rounded-md px-2.5 py-1.5 text-xs font-medium transition sm:text-sm ${
-              type === t
-                ? "bg-white text-gray-900 shadow-sm"
-                : "text-gray-500 hover:text-gray-900"
-            }`}
           >
-            {TYPE_META[t].icon} {TYPE_META[t].label}
+            {TYPE_META[t].label}
           </button>
         ))}
       </div>
 
       {/* Crypto quick presets */}
       {type === "kripto" && (
-        <div className="mb-3 flex flex-wrap gap-2">
+        <div className="chips mb-3">
           {CRYPTO_PRESETS.map((p) => (
             <button
               key={p.id}
               type="button"
+              className="chip"
               onClick={() => {
                 setName(p.name);
                 setSymbol(p.id);
               }}
-              className="rounded-full border border-gray-200 px-3 py-1 text-xs font-medium text-gray-600 transition hover:bg-gray-100"
             >
               {p.label}
             </button>
@@ -444,11 +454,11 @@ function AddForm() {
         )}
       </div>
 
-      <div className="mt-3 flex items-center justify-between">
+      <div className="mt-3 flex items-center justify-between gap-3">
         {error ? (
-          <p className="text-sm text-red-600">{error}</p>
+          <p className="text-[12.5px] font-medium text-negative">{error}</p>
         ) : (
-          <span className="text-xs text-gray-400">
+          <span className="text-[11.5px] text-muted">
             {type === "aksiya"
               ? "Narxni o'zingiz yangilab turasiz"
               : type === "jamgarma"
@@ -460,12 +470,13 @@ function AddForm() {
           type="button"
           onClick={add}
           disabled={saving}
-          className="rounded-lg bg-gray-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-gray-800 disabled:opacity-60"
+          className="btn"
+          style={{ width: "auto", padding: "10px 16px" }}
         >
           {saving ? "..." : "Qo'shish"}
         </button>
       </div>
-    </section>
+    </div>
   );
 }
 
@@ -484,69 +495,99 @@ export default function InvestmentsClient({
     byType.set(h.type, (byType.get(h.type) ?? 0) + h.value);
   }
 
+  // Aggregate P/L across holdings that have a buy price.
+  const totalPL = holdings.reduce((s, h) => s + (h.profitLoss ?? 0), 0);
+  const hasPL = holdings.some((h) => h.profitLoss != null);
+  const plPct = total - totalPL > 0 ? (totalPL / (total - totalPL)) * 100 : 0;
+
   return (
-    <div className="space-y-6">
-      {/* Total + breakdown */}
-      <section className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
-        <p className="text-sm text-gray-500">Umumiy qiymat</p>
-        <p className="mt-1 text-3xl font-semibold text-gray-900">
-          {formatAmount(total)}
-        </p>
+    <div>
+      {/* Portfolio value card */}
+      <div className="card pf-card">
+        <div className="h-lbl">Portfel qiymati</div>
+        <div className="h-val mono">{formatAmount(total)}</div>
+        {hasPL && (
+          <div
+            className="mt-2.5 inline-flex items-center gap-1.5 text-[13px] font-semibold"
+            style={{ color: totalPL >= 0 ? "var(--positive)" : "var(--negative)" }}
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
+              {totalPL >= 0 ? (
+                <>
+                  <path d="M7 17L17 7M17 7v9M17 7H8" />
+                </>
+              ) : (
+                <path d="M7 7l10 10M17 17V8M17 17H8" />
+              )}
+            </svg>
+            {totalPL >= 0 ? "+" : "−"}
+            {formatAmount(Math.abs(totalPL))}
+            <span className="font-medium text-muted">
+              ({totalPL >= 0 ? "+" : ""}
+              {plPct.toFixed(1)}%)
+            </span>
+          </div>
+        )}
         {holdings.length > 0 && (
           <div className="mt-4 flex flex-wrap gap-2">
             {TYPE_ORDER.filter((t) => (byType.get(t) ?? 0) > 0).map((t) => (
-              <span
-                key={t}
-                className="rounded-full bg-gray-100 px-3 py-1 text-xs font-medium text-gray-600"
-              >
-                {TYPE_META[t].icon} {TYPE_META[t].label}:{" "}
-                {formatAmount(byType.get(t) ?? 0)}
+              <span key={t} className="badge-pill">
+                {TYPE_META[t].label}: {formatAmount(byType.get(t) ?? 0)}
               </span>
             ))}
           </div>
         )}
-        <p className="mt-3 text-xs text-gray-400">
+        <p className="mt-3 text-[11.5px] text-[var(--muted-2)]">
           Narxlar yangilanadi · manba: CBU + CoinGecko
         </p>
-      </section>
+      </div>
 
-      <AddForm />
+      <div className="section">
+        <div className="section-head">
+          <h2>Qo&apos;shish</h2>
+        </div>
+        <AddForm />
+      </div>
 
       {/* Holdings grouped by type */}
-      {holdings.length === 0 ? (
-        <div className="rounded-2xl border border-dashed border-gray-300 bg-white p-12 text-center">
-          <p className="text-base font-medium text-gray-900">
-            Hali investitsiya yo&apos;q
-          </p>
-        </div>
-      ) : (
-        <div className="space-y-4">
-          {TYPE_ORDER.map((t) => {
-            const group = holdings.filter((h) => h.type === t);
-            if (group.length === 0) return null;
-            return (
-              <section
-                key={t}
-                className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm"
-              >
-                <div className="flex items-baseline justify-between gap-3">
-                  <h3 className="font-semibold text-gray-900">
-                    {TYPE_META[t].icon} {TYPE_META[t].label}
-                  </h3>
-                  <span className="text-sm text-gray-500">
-                    {formatAmount(byType.get(t) ?? 0)}
-                  </span>
+      <div className="section">
+        {holdings.length === 0 ? (
+          <div className="card">
+            <div className="empty">
+              <div className="eic">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M3 17l5-5 3 3 7-7" />
+                  <path d="M14 8h5v5" />
+                </svg>
+              </div>
+              <div className="et">Hali investitsiya yo&apos;q</div>
+              <div className="ex">Birinchi aktivingizni yuqoridan qo&apos;shing.</div>
+            </div>
+          </div>
+        ) : (
+          <div className="flex flex-col gap-3">
+            {TYPE_ORDER.map((t) => {
+              const group = holdings.filter((h) => h.type === t);
+              if (group.length === 0) return null;
+              return (
+                <div key={t}>
+                  <div className="section-head">
+                    <h2>{TYPE_META[t].label}</h2>
+                    <span className="mono text-[13px] text-muted">
+                      {formatAmount(byType.get(t) ?? 0)}
+                    </span>
+                  </div>
+                  <div className="card">
+                    {group.map((h) => (
+                      <HoldingRow key={h.id} holding={h} />
+                    ))}
+                  </div>
                 </div>
-                <ul className="mt-1 divide-y divide-gray-100">
-                  {group.map((h) => (
-                    <HoldingRow key={h.id} holding={h} />
-                  ))}
-                </ul>
-              </section>
-            );
-          })}
-        </div>
-      )}
+              );
+            })}
+          </div>
+        )}
+      </div>
     </div>
   );
 }

@@ -40,12 +40,12 @@ export default async function DebtsPage() {
 
   return (
     <AppShell>
-      <div className="mx-auto max-w-3xl space-y-6 px-4 py-8">
-        <div>
-          <h1 className="text-xl font-semibold text-gray-900">Qarzlar</h1>
-          <p className="mt-1 text-sm text-gray-500">
-            Kimdan qarz olganingiz va kimga qarz berganingizni kuzating.
-          </p>
+      <div className="mx-auto max-w-xl px-4 py-5">
+        <div className="appbar">
+          <div>
+            <div className="title">Qarzlar</div>
+            <div className="sub">Olingan va berilgan</div>
+          </div>
         </div>
 
         <DebtsClient debts={debts} />

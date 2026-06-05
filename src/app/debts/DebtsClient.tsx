@@ -33,17 +33,18 @@ function DirectionToggle({
   onChange: (d: Direction) => void;
 }) {
   return (
-    <div className="inline-flex overflow-hidden rounded-md border border-gray-200">
+    <div className="inline-flex overflow-hidden rounded-[10px] border border-border">
       {(["borrowed", "lent"] as Direction[]).map((d) => (
         <button
           key={d}
           type="button"
           onClick={() => onChange(d)}
-          className={`px-2.5 py-1.5 text-xs font-medium transition ${
+          className="px-3 py-1.5 text-[12.5px] font-medium transition-colors"
+          style={
             value === d
-              ? "bg-gray-900 text-white"
-              : "bg-white text-gray-600 hover:bg-gray-100"
-          }`}
+              ? { background: "var(--accent)", color: "#fff" }
+              : { background: "var(--card)", color: "var(--muted)" }
+          }
         >
           {DIRECTION_LABEL[d]}
         </button>
@@ -125,47 +126,51 @@ function QuickDebt() {
   }
 
   return (
-    <section className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
-      <div className="space-y-3">
+    <div className="card card-pad">
+      <div>
         <textarea
           value={text}
           onChange={(e) => setText(e.target.value)}
           onKeyDown={handleKeyDown}
           rows={2}
           placeholder="Masalan: Azizdan 500 ming oldim"
-          className="w-full resize-none rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-900 outline-none focus:border-gray-900 focus:ring-1 focus:ring-gray-900"
+          className="input resize-none"
         />
-        <div className="flex items-center justify-between">
-          <p className="text-xs text-gray-400">
-            Enter — tahlil qilish, Shift+Enter — yangi qator
+        <div className="mt-3 flex items-center justify-between gap-3">
+          <p className="text-[11.5px] text-muted">
+            Enter — tahlil, Shift+Enter — yangi qator
           </p>
           <button
             type="button"
             onClick={handleParse}
             disabled={parsing || !text.trim()}
-            className="rounded-lg bg-gray-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-gray-800 disabled:cursor-not-allowed disabled:opacity-60"
+            className="btn"
+            style={{ width: "auto", padding: "10px 16px" }}
           >
             {parsing ? "Tahlil qilinmoqda..." : "Qo'shish"}
           </button>
         </div>
         {parseError && (
-          <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-600">
+          <p className="mt-3 text-[12.5px] font-medium text-negative">
             {parseError}
           </p>
         )}
       </div>
 
       {preview && (
-        <div className="mt-5 border-t border-gray-100 pt-5">
-          <h3 className="mb-3 text-sm font-medium text-gray-700">Tasdiqlang</h3>
-          <div className="flex flex-wrap items-center gap-2 rounded-lg border border-gray-200 p-2">
+        <div className="mt-4 border-t border-border pt-4">
+          <div className="field-label" style={{ margin: "0 0 9px" }}>
+            Tasdiqlang
+          </div>
+          <div className="flex flex-wrap items-center gap-2 rounded-[10px] border border-border p-2">
             <input
               value={preview.person}
               onChange={(e) =>
                 setPreview({ ...preview, person: e.target.value })
               }
               placeholder="Ism"
-              className="min-w-0 flex-1 rounded-md border border-gray-200 px-2 py-1.5 text-sm text-gray-900 outline-none focus:border-gray-900"
+              className="input min-w-0 flex-1"
+              style={{ padding: "8px 11px" }}
             />
             <input
               type="number"
@@ -175,7 +180,8 @@ function QuickDebt() {
               onChange={(e) =>
                 setPreview({ ...preview, amount: Number(e.target.value) || 0 })
               }
-              className="w-32 rounded-md border border-gray-200 px-2 py-1.5 text-right text-sm text-gray-900 outline-none focus:border-gray-900"
+              className="input mono w-32 text-right"
+              style={{ padding: "8px 11px" }}
             />
             <DirectionToggle
               value={preview.direction}
@@ -184,7 +190,7 @@ function QuickDebt() {
           </div>
 
           {saveError && (
-            <p className="mt-3 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-600">
+            <p className="mt-3 text-[12.5px] font-medium text-negative">
               {saveError}
             </p>
           )}
@@ -194,14 +200,15 @@ function QuickDebt() {
               type="button"
               onClick={handleSave}
               disabled={saving}
-              className="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-60"
+              className="btn"
+              style={{ width: "auto", padding: "10px 16px" }}
             >
               {saving ? "Saqlanmoqda..." : "Saqlash"}
             </button>
           </div>
         </div>
       )}
-    </section>
+    </div>
   );
 }
 
@@ -249,14 +256,16 @@ function ManualDebt() {
   }
 
   return (
-    <section className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
-      <h3 className="mb-3 text-sm font-medium text-gray-700">Qo&apos;lda qo&apos;shish</h3>
+    <div className="card card-pad">
+      <div className="field-label" style={{ margin: "0 0 11px" }}>
+        Qo&apos;lda qo&apos;shish
+      </div>
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
         <input
           value={person}
           onChange={(e) => setPerson(e.target.value)}
           placeholder="Ism (masalan, Aziz)"
-          className="rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-900 outline-none focus:border-gray-900"
+          className="input"
         />
         <input
           type="number"
@@ -264,11 +273,11 @@ function ManualDebt() {
           value={amount}
           onChange={(e) => setAmount(e.target.value)}
           placeholder="Summa (so'm)"
-          className="rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-900 outline-none focus:border-gray-900"
+          className="input mono"
         />
       </div>
       <div className="mt-3 flex flex-wrap items-center gap-4">
-        <label className="flex items-center gap-2 text-sm text-gray-700">
+        <label className="flex items-center gap-2 text-[13px] text-foreground">
           <input
             type="radio"
             name="manual-direction"
@@ -277,7 +286,7 @@ function ManualDebt() {
           />
           Qarz oldim
         </label>
-        <label className="flex items-center gap-2 text-sm text-gray-700">
+        <label className="flex items-center gap-2 text-[13px] text-foreground">
           <input
             type="radio"
             name="manual-direction"
@@ -287,22 +296,23 @@ function ManualDebt() {
           Qarz berdim
         </label>
       </div>
-      <div className="mt-3 flex items-center justify-between">
+      <div className="mt-3 flex items-center justify-between gap-3">
         {error ? (
-          <p className="text-sm text-red-600">{error}</p>
+          <p className="text-[12.5px] font-medium text-negative">{error}</p>
         ) : (
-          <span className="text-xs text-gray-400">Tezkor kiritish ishlamasa</span>
+          <span className="text-[11.5px] text-muted">Tezkor kiritish ishlamasa</span>
         )}
         <button
           type="button"
           onClick={add}
           disabled={saving}
-          className="rounded-lg bg-gray-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-gray-800 disabled:opacity-60"
+          className="btn"
+          style={{ width: "auto", padding: "10px 16px" }}
         >
           {saving ? "..." : "Qo'shish"}
         </button>
       </div>
-    </section>
+    </div>
   );
 }
 
@@ -354,24 +364,26 @@ function DebtRow({ debt }: { debt: Debt }) {
   }
 
   return (
-    <li className="flex flex-wrap items-center gap-x-3 gap-y-1 py-2">
+    <li className="flex flex-wrap items-center gap-x-3 gap-y-1 border-t border-border py-2.5 first:border-t-0">
       <span
-        className={`text-sm font-medium ${
-          debt.settled ? "text-gray-400 line-through" : "text-gray-900"
+        className={`mono text-[13.5px] font-semibold ${
+          debt.settled ? "text-muted line-through" : "text-foreground"
         }`}
       >
         {formatAmount(debt.amount)}
       </span>
       <span
-        className={`text-xs ${
-          debt.settled ? "text-gray-300 line-through" : "text-gray-500"
+        className={`text-[12px] ${
+          debt.settled ? "text-[var(--muted-2)] line-through" : "text-muted"
         }`}
       >
         {DIRECTION_LABEL[debt.direction]}
       </span>
-      <span className="text-xs text-gray-400">{formatDate(debt.created_at)}</span>
+      <span className="text-[11px] text-[var(--muted-2)]">
+        {formatDate(debt.created_at)}
+      </span>
       {debt.note && (
-        <span className="text-xs text-gray-400">· {debt.note}</span>
+        <span className="text-[11px] text-[var(--muted-2)]">· {debt.note}</span>
       )}
 
       <div className="ml-auto flex items-center gap-1">
@@ -379,11 +391,12 @@ function DebtRow({ debt }: { debt: Debt }) {
           type="button"
           onClick={toggleSettle}
           disabled={busy}
-          className={`rounded-md px-2 py-1 text-xs font-medium transition disabled:opacity-60 ${
+          className="rounded-md px-2 py-1 text-[11.5px] font-medium transition disabled:opacity-60"
+          style={
             debt.settled
-              ? "bg-emerald-50 text-emerald-700 hover:bg-emerald-100"
-              : "border border-gray-200 text-gray-600 hover:bg-gray-100"
-          }`}
+              ? { background: "var(--positive-weak)", color: "var(--positive)" }
+              : { border: "1px solid var(--border)", color: "var(--muted)" }
+          }
         >
           {debt.settled ? "✓ Yopilgan" : "Yopildi"}
         </button>
@@ -392,13 +405,13 @@ function DebtRow({ debt }: { debt: Debt }) {
           onClick={remove}
           disabled={busy}
           aria-label="O'chirish"
-          className="rounded-md px-2 py-1 text-gray-400 transition hover:bg-gray-100 hover:text-gray-700 disabled:opacity-60"
+          className="rounded-md px-2 py-1 text-muted transition hover:bg-[var(--subtle)] hover:text-foreground disabled:opacity-60"
         >
           ✕
         </button>
       </div>
 
-      {error && <p className="w-full text-xs text-red-600">{error}</p>}
+      {error && <p className="w-full text-[11.5px] text-negative">{error}</p>}
     </li>
   );
 }
@@ -416,24 +429,28 @@ function PersonGroup({ person, debts }: { person: string; debts: Debt[] }) {
   }, 0);
 
   return (
-    <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
+    <div className="card card-pad">
       <div className="flex items-baseline justify-between gap-3">
-        <h3 className="truncate font-semibold text-gray-900">{person}</h3>
+        <h3 className="truncate text-[14px] font-semibold text-foreground">
+          {person}
+        </h3>
         <span
-          className={`shrink-0 text-sm font-medium ${
-            net > 0
-              ? "text-emerald-600"
-              : net < 0
-                ? "text-red-600"
-                : "text-gray-400"
-          }`}
+          className="shrink-0 text-[12.5px] font-semibold"
+          style={{
+            color:
+              net > 0
+                ? "var(--positive)"
+                : net < 0
+                  ? "var(--negative)"
+                  : "var(--muted)",
+          }}
         >
           {net > 0 && `Sizga qarzdor: ${formatAmount(net)}`}
           {net < 0 && `Siz qarzdorsiz: ${formatAmount(-net)}`}
           {net === 0 && "Hisob teng"}
         </span>
       </div>
-      <ul className="mt-2 divide-y divide-gray-100">
+      <ul className="mt-1">
         {debts.map((d) => (
           <DebtRow key={d.id} debt={d} />
         ))}
@@ -467,39 +484,82 @@ export default function DebtsClient({ debts }: { debts: Debt[] }) {
     groups[idx].debts.push(d);
   }
 
+  const net = owedToMe - iOwe;
+
   return (
-    <div className="space-y-6">
-      {/* Summary cards */}
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-        <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
-          <p className="text-sm text-gray-500">Menga qarzdorlar</p>
-          <p className="mt-1 text-2xl font-semibold text-emerald-600">
-            {formatAmount(owedToMe)}
-          </p>
+    <div>
+      {/* Net balance hero */}
+      <div className="hero">
+        <div className="h-lbl">Sof balans</div>
+        <div
+          className="h-val mono"
+          style={{ color: net >= 0 ? "var(--positive)" : "var(--negative)" }}
+        >
+          {net >= 0 ? "+" : "−"}
+          {formatAmount(Math.abs(net))}
         </div>
-        <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
-          <p className="text-sm text-gray-500">Mening qarzlarim</p>
-          <p className="mt-1 text-2xl font-semibold text-red-600">
-            {formatAmount(iOwe)}
-          </p>
+        <div className="h-meta">
+          <span>
+            {net > 0
+              ? "Sizga ko'proq qarzdor"
+              : net < 0
+                ? "Siz ko'proq qarzdorsiz"
+                : "Hisob teng"}
+          </span>
         </div>
       </div>
 
-      <QuickDebt />
-      <ManualDebt />
+      {/* Balance cards */}
+      <div className="balcards">
+        <div className="balc">
+          <div className="l">
+            <span className="d" style={{ background: "var(--positive)" }} />
+            Menga qarzdor
+          </div>
+          <div className="v mono" style={{ color: "var(--positive)" }}>
+            +{formatAmount(owedToMe)}
+          </div>
+        </div>
+        <div className="balc">
+          <div className="l">
+            <span className="d" style={{ background: "var(--negative)" }} />
+            Men qarzdorman
+          </div>
+          <div className="v mono" style={{ color: "var(--negative)" }}>
+            −{formatAmount(iOwe)}
+          </div>
+        </div>
+      </div>
+
+      <div className="section">
+        <QuickDebt />
+      </div>
+      <div className="section">
+        <ManualDebt />
+      </div>
 
       {/* Grouped list */}
-      {groups.length === 0 ? (
-        <div className="rounded-2xl border border-dashed border-gray-300 bg-white p-12 text-center">
-          <p className="text-base font-medium text-gray-900">Hali qarz yo&apos;q</p>
-        </div>
-      ) : (
-        <div className="space-y-4">
-          {groups.map((g) => (
-            <PersonGroup key={g.person} person={g.person} debts={g.debts} />
-          ))}
-        </div>
-      )}
+      <div className="section">
+        {groups.length === 0 ? (
+          <div className="card">
+            <div className="empty">
+              <div className="eic">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M16 4l4 4-4 4M20 8H8M8 20l-4-4 4-4M4 16h12" />
+                </svg>
+              </div>
+              <div className="et">Hali qarz yo&apos;q</div>
+              <div className="ex">Qarz olgan yoki bergan summangizni qo&apos;shing.</div>
+            </div>
+          </div>
+        ) : (
+          <div className="flex flex-col gap-3">
+            {groups.map((g) => (
+              <PersonGroup key={g.person} person={g.person} debts={g.debts} />
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   );
 }

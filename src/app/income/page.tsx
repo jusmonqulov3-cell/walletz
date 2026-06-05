@@ -41,53 +41,63 @@ export default async function IncomePage() {
 
   return (
     <AppShell>
-      <div className="mx-auto max-w-3xl space-y-8 px-4 py-8">
-        <h1 className="text-xl font-semibold text-gray-900">Daromad</h1>
+      <div className="mx-auto max-w-xl px-4 py-5">
+        <div className="appbar">
+          <div>
+            <div className="title">Daromad</div>
+            <div className="sub">Joriy oy · daromad manbalari</div>
+          </div>
+        </div>
 
-        {/* This month income */}
-        <div className="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm">
-          <p className="text-xs font-medium text-gray-500">Bu oy daromad</p>
-          <p className="mt-1 text-lg font-semibold text-emerald-600">
-            {formatAmount(monthTotal)}
-          </p>
+        {/* This month income (accent hero) */}
+        <div className="hero accent">
+          <div className="h-lbl">Oylik daromad</div>
+          <div className="h-val mono">{formatAmount(monthTotal)}</div>
         </div>
 
         {/* Quick input */}
-        <QuickIncome />
+        <div className="section">
+          <div className="section-head">
+            <h2>Yangi kirim</h2>
+          </div>
+          <QuickIncome />
+        </div>
 
         {/* Recent incomes */}
-        <section>
-          <h2 className="mb-3 text-sm font-medium text-gray-700">
-            So&apos;nggi daromadlar
-          </h2>
+        <section className="section">
+          <div className="section-head">
+            <h2>So&apos;nggi daromadlar</h2>
+          </div>
 
           {recent.length === 0 ? (
-            <div className="rounded-2xl border border-dashed border-gray-300 bg-white p-12 text-center">
-              <p className="text-base font-medium text-gray-900">
-                Birinchi daromadingizni kiriting ↑
-              </p>
+            <div className="card">
+              <div className="empty">
+                <div className="eic">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M12 2v20M17 7l-5-5-5 5" />
+                  </svg>
+                </div>
+                <div className="et">Hali daromad yo&apos;q</div>
+                <div className="ex">Birinchi daromadingizni yuqoridan kiriting.</div>
+              </div>
             </div>
           ) : (
-            <ul className="divide-y divide-gray-100 overflow-hidden rounded-2xl border border-gray-200 bg-white">
+            <div className="card list">
               {recent.map((r) => (
-                <li
-                  key={r.id}
-                  className="flex items-center justify-between gap-3 px-4 py-3"
-                >
-                  <div className="min-w-0">
-                    <p className="truncate text-sm font-medium text-gray-900">
-                      {r.source || "—"}
-                    </p>
-                    <p className="text-xs text-gray-500">
-                      {formatDate(r.received_at)}
-                    </p>
+                <div className="li" key={r.id}>
+                  <div className="badge" style={{ background: "var(--positive-weak)" }}>
+                    <span style={{ background: "var(--positive)" }} />
                   </div>
-                  <span className="shrink-0 text-sm font-semibold text-emerald-600">
-                    {formatAmount(r.amount)}
-                  </span>
-                </li>
+                  <div className="meta">
+                    <div className="m1 truncate">{r.source || "—"}</div>
+                    <div className="m2">{formatDate(r.received_at)}</div>
+                  </div>
+                  <div className="right">
+                    <div className="ramt pos mono">+{formatAmount(r.amount)}</div>
+                  </div>
+                </div>
               ))}
-            </ul>
+            </div>
           )}
         </section>
       </div>

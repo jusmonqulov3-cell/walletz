@@ -31,7 +31,7 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button(
     <button
       ref={ref}
       className={cn(
-        "inline-flex items-center justify-center gap-2 rounded-lg font-medium transition-colors outline-none",
+        "inline-flex items-center justify-center gap-2 rounded-[10px] font-medium transition-colors outline-none",
         "focus-visible:ring-2 focus-visible:ring-accent/40",
         "disabled:cursor-not-allowed disabled:opacity-60",
         VARIANTS[variant],

@@ -105,12 +105,12 @@ export default async function InvestmentsPage() {
 
   return (
     <AppShell>
-      <div className="mx-auto max-w-3xl space-y-6 px-4 py-8">
-        <div>
-          <h1 className="text-xl font-semibold text-gray-900">Investitsiya</h1>
-          <p className="mt-1 text-sm text-gray-500">
-            Portfelingizni kuzating — valyuta, kripto, aksiya va jamg&apos;arma.
-          </p>
+      <div className="mx-auto max-w-xl px-4 py-5">
+        <div className="appbar">
+          <div>
+            <div className="title">Investitsiya</div>
+            <div className="sub">Valyuta · kripto · aksiya · jamg&apos;arma</div>
+          </div>
         </div>
 
         <InvestmentsClient holdings={holdings} />

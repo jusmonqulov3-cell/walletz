@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { formatAmount } from "@/lib/format";
 import AppShell from "@/components/AppShell";
 import GoalsClient, { type Goal } from "./GoalsClient";
 
@@ -34,17 +35,40 @@ export default async function GoalsPage() {
     target_date: g.target_date,
   }));
 
+  const totalSaved = goals.reduce((s, g) => s + g.saved_amount, 0);
+  const totalTarget = goals.reduce((s, g) => s + g.target_amount, 0);
+  const overallPct =
+    totalTarget > 0 ? Math.min(100, Math.round((totalSaved / totalTarget) * 100)) : 0;
+
   return (
     <AppShell>
-      <div className="mx-auto max-w-3xl space-y-6 px-4 py-8">
-        <div>
-          <h1 className="text-xl font-semibold text-gray-900">Maqsadlar</h1>
-          <p className="mt-1 text-sm text-gray-500">
-            Jamg&apos;arma maqsadlaringizni belgilang va kuzating.
-          </p>
+      <div className="mx-auto max-w-xl px-4 py-5">
+        <div className="appbar">
+          <div>
+            <div className="title">Maqsadlar</div>
+            <div className="sub">
+              {goals.length} ta faol jamg&apos;arma
+            </div>
+          </div>
         </div>
 
-        <GoalsClient goals={goals} />
+        {goals.length > 0 && (
+          <div className="hero">
+            <div className="h-lbl">Jami jamg&apos;arilgan</div>
+            <div className="h-val mono">{formatAmount(totalSaved)}</div>
+            <div className="h-meta">
+              <span>{formatAmount(totalTarget)} maqsaddan</span>
+              <span className="h-delta gain">{overallPct}%</span>
+            </div>
+            <div className="bar" style={{ marginTop: 13 }}>
+              <i style={{ width: `${overallPct}%` }} />
+            </div>
+          </div>
+        )}
+
+        <div className="section">
+          <GoalsClient goals={goals} />
+        </div>
       </div>
     </AppShell>
   );

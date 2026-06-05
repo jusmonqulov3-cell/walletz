@@ -23,72 +23,82 @@ export default function FinancialCoach() {
     }
   }
 
-  return (
-    <section className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
-      <div className="flex items-center justify-between gap-3">
-        <h2 className="text-sm font-medium text-gray-700">
-          🤖 Moliyaviy maslahatchi
-        </h2>
-        {insights !== null && (
-          <button
-            type="button"
-            onClick={analyze}
-            disabled={loading}
-            className="rounded-md px-2 py-1 text-xs font-medium text-gray-500 transition hover:bg-gray-100 hover:text-gray-700 disabled:opacity-60"
-          >
-            {loading ? "..." : "↻ Qayta tahlil"}
-          </button>
-        )}
-      </div>
-
-      {/* Initial state: prompt to analyze (no auto-call to save tokens). */}
-      {insights === null && (
-        <div className="mt-3">
-          <p className="text-sm text-gray-500">
-            Xarajatlaringiz bo&apos;yicha shaxsiy maslahatlar oling.
-          </p>
-          <button
-            type="button"
-            onClick={analyze}
-            disabled={loading}
-            className="mt-3 rounded-lg bg-gray-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-gray-800 disabled:cursor-not-allowed disabled:opacity-60"
-          >
-            {loading ? "Tahlil qilinmoqda..." : "Tahlil qilish"}
-          </button>
-        </div>
-      )}
-
-      {error && (
-        <p className="mt-3 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-600">
-          {error}
+  // Initial: prompt to analyze (no auto-call to save tokens).
+  if (insights === null) {
+    return (
+      <div className="card card-pad">
+        <p className="text-[13px] text-muted">
+          Xarajatlaringiz bo&apos;yicha shaxsiy maslahatlar oling.
         </p>
-      )}
+        {error && (
+          <p className="mt-3 text-[12.5px] font-medium text-negative">{error}</p>
+        )}
+        <button
+          type="button"
+          onClick={analyze}
+          disabled={loading}
+          className="btn mt-3"
+          style={{ width: "auto", padding: "10px 16px" }}
+        >
+          {loading ? "Tahlil qilinmoqda..." : "Tahlil qilish"}
+        </button>
+      </div>
+    );
+  }
 
-      {/* Results */}
-      {insights !== null && !error && (
-        <div className="mt-4">
-          {insights.length === 0 ? (
-            <p className="rounded-lg bg-gray-50 px-3 py-3 text-sm text-gray-600">
-              Tahlil uchun yetarli ma&apos;lumot yo&apos;q — avval bir nechta
-              xarajat kiriting.
-            </p>
-          ) : (
-            <ul className="space-y-3">
-              {insights.map((tip, i) => (
-                <li
-                  key={i}
-                  className="flex gap-3 rounded-xl border border-gray-100 bg-gray-50 p-3 text-sm text-gray-800"
-                >
-                  <span aria-hidden className="shrink-0">
-                    💡
-                  </span>
-                  <span>{tip}</span>
-                </li>
-              ))}
-            </ul>
-          )}
+  return (
+    <div>
+      {error && (
+        <div className="card tip danger">
+          <div className="ic">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="12" cy="12" r="9" />
+              <path d="M12 8v4M12 16h.01" />
+            </svg>
+          </div>
+          <div className="body">
+            <div className="tx">{error}</div>
+          </div>
         </div>
       )}
-    </section>
+
+      {insights.length === 0 ? (
+        <div className="card">
+          <div className="empty">
+            <div className="eic">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M9 18h6M10 22h4" />
+                <path d="M12 2a7 7 0 0 0-4 12.7c.6.5 1 1.3 1 2.1h6c0-.8.4-1.6 1-2.1A7 7 0 0 0 12 2z" />
+              </svg>
+            </div>
+            <div className="et">Tahlil uchun ma&apos;lumot yetarli emas</div>
+            <div className="ex">Avval bir nechta xarajat kiriting.</div>
+          </div>
+        </div>
+      ) : (
+        insights.map((tip, i) => (
+          <div className="card tip" key={i}>
+            <div className="ic">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M9 18h6M10 22h4" />
+                <path d="M12 2a7 7 0 0 0-4 12.7c.6.5 1 1.3 1 2.1h6c0-.8.4-1.6 1-2.1A7 7 0 0 0 12 2z" />
+              </svg>
+            </div>
+            <div className="body">
+              <div className="tx">{tip}</div>
+            </div>
+          </div>
+        ))
+      )}
+
+      <button
+        type="button"
+        onClick={analyze}
+        disabled={loading}
+        className="link mt-3 text-[13px] font-medium text-accent hover:underline disabled:opacity-60"
+      >
+        {loading ? "..." : "↻ Qayta tahlil"}
+      </button>
+    </div>
   );
 }
