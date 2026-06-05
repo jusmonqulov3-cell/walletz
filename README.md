@@ -1,36 +1,64 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# PulNazorat
 
-## Getting Started
+AI-powered shaxsiy moliya ilovasi. Valyuta: O'zbek so'mi (UZS). Interfeys tili: o'zbekcha.
 
-First, run the development server:
+**Stack:** Next.js (App Router) · TypeScript · Tailwind CSS · Supabase (Auth + Postgres).
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+## 1. Talablar
+
+- Node.js 18.18+ (sinovdan o'tgan: Node 24)
+- [Supabase](https://supabase.com) loyihasi (bepul reja yetarli)
+
+## 2. `.env.local` ni to'ldirish
+
+Loyiha ildizidagi `.env.local` faylida quyidagi o'zgaruvchilar bor — ularni Supabase loyiha sozlamalaridan oling:
+
+```
+NEXT_PUBLIC_SUPABASE_URL=
+NEXT_PUBLIC_SUPABASE_ANON_KEY=
+SUPABASE_SERVICE_ROLE_KEY=
+ANTHROPIC_API_KEY=
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Qiymatlarni qayerdan olish:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- `NEXT_PUBLIC_SUPABASE_URL` va `NEXT_PUBLIC_SUPABASE_ANON_KEY` — Supabase Dashboard → **Project Settings → API** (Project URL va `anon` `public` key).
+- `SUPABASE_SERVICE_ROLE_KEY` — o'sha sahifadagi `service_role` key (faqat serverda ishlatiladi, sirli saqlang).
+- `ANTHROPIC_API_KEY` — [Anthropic Console](https://console.anthropic.com) (kelajakdagi AI funksiyalari uchun).
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## 3. Ma'lumotlar bazasi sxemasini o'rnatish
 
-## Learn More
+1. Supabase Dashboard → **SQL Editor** → **New query**.
+2. `supabase/schema.sql` faylidagi barcha kodni nusxalab, tahrirlagichga joylashtiring.
+3. **Run** tugmasini bosing.
 
-To learn more about Next.js, take a look at the following resources:
+Bu jadvallarni (`categories`, `expenses`, `incomes`, `budgets`), Row Level Security siyosatlarini (har bir foydalanuvchi faqat o'z ma'lumotlarini ko'radi) va standart kategoriyalarni yaratadi.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+> **Eslatma:** Tez sinash uchun Supabase Dashboard → **Authentication → Providers → Email** bo'limida "Confirm email" ni o'chirib qo'yishingiz mumkin — shunda ro'yxatdan o'tgach darhol tizimga kirasiz.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## 4. Dasturni ishga tushirish
 
-## Deploy on Vercel
+```bash
+npm install
+npm run dev
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+[http://localhost:3000](http://localhost:3000) ni oching. Tizimga kirmagan foydalanuvchi `/login` ga yo'naltiriladi.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Loyiha tuzilishi
+
+```
+src/
+  app/
+    login/page.tsx        # Kirish / Ro'yxatdan o'tish
+    dashboard/page.tsx    # Himoyalangan boshqaruv paneli
+    auth/actions.ts       # signOut server action
+    page.tsx              # Sessiyaga qarab yo'naltirish
+  lib/supabase/
+    client.ts             # Brauzer klienti
+    server.ts             # Server klienti
+    middleware.ts         # Sessiyani yangilash + marshrutni himoyalash
+  middleware.ts           # Next.js middleware kirish nuqtasi
+supabase/
+  schema.sql              # DB sxemasi + RLS + seed
+```
