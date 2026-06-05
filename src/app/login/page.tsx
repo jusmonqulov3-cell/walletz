@@ -3,6 +3,9 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import Button from "@/components/ui/Button";
+import Card from "@/components/ui/Card";
+import Input from "@/components/ui/Input";
 
 type Mode = "login" | "signup";
 
@@ -61,18 +64,24 @@ export default function LoginPage() {
   }
 
   return (
-    <main className="flex min-h-full flex-1 items-center justify-center bg-gray-50 px-4 py-12">
+    <main className="flex min-h-full flex-1 items-center justify-center bg-background px-4 py-12">
       <div className="w-full max-w-sm">
-        <div className="mb-8 text-center">
-          <h1 className="text-2xl font-bold text-gray-900">PulNazorat</h1>
-          <p className="mt-1 text-sm text-gray-500">
-            Shaxsiy moliya yordamchingiz
-          </p>
+        <div className="mb-8 flex flex-col items-center text-center">
+          <span
+            aria-hidden
+            className="mb-4 flex h-11 w-11 items-center justify-center rounded-xl bg-accent text-lg font-bold text-accent-foreground"
+          >
+            P
+          </span>
+          <h1 className="text-xl font-semibold tracking-tight text-foreground">
+            PulNazorat
+          </h1>
+          <p className="mt-1 text-sm text-muted">Shaxsiy moliya yordamchingiz</p>
         </div>
 
-        <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
-          {/* Toggle */}
-          <div className="mb-6 grid grid-cols-2 gap-1 rounded-lg bg-gray-100 p-1">
+        <Card className="p-6">
+          {/* Mode toggle */}
+          <div className="mb-6 grid grid-cols-2 gap-1 rounded-lg border border-border bg-background p-1">
             <button
               type="button"
               onClick={() => {
@@ -80,10 +89,10 @@ export default function LoginPage() {
                 setError(null);
                 setMessage(null);
               }}
-              className={`rounded-md px-3 py-2 text-sm font-medium transition ${
+              className={`rounded-md px-3 py-2 text-sm font-medium transition-colors ${
                 isLogin
-                  ? "bg-white text-gray-900 shadow-sm"
-                  : "text-gray-500 hover:text-gray-700"
+                  ? "bg-surface text-foreground"
+                  : "text-muted hover:text-foreground"
               }`}
             >
               Kirish
@@ -95,10 +104,10 @@ export default function LoginPage() {
                 setError(null);
                 setMessage(null);
               }}
-              className={`rounded-md px-3 py-2 text-sm font-medium transition ${
+              className={`rounded-md px-3 py-2 text-sm font-medium transition-colors ${
                 !isLogin
-                  ? "bg-white text-gray-900 shadow-sm"
-                  : "text-gray-500 hover:text-gray-700"
+                  ? "bg-surface text-foreground"
+                  : "text-muted hover:text-foreground"
               }`}
             >
               Ro&apos;yxatdan o&apos;tish
@@ -109,17 +118,16 @@ export default function LoginPage() {
             <div>
               <label
                 htmlFor="email"
-                className="mb-1 block text-sm font-medium text-gray-700"
+                className="mb-1.5 block text-sm font-medium text-foreground"
               >
                 Email
               </label>
-              <input
+              <Input
                 id="email"
                 type="email"
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-900 outline-none focus:border-gray-900 focus:ring-1 focus:ring-gray-900"
                 placeholder="siz@example.com"
               />
             </div>
@@ -127,46 +135,41 @@ export default function LoginPage() {
             <div>
               <label
                 htmlFor="password"
-                className="mb-1 block text-sm font-medium text-gray-700"
+                className="mb-1.5 block text-sm font-medium text-foreground"
               >
                 Parol
               </label>
-              <input
+              <Input
                 id="password"
                 type="password"
                 required
                 minLength={6}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-900 outline-none focus:border-gray-900 focus:ring-1 focus:ring-gray-900"
                 placeholder="••••••••"
               />
             </div>
 
             {error && (
-              <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-600">
+              <p className="rounded-lg border border-negative/20 bg-negative/10 px-3 py-2 text-sm text-negative">
                 {error}
               </p>
             )}
             {message && (
-              <p className="rounded-lg bg-green-50 px-3 py-2 text-sm text-green-700">
+              <p className="rounded-lg border border-positive/20 bg-positive/10 px-3 py-2 text-sm text-positive">
                 {message}
               </p>
             )}
 
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full rounded-lg bg-gray-900 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-gray-800 disabled:cursor-not-allowed disabled:opacity-60"
-            >
+            <Button type="submit" disabled={loading} className="w-full">
               {loading
                 ? "Yuklanmoqda..."
                 : isLogin
                   ? "Kirish"
                   : "Ro'yxatdan o'tish"}
-            </button>
+            </Button>
           </form>
-        </div>
+        </Card>
       </div>
     </main>
   );
