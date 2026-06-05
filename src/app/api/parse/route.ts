@@ -1,10 +1,23 @@
 import { NextResponse } from "next/server";
+import { createClient } from "@/lib/supabase/server";
 import { parseExpenses } from "@/lib/parseExpenses";
 
 // Allow up to 30s for the Gemini round-trip on Vercel.
 export const maxDuration = 30;
 
 export async function POST(request: Request) {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return NextResponse.json(
+      { error: "Avtorizatsiya talab qilinadi" },
+      { status: 401 },
+    );
+  }
+
   let body: unknown;
   try {
     body = await request.json();

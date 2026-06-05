@@ -1,5 +1,9 @@
 import { NextResponse } from "next/server";
+import { createClient } from "@/lib/supabase/server";
 import { generateJSON } from "@/lib/gemini";
+
+// Allow up to 30s for the Gemini round-trip on Vercel.
+export const maxDuration = 30;
 
 const SYSTEM_INSTRUCTION = `You are an income parser for an Uzbek personal finance app. The user lists one or more income entries in informal Uzbek shorthand (one line or several). Split into items. For each extract: source (short label, capitalized) and amount (integer in so'm). Amount rules: 'ming' or 'k' = thousand; 'mln' or 'm' = million; a bare number under 1000 with no unit × 1000; a bare number 1000 or larger as-is. Return ONLY valid JSON, nothing else: {"incomes":[{"source":"Oylik","amount":5000000}]}`;
 
@@ -17,6 +21,18 @@ function normalize(item: unknown): ParsedIncome | null {
 }
 
 export async function POST(request: Request) {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return NextResponse.json(
+      { error: "Avtorizatsiya talab qilinadi" },
+      { status: 401 },
+    );
+  }
+
   let body: unknown;
   try {
     body = await request.json();
