@@ -225,6 +225,22 @@ create policy "telegram_codes_delete_own"
   to authenticated
   using (user_id = auth.uid());
 
+-- Pending Telegram transactions awaiting inline-button confirmation. Only the
+-- service-role webhook reads/writes these, so RLS is enabled with NO policies
+-- (authenticated clients have no access; the service role bypasses RLS).
+create table if not exists public.telegram_pending (
+  id          uuid primary key default gen_random_uuid(),
+  user_id     uuid not null references auth.users (id) on delete cascade,
+  telegram_id bigint not null,
+  payload     jsonb not null,
+  created_at  timestamptz not null default now()
+);
+
+create index if not exists telegram_pending_telegram_id_idx
+  on public.telegram_pending (telegram_id);
+
+alter table public.telegram_pending enable row level security;
+
 -- ---------------------------------------------------------------------------
 -- Savings goals
 -- ---------------------------------------------------------------------------
@@ -312,18 +328,22 @@ create policy "debts_delete_own"
 --   'kripto'   — symbol = CoinGecko id (e.g. "bitcoin", "ethereum", "pax-gold")
 --   'valyuta'  — symbol = currency code (e.g. "USD", "EUR", "RUB")
 --   'aksiya'   — manual_price = current UZS price per share (user-updated)
---   'jamgarma' — quantity = the UZS amount (unit price treated as 1)
+--   'jamgarma' — quantity = the UZS principal; interest_rate = annual % compounded
+--                monthly over term_months. Value accrues from created_at and is
+--                held at the maturity amount once the term ends.
 
 create table if not exists public.investments (
-  id           uuid primary key default gen_random_uuid(),
-  user_id      uuid not null references auth.users (id) on delete cascade,
-  type         text not null check (type in ('valyuta', 'kripto', 'aksiya', 'jamgarma')),
-  name         text not null,
-  symbol       text,
-  quantity     numeric not null,
-  buy_price    numeric,
-  manual_price numeric,
-  created_at   timestamptz not null default now()
+  id            uuid primary key default gen_random_uuid(),
+  user_id       uuid not null references auth.users (id) on delete cascade,
+  type          text not null check (type in ('valyuta', 'kripto', 'aksiya', 'jamgarma')),
+  name          text not null,
+  symbol        text,
+  quantity      numeric not null,
+  buy_price     numeric,
+  manual_price  numeric,
+  interest_rate numeric,   -- jamgarma: annual interest rate in % (compounded monthly)
+  term_months   integer,   -- jamgarma: deposit term in whole months
+  created_at    timestamptz not null default now()
 );
 
 create index if not exists investments_user_id_idx on public.investments (user_id);

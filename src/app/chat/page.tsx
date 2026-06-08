@@ -5,11 +5,9 @@ import Chat from "./Chat";
 
 export default async function ChatPage() {
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const { data: auth } = await supabase.auth.getClaims();
 
-  if (!user) {
+  if (!auth?.claims) {
     redirect("/login");
   }
 

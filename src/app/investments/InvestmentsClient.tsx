@@ -6,6 +6,17 @@ import { formatAmount } from "@/lib/format";
 
 export type InvestmentType = "valyuta" | "kripto" | "aksiya" | "jamgarma";
 
+// Server-computed deposit timeline for a jamgarma holding (null = plain savings).
+export type DepositInfo = {
+  annualRate: number;
+  termMonths: number;
+  monthsElapsed: number;
+  monthsRemaining: number;
+  matured: boolean;
+  principal: number;
+  maturityValue: number;
+};
+
 // A holding with server-computed live values folded in.
 export type ComputedHolding = {
   id: string;
@@ -15,10 +26,13 @@ export type ComputedHolding = {
   quantity: number;
   buy_price: number | null;
   manual_price: number | null;
+  interestRate: number | null;
+  termMonths: number | null;
   unitPriceUZS: number;
   value: number;
   priceMissing: boolean;
   profitLoss: number | null;
+  deposit: DepositInfo | null;
 };
 
 const TYPE_META: Record<
@@ -69,6 +83,12 @@ function HoldingRow({ holding }: { holding: ComputedHolding }) {
   const [buyPrice, setBuyPrice] = useState(
     holding.buy_price != null ? String(holding.buy_price) : "",
   );
+  const [annualRate, setAnnualRate] = useState(
+    holding.interestRate != null ? String(holding.interestRate) : "",
+  );
+  const [termMonths, setTermMonths] = useState(
+    holding.termMonths != null ? String(holding.termMonths) : "",
+  );
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -86,6 +106,10 @@ function HoldingRow({ holding }: { holding: ComputedHolding }) {
     if (Number.isFinite(qty) && qty > 0) payload.quantity = qty;
     if (isAksiya && manualPrice) payload.manual_price = Number(manualPrice);
     if (!isJamgarma && buyPrice) payload.buy_price = Number(buyPrice);
+    if (isJamgarma && annualRate !== "")
+      payload.interest_rate = Number(annualRate);
+    if (isJamgarma && termMonths !== "")
+      payload.term_months = Number(termMonths);
 
     try {
       const res = await fetch("/api/investments/update", {
@@ -145,7 +169,20 @@ function HoldingRow({ holding }: { holding: ComputedHolding }) {
           </div>
           <div className="mt-0.5 text-[12px] text-muted">
             {isJamgarma ? (
-              <span className="mono">{formatAmount(holding.quantity)}</span>
+              holding.deposit ? (
+                <>
+                  <span className="mono">
+                    {formatAmount(holding.deposit.principal)}
+                  </span>{" "}
+                  ·{" "}
+                  {holding.deposit.matured
+                    ? "muddat tugadi"
+                    : `${holding.deposit.monthsElapsed}/${holding.deposit.termMonths} oy`}{" "}
+                  · yillik {holding.deposit.annualRate}%
+                </>
+              ) : (
+                <span className="mono">{formatAmount(holding.quantity)}</span>
+              )
             ) : (
               <>
                 <span className="mono">{formatQty(holding.quantity)}</span> ×{" "}
@@ -157,6 +194,26 @@ function HoldingRow({ holding }: { holding: ComputedHolding }) {
               </>
             )}
           </div>
+          {isJamgarma && holding.deposit && (
+            <div className="mt-0.5 text-[11px] text-[var(--muted-2)]">
+              {holding.deposit.matured ? (
+                <>
+                  Yetildi:{" "}
+                  <span className="mono">
+                    {formatAmount(holding.deposit.maturityValue)}
+                  </span>
+                </>
+              ) : (
+                <>
+                  Yetilganda{" "}
+                  <span className="mono">
+                    {formatAmount(holding.deposit.maturityValue)}
+                  </span>{" "}
+                  · {holding.deposit.monthsRemaining} oy qoldi
+                </>
+              )}
+            </div>
+          )}
         </div>
 
         <div className="text-right">
@@ -244,6 +301,33 @@ function HoldingRow({ holding }: { holding: ComputedHolding }) {
             </label>
           )}
 
+          {isJamgarma && (
+            <>
+              <label className="text-[12px] text-muted">
+                Yillik foiz (%)
+                <input
+                  type="number"
+                  inputMode="decimal"
+                  value={annualRate}
+                  onChange={(e) => setAnnualRate(e.target.value)}
+                  className="input mono mt-1 block w-28"
+                  style={{ padding: "8px 11px" }}
+                />
+              </label>
+              <label className="text-[12px] text-muted">
+                Muddat (oy)
+                <input
+                  type="number"
+                  inputMode="numeric"
+                  value={termMonths}
+                  onChange={(e) => setTermMonths(e.target.value)}
+                  className="input mono mt-1 block w-24"
+                  style={{ padding: "8px 11px" }}
+                />
+              </label>
+            </>
+          )}
+
           <button
             type="button"
             onClick={save}
@@ -273,6 +357,8 @@ function AddForm() {
   const [quantity, setQuantity] = useState("");
   const [buyPrice, setBuyPrice] = useState("");
   const [manualPrice, setManualPrice] = useState("");
+  const [annualRate, setAnnualRate] = useState("");
+  const [termMonths, setTermMonths] = useState("");
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -282,6 +368,8 @@ function AddForm() {
     setQuantity("");
     setBuyPrice("");
     setManualPrice("");
+    setAnnualRate("");
+    setTermMonths("");
   }
 
   async function add() {
@@ -309,9 +397,12 @@ function AddForm() {
       payload.name = name.trim();
       payload.manual_price = Number(manualPrice);
     } else {
-      // jamgarma: label + amount (amount IS the quantity in so'm)
+      // jamgarma: label + amount (amount IS the quantity in so'm), plus an
+      // optional annual rate (%) and term (months) to make it a real deposit.
       if (!name.trim()) return setError("Nom kiriting");
       payload.name = name.trim();
+      if (annualRate) payload.interest_rate = Number(annualRate);
+      if (termMonths) payload.term_months = Number(termMonths);
     }
 
     if (!Number.isFinite(qty) || qty <= 0)
@@ -458,6 +549,27 @@ function AddForm() {
             className={inputCls}
           />
         )}
+
+        {type === "jamgarma" && (
+          <>
+            <input
+              type="number"
+              inputMode="decimal"
+              value={annualRate}
+              onChange={(e) => setAnnualRate(e.target.value)}
+              placeholder="Yillik foiz % (masalan, 24)"
+              className={inputCls}
+            />
+            <input
+              type="number"
+              inputMode="numeric"
+              value={termMonths}
+              onChange={(e) => setTermMonths(e.target.value)}
+              placeholder="Muddat — oy (masalan, 7)"
+              className={inputCls}
+            />
+          </>
+        )}
       </div>
 
       <div className="mt-3 flex items-center justify-between gap-3">
@@ -468,7 +580,7 @@ function AddForm() {
             {type === "aksiya"
               ? "Narxni o'zingiz yangilab turasiz"
               : type === "jamgarma"
-                ? "Summa so'mda"
+                ? "Summa so'mda · oylik kapitalizatsiya, yillik foiz"
                 : "Narxlar avtomatik yangilanadi"}
           </span>
         )}

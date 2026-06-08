@@ -53,11 +53,9 @@ function StatCard({ label, value }: { label: string; value: number }) {
 
 export default async function DashboardPage() {
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const { data: auth } = await supabase.auth.getClaims();
 
-  if (!user) {
+  if (!auth?.claims) {
     redirect("/login");
   }
 
@@ -139,7 +137,9 @@ export default async function DashboardPage() {
   // Uzbek long date anchored to Tashkent (UTC+5).
   const tash = new Date(new Date(startOfToday).getTime() + 5 * 3600 * 1000);
   const dateLabel = `${tash.getUTCDate()}-${UZ_MONTHS[tash.getUTCMonth()]}, ${UZ_DAYS[tash.getUTCDay()]}`;
-  const name = (user.email ?? "").split("@")[0] || "foydalanuvchi";
+  const email =
+    typeof auth.claims.email === "string" ? auth.claims.email : "";
+  const name = email.split("@")[0] || "foydalanuvchi";
 
   return (
     <AppShell>

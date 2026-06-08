@@ -5,18 +5,16 @@ import TelegramConnect from "./TelegramConnect";
 
 export default async function TelegramPage() {
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const { data: auth } = await supabase.auth.getClaims();
 
-  if (!user) {
+  if (!auth?.claims) {
     redirect("/login");
   }
 
   const { data: link } = await supabase
     .from("telegram_links")
     .select("telegram_username")
-    .eq("user_id", user.id)
+    .eq("user_id", auth.claims.sub)
     .maybeSingle();
 
   return (

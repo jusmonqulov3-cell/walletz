@@ -15,11 +15,9 @@ type DebtRow = {
 
 export default async function DebtsPage() {
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const { data: auth } = await supabase.auth.getClaims();
 
-  if (!user) {
+  if (!auth?.claims) {
     redirect("/login");
   }
 

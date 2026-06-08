@@ -1,7 +1,19 @@
 import { NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { sendMessage } from "@/lib/telegram";
-import { parseExpenses } from "@/lib/parseExpenses";
+import {
+  sendMessage,
+  answerCallbackQuery,
+  editMessageText,
+  getFileUrl,
+  downloadFileAsBase64,
+  type InlineKeyboardMarkup,
+} from "@/lib/telegram";
+import { generateJSON, generateJSONFromAudio } from "@/lib/gemini";
+import {
+  TRANSACTION_INSTRUCTION,
+  normalizeTransactions,
+  type ParsedTransactions,
+} from "@/lib/parseTransactions";
 import { formatAmount } from "@/lib/format";
 
 // Allow up to 30s for the Gemini round-trip on Vercel.
@@ -10,16 +22,322 @@ export const maxDuration = 30;
 // Always 200 so Telegram doesn't retry the update.
 const ok = () => NextResponse.json({ ok: true });
 
+type Db = ReturnType<typeof createAdminClient>;
+
+type TgUser = { id?: number; username?: string };
+type TgMessage = {
+  text?: string;
+  chat?: { id?: number };
+  from?: TgUser;
+  voice?: { file_id?: string };
+};
+type TgCallbackQuery = {
+  id: string;
+  from?: TgUser;
+  message?: { chat?: { id?: number }; message_id?: number };
+  data?: string;
+};
 type TelegramUpdate = {
-  message?: {
-    text?: string;
-    chat?: { id?: number };
-    from?: { id?: number; username?: string };
-  };
+  message?: TgMessage;
+  callback_query?: TgCallbackQuery;
 };
 
+// Human-readable summary of understood items, grouped by type.
+function summarize(p: ParsedTransactions): string {
+  const lines: string[] = [];
+  if (p.expenses.length) {
+    lines.push("💸 Xarajatlar:");
+    for (const e of p.expenses) {
+      lines.push(`• ${e.note} — ${formatAmount(e.amount)} (${e.category})`);
+    }
+  }
+  if (p.incomes.length) {
+    lines.push("💰 Daromad:");
+    for (const i of p.incomes) {
+      lines.push(`• ${i.source} — ${formatAmount(i.amount)}`);
+    }
+  }
+  if (p.debts.length) {
+    lines.push("🤝 Qarz:");
+    for (const d of p.debts) {
+      const dir = d.direction === "lent" ? "berdim" : "oldim";
+      lines.push(`• ${d.person} — ${formatAmount(d.amount)} (${dir})`);
+    }
+  }
+  return lines.join("\n");
+}
+
+// --- /start linking (unchanged behavior) ----------------------------------
+
+async function handleStart(
+  text: string,
+  chatId: number,
+  telegramId: number,
+  username: string | null,
+  supabase: Db,
+): Promise<void> {
+  const code = text.split(/\s+/)[1];
+
+  // Bare /start.
+  if (!code) {
+    await sendMessage(
+      chatId,
+      "Salom! Hisobingizni ulash uchun ilovadagi Telegram sahifasidan ulanish kodini oling.",
+    );
+    return;
+  }
+
+  // /start <code>: look up a valid, unused, unexpired code.
+  const { data: codeRow } = await supabase
+    .from("telegram_codes")
+    .select("code, user_id, expires_at, used")
+    .eq("code", code)
+    .maybeSingle();
+
+  const expired =
+    !codeRow || new Date(codeRow.expires_at).getTime() < Date.now();
+
+  if (!codeRow || codeRow.used || expired) {
+    await sendMessage(
+      chatId,
+      "Kod yaroqsiz yoki muddati o'tgan. Iltimos, ilovadan yangi ulanish kodini oling.",
+    );
+    return;
+  }
+
+  const { error: upsertErr } = await supabase.from("telegram_links").upsert(
+    {
+      telegram_id: telegramId,
+      user_id: codeRow.user_id,
+      telegram_username: username,
+    },
+    { onConflict: "telegram_id" },
+  );
+
+  if (upsertErr) {
+    console.error("telegram_links upsert error:", upsertErr);
+    await sendMessage(chatId, "Ulashda xatolik. Keyinroq urinib ko'ring.");
+    return;
+  }
+
+  await supabase.from("telegram_codes").update({ used: true }).eq("code", code);
+
+  await sendMessage(
+    chatId,
+    "✅ Hisobingiz ulandi! Endi xarajat, daromad yoki qarzni yozing — yoki ovozli xabar yuboring.",
+  );
+}
+
+// --- Inline-button confirm / cancel ---------------------------------------
+
+async function handleCallback(
+  cb: TgCallbackQuery,
+  supabase: Db,
+): Promise<void> {
+  const fromId = cb.from?.id;
+  const chatId = cb.message?.chat?.id;
+  const messageId = cb.message?.message_id;
+  const match = /^([cx]):(.+)$/.exec(cb.data ?? "");
+
+  if (!match || fromId == null) {
+    await answerCallbackQuery(cb.id);
+    return;
+  }
+
+  const action = match[1];
+  const pendingId = match[2];
+
+  // Load the pending row and verify it belongs to the tapping user.
+  const { data: pending } = await supabase
+    .from("telegram_pending")
+    .select("id, user_id, payload")
+    .eq("id", pendingId)
+    .eq("telegram_id", fromId)
+    .maybeSingle();
+
+  if (!pending) {
+    await answerCallbackQuery(cb.id, "Allaqachon qayta ishlangan");
+    return;
+  }
+
+  // Cancel.
+  if (action === "x") {
+    await supabase.from("telegram_pending").delete().eq("id", pendingId);
+    await answerCallbackQuery(cb.id, "Bekor qilindi");
+    if (chatId != null && messageId != null) {
+      await editMessageText(chatId, messageId, "❌ Bekor qilindi");
+    }
+    return;
+  }
+
+  // Confirm: insert every item into its table (re-normalized defensively).
+  const norm = normalizeTransactions(pending.payload);
+  const userId = pending.user_id as string;
+  let failed = false;
+
+  if (norm.expenses.length) {
+    const { error } = await supabase.from("expenses").insert(
+      norm.expenses.map((e) => ({
+        user_id: userId,
+        raw_text: e.note,
+        note: e.note,
+        amount: e.amount,
+        category: e.category,
+        currency: "UZS",
+      })),
+    );
+    if (error) {
+      console.error("Telegram expenses insert error:", error);
+      failed = true;
+    }
+  }
+  if (norm.incomes.length) {
+    const { error } = await supabase.from("incomes").insert(
+      norm.incomes.map((i) => ({
+        user_id: userId,
+        source: i.source,
+        amount: i.amount,
+      })),
+    );
+    if (error) {
+      console.error("Telegram incomes insert error:", error);
+      failed = true;
+    }
+  }
+  if (norm.debts.length) {
+    const { error } = await supabase.from("debts").insert(
+      norm.debts.map((d) => ({
+        user_id: userId,
+        person: d.person,
+        amount: d.amount,
+        direction: d.direction,
+      })),
+    );
+    if (error) {
+      console.error("Telegram debts insert error:", error);
+      failed = true;
+    }
+  }
+
+  if (failed) {
+    // Keep the pending row so the user can retry the confirmation.
+    await answerCallbackQuery(cb.id, "Xatolik");
+    if (chatId != null && messageId != null) {
+      await editMessageText(
+        chatId,
+        messageId,
+        "❌ Saqlashda xatolik. Qayta urinib ko'ring.",
+      );
+    }
+    return;
+  }
+
+  await supabase.from("telegram_pending").delete().eq("id", pendingId);
+  await answerCallbackQuery(cb.id, "Saqlandi");
+  if (chatId != null && messageId != null) {
+    await editMessageText(chatId, messageId, `✅ Saqlandi:\n${summarize(norm)}`);
+  }
+}
+
+// --- Incoming voice / text messages ---------------------------------------
+
+async function handleMessage(message: TgMessage, supabase: Db): Promise<void> {
+  const chatId = message.chat?.id;
+  const telegramId = message.from?.id;
+  const username = message.from?.username ?? null;
+  if (chatId == null || telegramId == null) return;
+
+  const text = typeof message.text === "string" ? message.text.trim() : "";
+
+  if (text.startsWith("/start")) {
+    await handleStart(text, chatId, telegramId, username, supabase);
+    return;
+  }
+
+  const isVoice = typeof message.voice?.file_id === "string";
+  // Ignore empty messages and unknown slash-commands.
+  if (!isVoice && (!text || text.startsWith("/"))) return;
+
+  // Sender must be linked.
+  const { data: link } = await supabase
+    .from("telegram_links")
+    .select("user_id")
+    .eq("telegram_id", telegramId)
+    .maybeSingle();
+
+  if (!link) {
+    await sendMessage(
+      chatId,
+      "Hisobingiz ulanmagan. Iltimos, ilovadagi Telegram sahifasidan ulang.",
+    );
+    return;
+  }
+
+  // Parse voice (Gemini transcribes + classifies) or text.
+  let result: unknown;
+  try {
+    if (isVoice) {
+      const fileUrl = await getFileUrl(message.voice!.file_id!);
+      const base64 = fileUrl ? await downloadFileAsBase64(fileUrl) : null;
+      if (!base64) {
+        await sendMessage(chatId, "Ovozni o'qib bo'lmadi. Qayta urinib ko'ring.");
+        return;
+      }
+      result = await generateJSONFromAudio(
+        TRANSACTION_INSTRUCTION,
+        base64,
+        "audio/ogg",
+      );
+    } else {
+      result = await generateJSON(TRANSACTION_INSTRUCTION, text);
+    }
+  } catch (err) {
+    console.error("Telegram parse error:", err);
+    await sendMessage(chatId, "Tahlil qilishda xatolik. Qayta urinib ko'ring.");
+    return;
+  }
+
+  const norm = normalizeTransactions(result);
+  if (
+    norm.expenses.length === 0 &&
+    norm.incomes.length === 0 &&
+    norm.debts.length === 0
+  ) {
+    await sendMessage(chatId, "Tushunmadim, qaytadan urinib ko'ring.");
+    return;
+  }
+
+  // Stash the understood payload and ask for confirmation.
+  const { data: pending, error } = await supabase
+    .from("telegram_pending")
+    .insert({ user_id: link.user_id, telegram_id: telegramId, payload: norm })
+    .select("id")
+    .single();
+
+  if (error || !pending) {
+    console.error("telegram_pending insert error:", error);
+    await sendMessage(chatId, "Xatolik. Qayta urinib ko'ring.");
+    return;
+  }
+
+  const keyboard: InlineKeyboardMarkup = {
+    inline_keyboard: [
+      [
+        { text: "✅ Tasdiqlash", callback_data: `c:${pending.id}` },
+        { text: "❌ Bekor", callback_data: `x:${pending.id}` },
+      ],
+    ],
+  };
+
+  await sendMessage(
+    chatId,
+    `Quyidagilarni tushundim:\n${summarize(norm)}\n\nTasdiqlaysizmi?`,
+    keyboard,
+  );
+}
+
 export async function POST(request: Request) {
-  // 1. Verify the secret token Telegram sends with each webhook call.
+  // Verify the secret token Telegram sends with each webhook call.
   const secret = request.headers.get("x-telegram-bot-api-secret-token");
   if (!secret || secret !== process.env.TELEGRAM_WEBHOOK_SECRET) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -32,142 +350,18 @@ export async function POST(request: Request) {
     return ok();
   }
 
-  // 2. Only handle text messages.
-  const message = update.message;
-  const text = message?.text;
-  const chatId = message?.chat?.id;
-  const telegramId = message?.from?.id;
-  const username = message?.from?.username ?? null;
-
-  if (!text || chatId == null || telegramId == null) {
-    return ok();
-  }
-
   const supabase = createAdminClient();
 
   try {
-    const trimmed = text.trim();
-
-    if (trimmed.startsWith("/start")) {
-      const code = trimmed.split(/\s+/)[1];
-
-      // 4. /start with no code.
-      if (!code) {
-        await sendMessage(
-          chatId,
-          "Salom! Hisobingizni ulash uchun ilovadagi Telegram sahifasidan ulanish kodini oling.",
-        );
-        return ok();
-      }
-
-      // 3. /start <code>: look up a valid, unused, unexpired code.
-      const { data: codeRow } = await supabase
-        .from("telegram_codes")
-        .select("code, user_id, expires_at, used")
-        .eq("code", code)
-        .maybeSingle();
-
-      const expired =
-        !codeRow || new Date(codeRow.expires_at).getTime() < Date.now();
-
-      if (!codeRow || codeRow.used || expired) {
-        await sendMessage(
-          chatId,
-          "Kod yaroqsiz yoki muddati o'tgan. Iltimos, ilovadan yangi ulanish kodini oling.",
-        );
-        return ok();
-      }
-
-      const { error: upsertErr } = await supabase.from("telegram_links").upsert(
-        {
-          telegram_id: telegramId,
-          user_id: codeRow.user_id,
-          telegram_username: username,
-        },
-        { onConflict: "telegram_id" },
-      );
-
-      if (upsertErr) {
-        console.error("telegram_links upsert error:", upsertErr);
-        await sendMessage(chatId, "Ulashda xatolik. Keyinroq urinib ko'ring.");
-        return ok();
-      }
-
-      await supabase
-        .from("telegram_codes")
-        .update({ used: true })
-        .eq("code", code);
-
-      await sendMessage(
-        chatId,
-        "✅ Hisobingiz ulandi! Endi xarajat yozing, masalan: Taksi 20 Somsa 18",
-      );
-      return ok();
+    if (update.callback_query) {
+      await handleCallback(update.callback_query, supabase);
+    } else if (update.message) {
+      await handleMessage(update.message, supabase);
     }
-
-    // 5. Any other text: the sender must be linked.
-    const { data: link } = await supabase
-      .from("telegram_links")
-      .select("user_id")
-      .eq("telegram_id", telegramId)
-      .maybeSingle();
-
-    if (!link) {
-      await sendMessage(
-        chatId,
-        "Hisobingiz ulanmagan. Iltimos, ilovadagi Telegram sahifasidan ulang.",
-      );
-      return ok();
-    }
-
-    let parsed;
-    try {
-      parsed = await parseExpenses(trimmed);
-    } catch (err) {
-      console.error("Telegram parse error:", err);
-      await sendMessage(
-        chatId,
-        "Tahlil qilishda xatolik. Qayta urinib ko'ring.",
-      );
-      return ok();
-    }
-
-    if (parsed.length === 0) {
-      await sendMessage(
-        chatId,
-        "Tushunolmadim 🤔 Masalan shunday yozing: Taksi 20 Somsa 18",
-      );
-      return ok();
-    }
-
-    const rows = parsed.map((p) => ({
-      user_id: link.user_id,
-      raw_text: p.note,
-      note: p.note,
-      amount: p.amount,
-      category: p.category,
-      currency: "UZS",
-    }));
-
-    const { error: insertErr } = await supabase.from("expenses").insert(rows);
-    if (insertErr) {
-      console.error("Telegram insert error:", insertErr);
-      await sendMessage(chatId, "Saqlashda xatolik. Qayta urinib ko'ring.");
-      return ok();
-    }
-
-    const lines = parsed.map(
-      (p) => `• ${p.note} — ${formatAmount(p.amount)} (${p.category})`,
-    );
-    const total = parsed.reduce((sum, p) => sum + p.amount, 0);
-    await sendMessage(
-      chatId,
-      `✅ Saqlandi:\n${lines.join("\n")}\nJami: ${formatAmount(total)}`,
-    );
-    return ok();
   } catch (err) {
     // Never fail the webhook — log and acknowledge so Telegram won't retry.
     console.error("Telegram webhook error:", err);
-    return ok();
   }
+
+  return ok();
 }

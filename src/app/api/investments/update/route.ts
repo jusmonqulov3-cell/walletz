@@ -8,6 +8,20 @@ function optionalPrice(value: unknown): number | null {
   return Number.isFinite(n) && n > 0 ? n : null;
 }
 
+// Annual interest rate in % (jamgarma). Allows decimals; null when absent/invalid.
+function optionalRate(value: unknown): number | null {
+  if (value === undefined || value === null || value === "") return null;
+  const n = Number(value);
+  return Number.isFinite(n) && n >= 0 ? n : null;
+}
+
+// Deposit term in whole months (jamgarma); null when absent/invalid.
+function optionalTerm(value: unknown): number | null {
+  if (value === undefined || value === null || value === "") return null;
+  const n = Math.round(Number(value));
+  return Number.isFinite(n) && n > 0 ? n : null;
+}
+
 export async function POST(request: Request) {
   const supabase = await createClient();
 
@@ -56,6 +70,14 @@ export async function POST(request: Request) {
   if (raw.manual_price !== undefined) {
     const manualPrice = optionalPrice(raw.manual_price);
     if (manualPrice !== null) patch.manual_price = manualPrice;
+  }
+  if (raw.interest_rate !== undefined) {
+    const interestRate = optionalRate(raw.interest_rate);
+    if (interestRate !== null) patch.interest_rate = interestRate;
+  }
+  if (raw.term_months !== undefined) {
+    const termMonths = optionalTerm(raw.term_months);
+    if (termMonths !== null) patch.term_months = termMonths;
   }
 
   if (Object.keys(patch).length === 0) {
