@@ -15,6 +15,7 @@ import {
   type ParsedTransactions,
 } from "@/lib/parseTransactions";
 import { formatAmount } from "@/lib/format";
+import { appUrl } from "@/lib/appUrl";
 
 // Allow up to 30s for the Gemini round-trip on Vercel.
 export const maxDuration = 30;
@@ -65,6 +66,15 @@ function summarize(p: ParsedTransactions): string {
     }
   }
   return lines.join("\n");
+}
+
+// A single button that opens the Mini App.
+function openAppKeyboard(): InlineKeyboardMarkup {
+  return {
+    inline_keyboard: [
+      [{ text: "📊 Ilovani ochish", web_app: { url: `${appUrl()}/dashboard` } }],
+    ],
+  };
 }
 
 // Confirm / cancel / edit buttons shown under an understood payload.
@@ -180,6 +190,7 @@ async function handleStart(
   await sendMessage(
     chatId,
     "✅ Hisobingiz ulandi! Endi xarajat, daromad yoki qarzni yozing — yoki ovozli xabar yuboring.",
+    openAppKeyboard(),
   );
 }
 
@@ -307,7 +318,12 @@ async function handleCallback(
   await supabase.from("telegram_pending").delete().eq("id", pendingId);
   await answerCallbackQuery(cb.id, "Saqlandi");
   if (chatId != null && messageId != null) {
-    await editMessageText(chatId, messageId, `✅ Saqlandi:\n${summarize(norm)}`);
+    await editMessageText(
+      chatId,
+      messageId,
+      `✅ Saqlandi:\n${summarize(norm)}`,
+      openAppKeyboard(),
+    );
   }
 }
 

@@ -2,7 +2,14 @@ import "server-only";
 
 const TELEGRAM_API = "https://api.telegram.org";
 
-export type InlineKeyboardButton = { text: string; callback_data: string };
+export type InlineKeyboardButton = {
+  text: string;
+  callback_data?: string;
+  // Opens the Mini App (HTTPS only, private chats). Mutually exclusive with
+  // callback_data on a given button.
+  web_app?: { url: string };
+  url?: string;
+};
 export type InlineKeyboardMarkup = {
   inline_keyboard: InlineKeyboardButton[][];
 };
@@ -88,6 +95,19 @@ export async function editMessageText(
   };
   if (replyMarkup) body.reply_markup = replyMarkup;
   await callApi("editMessageText", body);
+}
+
+/**
+ * Sets the bot's persistent menu button (next to the chat input) to open the
+ * Mini App at `url`. Call once after deploy (see /api/telegram/setup).
+ */
+export async function setChatMenuButton(
+  url: string,
+  text = "Ilova",
+): Promise<void> {
+  await callApi("setChatMenuButton", {
+    menu_button: { type: "web_app", text, web_app: { url } },
+  });
 }
 
 /**

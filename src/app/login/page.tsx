@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import { getWebApp, inTelegram } from "@/lib/telegram/webapp";
 import Button from "@/components/ui/Button";
 import Card from "@/components/ui/Card";
 import Input from "@/components/ui/Input";
@@ -17,8 +18,62 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
+  // While we silently try to sign in via Telegram initData on first paint.
+  const [tgChecking, setTgChecking] = useState(false);
 
   const isLogin = mode === "login";
+
+  // Mini App: try a seamless sign-in from the signed Telegram initData. If the
+  // account is already linked we go straight to the dashboard; otherwise we
+  // fall back to the login form and auto-link after a successful sign-in.
+  useEffect(() => {
+    if (!inTelegram()) return;
+    const wa = getWebApp();
+    if (!wa) return;
+
+    let cancelled = false;
+    (async () => {
+      setTgChecking(true);
+      try {
+        const res = await fetch("/api/telegram/miniapp", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ initData: wa.initData }),
+        });
+        const data = (await res.json().catch(() => ({}))) as {
+          linked?: boolean;
+        };
+        if (!cancelled && res.ok && data.linked) {
+          router.replace("/dashboard");
+          router.refresh();
+          return;
+        }
+      } catch {
+        // Network error — fall through to the manual login form.
+      }
+      if (!cancelled) setTgChecking(false);
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [router]);
+
+  // After a manual sign-in inside Telegram, bind this account to the Telegram
+  // user so the next open is seamless. Non-fatal on failure.
+  async function autoLinkTelegram() {
+    const wa = getWebApp();
+    if (!inTelegram() || !wa) return;
+    try {
+      await fetch("/api/telegram/miniapp/link", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ initData: wa.initData }),
+      });
+    } catch {
+      // Ignore — the user is signed in regardless.
+    }
+  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -38,6 +93,7 @@ export default function LoginPage() {
         setLoading(false);
         return;
       }
+      await autoLinkTelegram();
       router.push("/dashboard");
       router.refresh();
     } else {
@@ -52,6 +108,7 @@ export default function LoginPage() {
       }
       // If email confirmation is disabled, a session is returned immediately.
       if (data.session) {
+        await autoLinkTelegram();
         router.push("/dashboard");
         router.refresh();
       } else {
@@ -61,6 +118,20 @@ export default function LoginPage() {
         setLoading(false);
       }
     }
+  }
+
+  if (tgChecking) {
+    return (
+      <main className="flex min-h-full flex-1 items-center justify-center bg-background px-4 py-12">
+        <div className="flex flex-col items-center gap-3 text-center">
+          <span
+            aria-hidden
+            className="h-8 w-8 animate-spin rounded-full border-2 border-border border-t-accent"
+          />
+          <p className="text-sm text-muted">Telegram orqali kirilmoqda…</p>
+        </div>
+      </main>
+    );
   }
 
   return (
