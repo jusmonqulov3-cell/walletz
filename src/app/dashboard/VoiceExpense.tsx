@@ -41,12 +41,107 @@ function blobToBase64(blob: Blob): Promise<string> {
   });
 }
 
+// Gemini accepts WAV but not the webm/mp4 containers most browsers record, so
+// we transcode the recording client-side before sending.
+const TARGET_SAMPLE_RATE = 16000;
+
+// Resolve the (possibly webkit-prefixed) Web Audio constructors.
+function getAudioContextCtor(): typeof AudioContext {
+  return (
+    window.AudioContext ??
+    (window as unknown as { webkitAudioContext: typeof AudioContext })
+      .webkitAudioContext
+  );
+}
+
+function getOfflineAudioContextCtor(): typeof OfflineAudioContext {
+  return (
+    window.OfflineAudioContext ??
+    (
+      window as unknown as {
+        webkitOfflineAudioContext: typeof OfflineAudioContext;
+      }
+    ).webkitOfflineAudioContext
+  );
+}
+
+// Encode mono Float32 PCM samples as a 16-bit little-endian WAV blob with a
+// standard 44-byte RIFF/WAVE header.
+function encodeWav(samples: Float32Array, sampleRate: number): Blob {
+  const bytesPerSample = 2;
+  const dataSize = samples.length * bytesPerSample;
+  const buffer = new ArrayBuffer(44 + dataSize);
+  const view = new DataView(buffer);
+
+  const writeString = (offset: number, str: string) => {
+    for (let i = 0; i < str.length; i++) {
+      view.setUint8(offset + i, str.charCodeAt(i));
+    }
+  };
+
+  writeString(0, "RIFF");
+  view.setUint32(4, 36 + dataSize, true); // file size minus 8
+  writeString(8, "WAVE");
+  writeString(12, "fmt ");
+  view.setUint32(16, 16, true); // fmt chunk size (PCM)
+  view.setUint16(20, 1, true); // audio format = PCM
+  view.setUint16(22, 1, true); // channels = 1 (mono)
+  view.setUint32(24, sampleRate, true);
+  view.setUint32(28, sampleRate * bytesPerSample, true); // byte rate (mono)
+  view.setUint16(32, bytesPerSample, true); // block align
+  view.setUint16(34, 16, true); // bits per sample
+  writeString(36, "data");
+  view.setUint32(40, dataSize, true);
+
+  // Clamp float [-1, 1] and write as signed 16-bit little-endian.
+  let offset = 44;
+  for (let i = 0; i < samples.length; i++) {
+    const s = Math.max(-1, Math.min(1, samples[i]));
+    view.setInt16(offset, s < 0 ? s * 0x8000 : s * 0x7fff, true);
+    offset += bytesPerSample;
+  }
+
+  return new Blob([buffer], { type: "audio/wav" });
+}
+
+// Decode a recorded audio Blob, downmix to mono, resample to 16 kHz, and
+// return it as a WAV blob. Throws if the audio can't be decoded.
+async function blobToWav(blob: Blob): Promise<Blob> {
+  const arrayBuffer = await blob.arrayBuffer();
+
+  // decodeAudioData gives us PCM (resampled to the context's own rate).
+  const decodeCtx = new (getAudioContextCtor())();
+  let decoded: AudioBuffer;
+  try {
+    decoded = await decodeCtx.decodeAudioData(arrayBuffer);
+  } finally {
+    void decodeCtx.close();
+  }
+
+  // Clean downmix + resample to 16 kHz mono via an OfflineAudioContext.
+  const length = Math.max(
+    1,
+    Math.ceil((decoded.length * TARGET_SAMPLE_RATE) / decoded.sampleRate),
+  );
+  const offline = new (getOfflineAudioContextCtor())(
+    1,
+    length,
+    TARGET_SAMPLE_RATE,
+  );
+  const source = offline.createBufferSource();
+  source.buffer = decoded;
+  source.connect(offline.destination);
+  source.start();
+  const rendered = await offline.startRendering();
+
+  return encodeWav(rendered.getChannelData(0), TARGET_SAMPLE_RATE);
+}
+
 export default function VoiceExpense() {
   const router = useRouter();
 
   const recorderRef = useRef<MediaRecorder | null>(null);
   const chunksRef = useRef<Blob[]>([]);
-  const sendMimeRef = useRef<string>("audio/webm");
 
   const [recording, setRecording] = useState(false);
   const [transcribing, setTranscribing] = useState(false);
@@ -79,7 +174,6 @@ export default function VoiceExpense() {
       return;
     }
 
-    sendMimeRef.current = format.send;
     chunksRef.current = [];
 
     const recorder = new MediaRecorder(stream, { mimeType: format.record });
@@ -113,11 +207,22 @@ export default function VoiceExpense() {
     setTranscribing(true);
     setError(null);
     try {
-      const audioBase64 = await blobToBase64(blob);
+      // Transcode the browser's webm/mp4 recording to 16 kHz mono WAV, which
+      // Gemini accepts on every browser.
+      let wav: Blob;
+      try {
+        wav = await blobToWav(blob);
+      } catch (convErr) {
+        console.error("Voice WAV conversion failed:", convErr);
+        setError("Tushunmadim, qaytadan urinib ko'ring.");
+        return;
+      }
+
+      const audioBase64 = await blobToBase64(wav);
       const res = await fetch("/api/parse-voice", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ audioBase64, mimeType: sendMimeRef.current }),
+        body: JSON.stringify({ audioBase64, mimeType: "audio/wav" }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data?.error ?? "Tushunmadim");

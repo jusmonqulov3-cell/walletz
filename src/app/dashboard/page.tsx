@@ -124,17 +124,15 @@ export default async function DashboardPage() {
   // Donut geometry: cumulative arc segments over a circle (r=80, C≈502.65).
   const R = 80;
   const C = 2 * Math.PI * R;
-  let offset = 0;
-  const segments = breakdown.map((b) => {
-    const frac = monthTotal > 0 ? b.total / monthTotal : 0;
-    const seg = {
-      color: categoryColor(b.category),
-      dash: frac * C,
-      offset,
-    };
-    offset += frac * C;
-    return seg;
-  });
+  const fractions = breakdown.map((b) =>
+    monthTotal > 0 ? b.total / monthTotal : 0,
+  );
+  const segments = breakdown.map((b, i) => ({
+    color: categoryColor(b.category),
+    dash: fractions[i] * C,
+    // Offset = cumulative arc length of all preceding segments.
+    offset: fractions.slice(0, i).reduce((sum, f) => sum + f, 0) * C,
+  }));
 
   const totalCompact = compact(monthTotal);
 

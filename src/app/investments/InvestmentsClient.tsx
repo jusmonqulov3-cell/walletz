@@ -45,8 +45,14 @@ const CRYPTO_PRESETS: { label: string; name: string; id: string }[] = [
 ];
 
 // Renders a quantity without the " so'm" suffix (crypto can be fractional).
+// Up to 8 decimals, no trailing zeros, never exponential notation. (Intl emits
+// the minimal standard-notation form, so 1e-6 → "0.000001" and 10 stays "10".)
 function formatQty(n: number): string {
-  return String(n);
+  if (!Number.isFinite(n)) return "0";
+  return n.toLocaleString("en-US", {
+    maximumFractionDigits: 8,
+    useGrouping: false,
+  });
 }
 
 // ---------------------------------------------------------------------------

@@ -16,14 +16,15 @@ export default async function TelegramPage() {
   const { data: link } = await supabase
     .from("telegram_links")
     .select("telegram_username")
+    .eq("user_id", user.id)
     .maybeSingle();
 
   return (
     <AppShell>
       <div className="mx-auto max-w-3xl space-y-6 px-4 py-8">
         <div>
-          <h1 className="text-xl font-semibold text-gray-900">Telegram bot</h1>
-          <p className="mt-1 text-sm text-gray-500">
+          <h1 className="text-xl font-semibold text-foreground">Telegram bot</h1>
+          <p className="mt-1 text-sm text-muted">
             Xarajatlaringizni Telegram orqali yozing.
           </p>
         </div>

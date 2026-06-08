@@ -64,10 +64,10 @@ export default function Chat() {
         {empty && (
           <div className="mx-auto max-w-md pt-8 text-center">
             <p className="text-2xl">🤖</p>
-            <p className="mt-2 text-sm font-medium text-gray-900">
+            <p className="mt-2 text-sm font-medium text-foreground">
               Pul — moliyaviy yordamchingiz
             </p>
-            <p className="mt-1 text-sm text-gray-500">
+            <p className="mt-1 text-sm text-muted">
               Xarajatlaringiz haqida savol bering.
             </p>
             <div className="mt-5 flex flex-col gap-2">
@@ -76,7 +76,7 @@ export default function Chat() {
                   key={s}
                   type="button"
                   onClick={() => setInput(s)}
-                  className="rounded-full border border-gray-200 bg-white px-4 py-2 text-sm text-gray-700 transition hover:border-gray-900 hover:text-gray-900"
+                  className="rounded-full border border-border bg-surface px-4 py-2 text-sm text-foreground transition hover:border-accent hover:text-accent"
                 >
                   {s}
                 </button>
@@ -95,8 +95,8 @@ export default function Chat() {
             <div
               className={`max-w-[80%] whitespace-pre-wrap rounded-2xl px-4 py-2 text-sm ${
                 m.role === "user"
-                  ? "bg-gray-900 text-white"
-                  : "border border-gray-200 bg-white text-gray-900"
+                  ? "bg-accent text-accent-foreground"
+                  : "border border-border bg-surface text-foreground"
               }`}
             >
               {m.text}
@@ -106,17 +106,17 @@ export default function Chat() {
 
         {loading && (
           <div className="flex justify-start">
-            <div className="flex gap-1 rounded-2xl border border-gray-200 bg-white px-4 py-3">
-              <span className="h-2 w-2 animate-bounce rounded-full bg-gray-400 [animation-delay:-0.3s]" />
-              <span className="h-2 w-2 animate-bounce rounded-full bg-gray-400 [animation-delay:-0.15s]" />
-              <span className="h-2 w-2 animate-bounce rounded-full bg-gray-400" />
+            <div className="flex gap-1 rounded-2xl border border-border bg-surface px-4 py-3">
+              <span className="h-2 w-2 animate-bounce rounded-full bg-muted [animation-delay:-0.3s]" />
+              <span className="h-2 w-2 animate-bounce rounded-full bg-muted [animation-delay:-0.15s]" />
+              <span className="h-2 w-2 animate-bounce rounded-full bg-muted" />
             </div>
           </div>
         )}
 
         {error && (
           <div className="flex justify-start">
-            <p className="rounded-2xl bg-red-50 px-4 py-2 text-sm text-red-600">
+            <p className="rounded-2xl bg-[var(--negative-weak)] px-4 py-2 text-sm text-negative">
               {error}
             </p>
           </div>
@@ -126,20 +126,20 @@ export default function Chat() {
       </div>
 
       {/* Input */}
-      <div className="border-t border-gray-200 bg-white px-4 py-3">
+      <div className="border-t border-border bg-surface px-4 py-3">
         <div className="mx-auto flex max-w-3xl items-center gap-2">
           <input
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={handleKeyDown}
             placeholder="Savol yozing..."
-            className="flex-1 rounded-full border border-gray-300 px-4 py-2.5 text-sm text-gray-900 outline-none focus:border-gray-900 focus:ring-1 focus:ring-gray-900"
+            className="flex-1 rounded-full border border-border bg-background px-4 py-2.5 text-sm text-foreground placeholder:text-muted outline-none focus:border-accent focus:ring-1 focus:ring-accent"
           />
           <button
             type="button"
             onClick={() => send()}
             disabled={loading || !input.trim()}
-            className="rounded-full bg-gray-900 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-gray-800 disabled:cursor-not-allowed disabled:opacity-60"
+            className="rounded-full bg-accent px-5 py-2.5 text-sm font-semibold text-accent-foreground transition hover:bg-[var(--accent-strong)] disabled:cursor-not-allowed disabled:opacity-60"
           >
             Yuborish
           </button>

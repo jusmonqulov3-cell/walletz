@@ -6,7 +6,7 @@ import "server-only";
  * a provider is unreachable.
  */
 
-type CbuRate = { Ccy?: string; Rate?: string };
+type CbuRate = { Ccy?: string; Rate?: string; Nominal?: string };
 
 /**
  * Fetches Central Bank of Uzbekistan rates and returns a map of currency code →
@@ -26,8 +26,13 @@ export async function getUzsRates(): Promise<Record<string, number>> {
       for (const row of data) {
         const code = typeof row.Ccy === "string" ? row.Ccy.toUpperCase() : "";
         const rate = Number(row.Rate);
-        if (code && Number.isFinite(rate) && rate > 0) {
-          rates[code] = rate;
+        // CBU quotes Rate per `Nominal` units (e.g. JPY/KRW per 100/1000);
+        // normalize to UZS per 1 unit. Default Nominal to 1 when absent.
+        const nominal = Number(row.Nominal);
+        const perUnit =
+          Number.isFinite(nominal) && nominal > 0 ? rate / nominal : rate;
+        if (code && Number.isFinite(perUnit) && perUnit > 0) {
+          rates[code] = perUnit;
         }
       }
     }
