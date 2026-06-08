@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import AppShell from "@/components/AppShell";
+import { getDict } from "@/lib/i18n/server";
 import DebtsClient, { type Debt } from "./DebtsClient";
 
 type DebtRow = {
@@ -36,13 +37,15 @@ export default async function DebtsPage() {
     created_at: d.created_at,
   }));
 
+  const t = await getDict();
+
   return (
     <AppShell>
       <div className="mx-auto max-w-xl px-4 py-5">
         <div className="appbar">
           <div>
-            <div className="title">Qarzlar</div>
-            <div className="sub">Olingan va berilgan</div>
+            <div className="title">{t.debts.title}</div>
+            <div className="sub">{t.debts.sub}</div>
           </div>
         </div>
 

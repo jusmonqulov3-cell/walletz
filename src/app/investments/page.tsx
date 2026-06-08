@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { getCryptoPrices, getUzsRates } from "@/lib/prices";
 import AppShell from "@/components/AppShell";
+import { getDict } from "@/lib/i18n/server";
 import InvestmentsClient, {
   type ComputedHolding,
   type InvestmentType,
@@ -165,13 +166,15 @@ export default async function InvestmentsPage() {
     };
   });
 
+  const t = await getDict();
+
   return (
     <AppShell>
       <div className="mx-auto max-w-xl px-4 py-5">
         <div className="appbar">
           <div>
-            <div className="title">Investitsiya</div>
-            <div className="sub">Valyuta · kripto · aksiya · jamg&apos;arma</div>
+            <div className="title">{t.investments.title}</div>
+            <div className="sub">{t.investments.sub}</div>
           </div>
         </div>
 

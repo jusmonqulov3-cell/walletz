@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { formatAmount, formatDate } from "@/lib/format";
 import { getTashkentMonthInfo } from "@/lib/dates";
 import AppShell from "@/components/AppShell";
+import { getDict } from "@/lib/i18n/server";
 import QuickIncome from "./QuickIncome";
 
 type IncomeRow = {
@@ -37,13 +38,15 @@ export default async function IncomePage() {
   );
   const recent = (recentRes.data ?? []) as IncomeRow[];
 
+  const t = await getDict();
+
   return (
     <AppShell>
       <div className="mx-auto max-w-xl px-4 py-5">
         <div className="appbar">
           <div>
-            <div className="title">Daromad</div>
-            <div className="sub">Joriy oy · daromad manbalari</div>
+            <div className="title">{t.income.title}</div>
+            <div className="sub">{t.income.sub}</div>
           </div>
         </div>
 

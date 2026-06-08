@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { formatAmount } from "@/lib/format";
 import AppShell from "@/components/AppShell";
+import { getDict } from "@/lib/i18n/server";
 import GoalsClient, { type Goal } from "./GoalsClient";
 
 type GoalRow = {
@@ -38,15 +39,15 @@ export default async function GoalsPage() {
   const overallPct =
     totalTarget > 0 ? Math.min(100, Math.round((totalSaved / totalTarget) * 100)) : 0;
 
+  const t = await getDict();
+
   return (
     <AppShell>
       <div className="mx-auto max-w-xl px-4 py-5">
         <div className="appbar">
           <div>
-            <div className="title">Maqsadlar</div>
-            <div className="sub">
-              {goals.length} ta faol jamg&apos;arma
-            </div>
+            <div className="title">{t.goals.title}</div>
+            <div className="sub">{t.goals.activeGoals(goals.length)}</div>
           </div>
         </div>
 

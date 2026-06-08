@@ -5,6 +5,8 @@ import { formatAmount } from "@/lib/format";
 import { getTashkentPeriods } from "@/lib/dates";
 import { CATEGORIES, categoryColor, type Category } from "@/lib/categories";
 import AppShell from "@/components/AppShell";
+import AvatarMenu from "@/components/AvatarMenu";
+import { getDict } from "@/lib/i18n/server";
 import ExpenseInput from "./ExpenseInput";
 import FinancialCoach from "./FinancialCoach";
 import BudgetCard from "./BudgetCard";
@@ -140,6 +142,7 @@ export default async function DashboardPage() {
   const email =
     typeof auth.claims.email === "string" ? auth.claims.email : "";
   const name = email.split("@")[0] || "foydalanuvchi";
+  const t = await getDict();
 
   return (
     <AppShell>
@@ -148,7 +151,7 @@ export default async function DashboardPage() {
         <div className="appbar">
           <div>
             <div className="date">{dateLabel}</div>
-            <div className="greet">Xayrli kun, {name}</div>
+            <div className="greet">{t.dashboard.greet}, {name}</div>
           </div>
           <div className="actions">
             <Link className="icon-btn" href="/investments" aria-label="Investitsiya">
@@ -157,17 +160,15 @@ export default async function DashboardPage() {
                 <path d="M14 8h5v5" />
               </svg>
             </Link>
-            <Link className="avatar" href="/telegram" aria-label="Telegram ulanish" title="Telegram ulanish">
-              {name.slice(0, 2).toUpperCase()}
-            </Link>
+            <AvatarMenu name={name} />
           </div>
         </div>
 
         {/* summary stats */}
         <div className="stat-grid">
-          <StatCard label="Bugun" value={todayTotal} />
-          <StatCard label="Hafta" value={weekTotal} />
-          <StatCard label="Oy" value={monthTotal} />
+          <StatCard label={t.dashboard.today} value={todayTotal} />
+          <StatCard label={t.dashboard.week} value={weekTotal} />
+          <StatCard label={t.dashboard.month} value={monthTotal} />
         </div>
 
         {/* budget */}
@@ -178,7 +179,7 @@ export default async function DashboardPage() {
           <div className="section">
             <div className="card chart-card">
               <div className="ch-head">
-                <h3>Xarajatlar taqsimoti</h3>
+                <h3>{t.dashboard.breakdown}</h3>
               </div>
               <div className="donut-wrap">
                 <svg width="200" height="200" viewBox="0 0 200 200">
@@ -198,9 +199,9 @@ export default async function DashboardPage() {
                   ))}
                 </svg>
                 <div className="donut-center">
-                  <div className="t-lbl">Jami</div>
+                  <div className="t-lbl">{t.dashboard.total}</div>
                   <div className="t-val mono">{totalCompact.v}</div>
-                  <div className="t-unit">{totalCompact.u} so&apos;m</div>
+                  <div className="t-unit">{totalCompact.u} {t.dashboard.som}</div>
                 </div>
               </div>
               <div className="legend">
@@ -220,7 +221,7 @@ export default async function DashboardPage() {
         {/* new entry (text / receipt / voice) */}
         <div className="section">
           <div className="section-head">
-            <h2>Yangi yozuv</h2>
+            <h2>{t.dashboard.newEntry}</h2>
           </div>
           <ExpenseInput />
         </div>
@@ -228,7 +229,7 @@ export default async function DashboardPage() {
         {/* coach */}
         <div className="section">
           <div className="section-head">
-            <h2>Murabbiy maslahatlari</h2>
+            <h2>{t.dashboard.coach}</h2>
           </div>
           <FinancialCoach />
         </div>

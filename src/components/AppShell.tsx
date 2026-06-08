@@ -2,8 +2,8 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { signOut } from "@/app/auth/actions";
-import ThemeToggle from "@/components/ThemeToggle";
+import { useI18n } from "@/components/LanguageProvider";
+import type { Dict } from "@/lib/i18n/dictionaries";
 
 // Minimal line-icon set (stroke, currentColor) matching the design language.
 const ICONS: Record<string, React.ReactNode> = {
@@ -42,12 +42,12 @@ const ICONS: Record<string, React.ReactNode> = {
   ),
 };
 
-const NAV = [
-  { href: "/dashboard", label: "Dashboard", short: "Asosiy", icon: "dashboard" },
-  { href: "/income", label: "Daromad", short: "Daromad", icon: "income" },
-  { href: "/goals", label: "Maqsadlar", short: "Maqsad", icon: "goals" },
-  { href: "/debts", label: "Qarzlar", short: "Qarz", icon: "debts" },
-  { href: "/investments", label: "Investitsiya", short: "Invest", icon: "investments" },
+const NAV: { href: string; key: keyof Dict["nav"]; icon: string }[] = [
+  { href: "/dashboard", key: "dashboard", icon: "dashboard" },
+  { href: "/income", key: "income", icon: "income" },
+  { href: "/goals", key: "goals", icon: "goals" },
+  { href: "/debts", key: "debts", icon: "debts" },
+  { href: "/investments", key: "investments", icon: "investments" },
 ];
 
 function NavIcon({ name }: { name: string }) {
@@ -80,76 +80,30 @@ export default function AppShell({
   variant?: "scroll" | "fill";
 }) {
   const pathname = usePathname();
+  const { t } = useI18n();
 
   return (
     <div className="flex h-dvh flex-col overflow-hidden bg-background">
-      <header className="shrink-0 border-b border-border bg-background">
-        <div className="mx-auto flex max-w-3xl items-center justify-between gap-4 px-4 py-3">
-          <div className="flex items-center gap-4 sm:gap-6">
-            <Link
-              href="/dashboard"
-              className="flex items-center gap-2 text-[15px] font-semibold tracking-tight text-foreground"
-            >
-              <span
-                aria-hidden
-                className="flex h-6 w-6 items-center justify-center rounded-md bg-accent text-xs font-bold text-accent-foreground"
-              >
-                P
-              </span>
-              PulNazorat
-            </Link>
-            {/* Desktop: top horizontal nav. Hidden on mobile (bottom bar). */}
-            <nav className="hidden items-center gap-0.5 sm:flex">
-              {NAV.map((item) => {
-                const active = isActive(pathname, item.href);
-                return (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    className={`rounded-lg px-3 py-1.5 text-[13px] font-medium transition-colors ${
-                      active
-                        ? "bg-[var(--accent-weak)] text-accent"
-                        : "text-muted hover:bg-[var(--subtle)] hover:text-foreground"
-                    }`}
-                  >
-                    {item.label}
-                  </Link>
-                );
-              })}
-            </nav>
-          </div>
-
-          <div className="flex items-center gap-2">
-            <ThemeToggle />
-            <form action={signOut}>
-              <button
-                type="submit"
-                className="inline-flex h-9 items-center rounded-[10px] border border-border bg-surface px-3 text-[13px] font-medium text-foreground transition-colors hover:bg-[var(--subtle)]"
-              >
-                Chiqish
-              </button>
-            </form>
-          </div>
-        </div>
-      </header>
-
+      {/* No top bar — each page renders its own header (the .appbar), and the
+          settings live in that header's avatar menu. Navigation is the bottom
+          tab bar below, shown on every screen size. */}
       <main className="min-h-0 flex-1">
-        {/* pb on mobile keeps content clear of the fixed bottom tab bar. */}
+        {/* pb keeps content clear of the fixed bottom tab bar. */}
         {variant === "scroll" ? (
-          <div className="h-full overflow-y-auto pb-24 sm:pb-0">{children}</div>
+          <div className="h-full overflow-y-auto pb-24">{children}</div>
         ) : (
-          <div className="flex h-full flex-col pb-20 sm:pb-0">{children}</div>
+          <div className="flex h-full flex-col pb-20">{children}</div>
         )}
       </main>
 
-      {/* Floating action button → AI chat. Sits above the mobile tab bar,
-          bottom-right on desktop. Hidden while already on the chat screen. */}
+      {/* Floating action button → AI chat. Sits above the bottom tab bar.
+          Hidden while already on the chat screen. */}
       {!isActive(pathname, "/chat") && (
         <Link
           href="/chat"
           aria-label="AI Chat"
           title="AI Chat"
-          className="fixed bottom-[88px] right-4 z-30 flex h-14 w-14 items-center justify-center rounded-full bg-white shadow-[0_6px_20px_rgba(20,20,30,0.22)] ring-1 ring-black/5 transition-transform active:scale-95 sm:bottom-6 sm:right-6"
+          className="fixed bottom-[88px] right-4 z-30 flex h-14 w-14 items-center justify-center rounded-full bg-white shadow-[0_6px_20px_rgba(20,20,30,0.22)] ring-1 ring-black/5 transition-transform active:scale-95 sm:right-6"
         >
           <span className="bg-gradient-to-br from-[#6e76d6] to-[#8a7be0] bg-clip-text text-[15px] font-bold tracking-tight text-transparent">
             AI
@@ -157,9 +111,10 @@ export default function AppShell({
         </Link>
       )}
 
-      {/* Mobile: fixed bottom tab bar (translucent). Hidden on sm and up. */}
+      {/* Fixed bottom tab bar (translucent) — the app's primary navigation on
+          every screen size now that the top bar is gone. Centered on desktop. */}
       <nav
-        className="fixed inset-x-0 bottom-0 z-20 flex items-start justify-around border-t border-border px-2 pt-2 pb-[max(8px,env(safe-area-inset-bottom))] backdrop-blur-xl sm:hidden"
+        className="fixed inset-x-0 bottom-0 z-20 mx-auto flex max-w-3xl items-start justify-around border-t border-border px-2 pt-2 pb-[max(8px,env(safe-area-inset-bottom))] backdrop-blur-xl sm:border-x sm:rounded-t-2xl"
         style={{ background: "var(--glass)" }}
       >
         {NAV.map((item) => {
@@ -176,7 +131,7 @@ export default function AppShell({
                 <NavIcon name={item.icon} />
               </span>
               <span className={`text-[10px] ${active ? "font-semibold" : "font-medium"}`}>
-                {item.short}
+                {t.nav[item.key]}
               </span>
             </Link>
           );
