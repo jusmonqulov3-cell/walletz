@@ -58,6 +58,35 @@ const uz = {
     title: "Investitsiya",
     sub: "Valyuta · kripto · aksiya · jamg'arma",
   },
+  chat: {
+    title: "Pul — moliyaviy yordamchingiz",
+    subtitle: "Xarajatlaringiz haqida so'rang yoki amal qo'shing.",
+    placeholder: "Savol yoki buyruq yozing...",
+    send: "Yuborish",
+    suggestions: [
+      "Bu oy nimaga ko'p pul ketdi?",
+      "50 ming taksiga ishlatdim",
+      "Byudjetni 3 mln qil",
+    ],
+    confirm: "Tasdiqlash",
+    cancel: "Bekor",
+    done: "Bajarildi",
+    cancelled: "Bekor qilindi",
+    failed: "Xatolik",
+    error: "Javob olishda xatolik",
+  },
+  insights: {
+    title: "Tahlil va prognoz",
+    forecast: "Oy oxiri prognozi",
+    runway: "Byudjet yetadi",
+    days: "kun",
+    overBudget: "Byudjetdan oshishi mumkin",
+    anomalies: "G'ayrioddiy xarajatlar",
+    recurring: "Takroriy to'lovlar",
+    dueSoon: "tez orada",
+    perMonth: "oyiga",
+    vsTypical: "odatdagidan ko'p",
+  },
 };
 
 export type Dict = typeof uz;
@@ -105,6 +134,35 @@ const ru = {
     title: "Инвестиции",
     sub: "Валюта · крипто · акции · фонды",
   },
+  chat: {
+    title: "Pul — ваш финансовый помощник",
+    subtitle: "Спросите о расходах или добавьте операцию.",
+    placeholder: "Вопрос или команда...",
+    send: "Отправить",
+    suggestions: [
+      "На что ушло больше всего в этом месяце?",
+      "Потратил 50 тысяч на такси",
+      "Поставь бюджет 3 млн",
+    ],
+    confirm: "Подтвердить",
+    cancel: "Отмена",
+    done: "Готово",
+    cancelled: "Отменено",
+    failed: "Ошибка",
+    error: "Ошибка получения ответа",
+  },
+  insights: {
+    title: "Анализ и прогноз",
+    forecast: "Прогноз на конец месяца",
+    runway: "Бюджета хватит на",
+    days: "дн.",
+    overBudget: "Возможен перерасход бюджета",
+    anomalies: "Необычные траты",
+    recurring: "Повторяющиеся платежи",
+    dueSoon: "скоро",
+    perMonth: "в месяц",
+    vsTypical: "больше обычного",
+  },
 } satisfies Dict;
 
 const en = {
@@ -149,6 +207,35 @@ const en = {
   investments: {
     title: "Investments",
     sub: "Currency · crypto · stocks · funds",
+  },
+  chat: {
+    title: "Pul — your finance assistant",
+    subtitle: "Ask about your spending or add an entry.",
+    placeholder: "Ask or command...",
+    send: "Send",
+    suggestions: [
+      "What did I spend most on this month?",
+      "Spent 50k on a taxi",
+      "Set my budget to 3M",
+    ],
+    confirm: "Confirm",
+    cancel: "Cancel",
+    done: "Done",
+    cancelled: "Cancelled",
+    failed: "Error",
+    error: "Failed to get a response",
+  },
+  insights: {
+    title: "Insights & forecast",
+    forecast: "Month-end forecast",
+    runway: "Budget lasts",
+    days: "days",
+    overBudget: "May exceed budget",
+    anomalies: "Unusual spending",
+    recurring: "Recurring",
+    dueSoon: "due soon",
+    perMonth: "/mo",
+    vsTypical: "more than usual",
   },
 } satisfies Dict;
 

@@ -2,11 +2,12 @@ import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { generateText } from "@/lib/gemini";
 import { getTashkentMonthInfo } from "@/lib/dates";
+import { aiLanguageInstruction } from "@/lib/i18n/aiLanguage";
 
 // Allow up to 30s for the Gemini round-trip on Vercel.
 export const maxDuration = 30;
 
-const SYSTEM_PROMPT = `You are 'Pul', a friendly finance coach in an Uzbek app. The user has a savings goal. Using ONLY the numbers provided, advise in Uzbek in 2–4 sentences: how much to save per month to reach the goal (if a target_date is given, base it on the months remaining; otherwise suggest a realistic monthly amount from their surplus and state the resulting timeline). Say whether it's realistic given their surplus — if surplus is low or negative, gently say so and suggest a smaller monthly amount or longer timeline. Format every amount with a space thousands separator and ' so'm'. Never invent numbers.
+const SYSTEM_PROMPT = `You are 'Pul', a friendly finance coach in an Uzbek app. The user has a savings goal. Using ONLY the numbers provided, advise in the language specified at the top, in 2–4 sentences: how much to save per month to reach the goal (if a target_date is given, base it on the months remaining; otherwise suggest a realistic monthly amount from their surplus and state the resulting timeline). Say whether it's realistic given their surplus — if surplus is low or negative, gently say so and suggest a smaller monthly amount or longer timeline. Format every amount as specified in the language instruction. Never invent numbers.
 
 DATA:
 `;
@@ -80,7 +81,11 @@ export async function POST(request: Request) {
     surplus,
   };
 
-  const systemInstruction = SYSTEM_PROMPT + JSON.stringify(context, null, 2);
+  const systemInstruction =
+    (await aiLanguageInstruction()) +
+    "\n\n" +
+    SYSTEM_PROMPT +
+    JSON.stringify(context, null, 2);
 
   let advice: string;
   try {

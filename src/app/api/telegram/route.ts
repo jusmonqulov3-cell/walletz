@@ -189,7 +189,7 @@ async function handleStart(
 
   await sendMessage(
     chatId,
-    "✅ Hisobingiz ulandi! Endi xarajat, daromad yoki qarzni yozing — yoki ovozli xabar yuboring.",
+    "✅ Hisobingiz ulandi! Endi xarajat, daromad yoki qarzni yozing — yoki ovozli xabar yuboring.\n\n🔔 Haftalik hisobot va ogohlantirishlarni olish uchun /resume yuboring.",
     openAppKeyboard(),
   );
 }
@@ -327,6 +327,41 @@ async function handleCallback(
   }
 }
 
+// --- Notification opt-in (/resume) and opt-out (/stop) ---------------------
+
+async function handleNotifyToggle(
+  enable: boolean,
+  chatId: number,
+  telegramId: number,
+  supabase: Db,
+): Promise<void> {
+  const { data: link } = await supabase
+    .from("telegram_links")
+    .select("telegram_id")
+    .eq("telegram_id", telegramId)
+    .maybeSingle();
+
+  if (!link) {
+    await sendMessage(
+      chatId,
+      "Hisobingiz ulanmagan. Avval ilovadagi Telegram sahifasidan ulang.",
+    );
+    return;
+  }
+
+  await supabase
+    .from("telegram_links")
+    .update({ notify: enable })
+    .eq("telegram_id", telegramId);
+
+  await sendMessage(
+    chatId,
+    enable
+      ? "🔔 Bildirishnomalar yoqildi — haftalik hisobot va ogohlantirishlar. O'chirish: /stop"
+      : "🔕 Bildirishnomalar o'chirildi. Qayta yoqish: /resume",
+  );
+}
+
 // --- Incoming voice / text messages ---------------------------------------
 
 async function handleMessage(message: TgMessage, supabase: Db): Promise<void> {
@@ -339,6 +374,11 @@ async function handleMessage(message: TgMessage, supabase: Db): Promise<void> {
 
   if (text.startsWith("/start")) {
     await handleStart(text, chatId, telegramId, username, supabase);
+    return;
+  }
+
+  if (text === "/resume" || text === "/stop") {
+    await handleNotifyToggle(text === "/resume", chatId, telegramId, supabase);
     return;
   }
 

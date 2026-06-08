@@ -4,5 +4,9 @@
   "functions": {
     "src/app/api/chat/route.ts": { "maxDuration": 30 },
     "src/app/api/parse/route.ts": { "maxDuration": 30 }
-  }
+  },
+  "crons": [
+    { "path": "/api/cron/weekly", "schedule": "0 4 * * 1" },
+    { "path": "/api/cron/daily", "schedule": "0 5 * * *" }
+  ]
 }

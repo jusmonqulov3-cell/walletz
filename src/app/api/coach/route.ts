@@ -2,13 +2,14 @@ import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { generateJSON } from "@/lib/gemini";
 import { getTashkentMonthInfo, getTashkentPeriods } from "@/lib/dates";
+import { aiLanguageInstruction } from "@/lib/i18n/aiLanguage";
 
 // Allow up to 30s for the Gemini round-trip on Vercel.
 export const maxDuration = 30;
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 
-const SYSTEM_PROMPT = `You are 'Pul', a proactive personal finance coach in an Uzbek app. Using ONLY the numbers provided, give 2–4 short, specific, actionable insights in Uzbek about the user's spending habits. Each insight should be one or two sentences. Prefer concrete observations with numbers and a suggested action and its monthly saving, e.g. 'Oxirgi 14 kunda snack xarajatlari 280 000 so'm bo'lgan. 20% kamaytirsangiz oyiga ~240 000 so'm tejaysiz.' Compare to last month where useful (percentage changes). Be encouraging, never preachy. Format amounts with a space thousands separator and ' so'm'. Never invent numbers. Return the insights as a JSON array of strings: {"insights":["...","..."]}
+const SYSTEM_PROMPT = `You are 'Pul', a proactive personal finance coach in an Uzbek app. Using ONLY the numbers provided, give 2–4 short, specific, actionable insights about the user's spending habits, in the language specified at the top. Each insight should be one or two sentences. Prefer concrete observations with numbers and a suggested action and its monthly saving (e.g. 'In the last 14 days snacks cost 280 000 so'm. Cutting 20% saves ~240 000 so'm/month.'). Compare to last month where useful (percentage changes). Be encouraging, never preachy. Format amounts as specified in the language instruction. Never invent numbers. Return the insights as a JSON array of strings: {"insights":["...","..."]}
 
 DATA:
 `;
@@ -135,7 +136,11 @@ export async function POST() {
     },
   };
 
-  const systemInstruction = SYSTEM_PROMPT + JSON.stringify(context, null, 2);
+  const systemInstruction =
+    (await aiLanguageInstruction()) +
+    "\n\n" +
+    SYSTEM_PROMPT +
+    JSON.stringify(context, null, 2);
 
   let result: unknown;
   try {

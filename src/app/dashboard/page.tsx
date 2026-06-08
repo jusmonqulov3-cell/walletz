@@ -7,6 +7,8 @@ import { CATEGORIES, categoryColor, type Category } from "@/lib/categories";
 import AppShell from "@/components/AppShell";
 import AvatarMenu from "@/components/AvatarMenu";
 import { getDict } from "@/lib/i18n/server";
+import { buildInsights } from "@/lib/insights";
+import InsightsCard from "./InsightsCard";
 import ExpenseInput from "./ExpenseInput";
 import FinancialCoach from "./FinancialCoach";
 import BudgetCard from "./BudgetCard";
@@ -144,6 +146,13 @@ export default async function DashboardPage() {
   const name = email.split("@")[0] || "foydalanuvchi";
   const t = await getDict();
 
+  const userId = typeof auth.claims.sub === "string" ? auth.claims.sub : "";
+  const insights = await buildInsights(supabase, userId);
+  const hasInsights =
+    insights.forecast.thisMonthTotal > 0 ||
+    insights.anomalies.length > 0 ||
+    insights.recurring.length > 0;
+
   return (
     <AppShell>
       <div className="mx-auto max-w-xl px-4 py-5">
@@ -173,6 +182,9 @@ export default async function DashboardPage() {
 
         {/* budget */}
         <BudgetCard monthTotal={monthTotal} limit={limit} />
+
+        {/* insights & forecast */}
+        {hasInsights && <InsightsCard insights={insights} t={t} />}
 
         {/* category breakdown donut */}
         {breakdown.length > 0 && (

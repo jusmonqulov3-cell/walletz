@@ -130,6 +130,35 @@ export type ChatMessage = {
 };
 
 /**
+ * Like {@link generateText} but in JSON mode: passes a multi-turn history and
+ * returns the parsed JSON object. Used by the chat assistant so a single reply
+ * can carry both prose and proposed actions.
+ */
+export async function generateJSONChat(
+  systemInstruction: string,
+  messages: ChatMessage[],
+): Promise<unknown> {
+  const model = genAI.getGenerativeModel({
+    model: MODEL,
+    systemInstruction,
+    generationConfig: { responseMimeType: "application/json" },
+  });
+
+  const contents = messages.map((m) => ({
+    role: m.role,
+    parts: [{ text: m.text }],
+  }));
+
+  const result = await model.generateContent({ contents });
+  const text = result.response.text();
+  try {
+    return JSON.parse(text);
+  } catch {
+    throw new Error(`Gemini did not return valid JSON. Raw response: ${text}`);
+  }
+}
+
+/**
  * Calls Gemini in plain-text mode with a system instruction and a multi-turn
  * message history, returning the reply text.
  *

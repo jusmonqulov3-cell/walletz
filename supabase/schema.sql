@@ -176,8 +176,13 @@ create table if not exists public.telegram_links (
   user_id           uuid not null references auth.users (id) on delete cascade,
   telegram_id       bigint unique not null,
   telegram_username text,
+  notify            boolean not null default false,
   created_at        timestamptz not null default now()
 );
+
+-- Opt-in flag for proactive Telegram notifications (off by default; /resume on).
+alter table public.telegram_links
+  add column if not exists notify boolean not null default false;
 
 create table if not exists public.telegram_codes (
   code       text primary key,
@@ -376,3 +381,51 @@ create policy "investments_delete_own"
   on public.investments for delete
   to authenticated
   using (user_id = auth.uid());
+
+-- ---------------------------------------------------------------------------
+-- AI chat history (persists the assistant conversation across sessions)
+-- ---------------------------------------------------------------------------
+
+create table if not exists public.chat_messages (
+  id         uuid primary key default gen_random_uuid(),
+  user_id    uuid not null references auth.users (id) on delete cascade,
+  role       text not null check (role in ('user', 'model')),
+  content    text not null,
+  created_at timestamptz not null default now()
+);
+
+create index if not exists chat_messages_user_id_created_idx
+  on public.chat_messages (user_id, created_at);
+
+alter table public.chat_messages enable row level security;
+
+create policy "chat_messages_select_own"
+  on public.chat_messages for select
+  to authenticated
+  using (user_id = auth.uid());
+
+create policy "chat_messages_insert_own"
+  on public.chat_messages for insert
+  to authenticated
+  with check (user_id = auth.uid());
+
+create policy "chat_messages_delete_own"
+  on public.chat_messages for delete
+  to authenticated
+  using (user_id = auth.uid());
+
+-- ---------------------------------------------------------------------------
+-- Sent-notification log (dedup for proactive Telegram alerts). Written only by
+-- the cron via the service-role client, so RLS is on with no policies.
+-- ---------------------------------------------------------------------------
+
+create table if not exists public.telegram_notifications (
+  id         uuid primary key default gen_random_uuid(),
+  user_id    uuid not null references auth.users (id) on delete cascade,
+  kind       text not null,
+  period_key text not null,
+  created_at timestamptz not null default now(),
+  unique (user_id, kind, period_key)
+);
+
+alter table public.telegram_notifications enable row level security;
