@@ -67,6 +67,61 @@ function summarize(p: ParsedTransactions): string {
   return lines.join("\n");
 }
 
+// Confirm / cancel / edit buttons shown under an understood payload.
+function confirmKeyboard(pendingId: string): InlineKeyboardMarkup {
+  return {
+    inline_keyboard: [
+      [
+        { text: "✅ Tasdiqlash", callback_data: `c:${pendingId}` },
+        { text: "❌ Bekor", callback_data: `x:${pendingId}` },
+      ],
+      [{ text: "✏️ Tahrirlash", callback_data: `e:${pendingId}` }],
+    ],
+  };
+}
+
+// Reassures the user while a voice message is being transcribed: it edits the
+// given message every few seconds with the elapsed time. Returns a stop()
+// function that halts the ticker and waits for any in-flight edit to settle, so
+// the caller can safely overwrite the same message afterwards.
+function startProgress(
+  chatId: number,
+  messageId: number,
+): () => Promise<void> {
+  let stopped = false;
+  let wake: (() => void) | null = null;
+
+  // setTimeout-based sleep that stop() can cut short, so we never linger.
+  const sleep = (ms: number) =>
+    new Promise<void>((resolve) => {
+      const t = setTimeout(resolve, ms);
+      wake = () => {
+        clearTimeout(t);
+        resolve();
+      };
+    });
+
+  const loop = (async () => {
+    let elapsed = 0;
+    while (!stopped) {
+      await sleep(3000);
+      if (stopped) break;
+      elapsed += 3;
+      await editMessageText(
+        chatId,
+        messageId,
+        `🎤 Ovoz tahlil qilinmoqda… (${elapsed}s)\n⏳ Odatda 10–25 soniya, biroz kuting.`,
+      );
+    }
+  })();
+
+  return async () => {
+    stopped = true;
+    wake?.();
+    await loop;
+  };
+}
+
 // --- /start linking (unchanged behavior) ----------------------------------
 
 async function handleStart(
@@ -137,7 +192,7 @@ async function handleCallback(
   const fromId = cb.from?.id;
   const chatId = cb.message?.chat?.id;
   const messageId = cb.message?.message_id;
-  const match = /^([cx]):(.+)$/.exec(cb.data ?? "");
+  const match = /^([cex]):(.+)$/.exec(cb.data ?? "");
 
   if (!match || fromId == null) {
     await answerCallbackQuery(cb.id);
@@ -157,6 +212,23 @@ async function handleCallback(
 
   if (!pending) {
     await answerCallbackQuery(cb.id, "Allaqachon qayta ishlangan");
+    return;
+  }
+
+  // Edit: flag the row so the user's next message replaces its payload.
+  if (action === "e") {
+    await supabase
+      .from("telegram_pending")
+      .update({ editing: true })
+      .eq("id", pendingId);
+    await answerCallbackQuery(cb.id, "Tahrirlash");
+    if (chatId != null && messageId != null) {
+      await editMessageText(
+        chatId,
+        messageId,
+        "✏️ To'g'rilangan ma'lumotni yuboring — matn yoki ovozli xabar.",
+      );
+    }
     return;
   }
 
@@ -273,6 +345,27 @@ async function handleMessage(message: TgMessage, supabase: Db): Promise<void> {
     return;
   }
 
+  // Voice takes several seconds to transcribe — show an instant acknowledgment
+  // and a live elapsed-time ticker on that same message while Gemini works.
+  let statusMessageId: number | null = null;
+  let stopProgress: (() => Promise<void>) | null = null;
+  if (isVoice) {
+    statusMessageId = await sendMessage(
+      chatId,
+      "🎤 Ovozli xabar qabul qilindi.\n⏳ Tahlil boshlanmoqda…",
+    );
+    if (statusMessageId != null) {
+      stopProgress = startProgress(chatId, statusMessageId);
+    }
+  }
+
+  // Replies by editing the status message when we have one (voice), so the
+  // ticker, errors, and the final prompt all live on a single message.
+  const reply = (body: string, keyboard?: InlineKeyboardMarkup) =>
+    statusMessageId != null
+      ? editMessageText(chatId, statusMessageId, body, keyboard)
+      : sendMessage(chatId, body, keyboard);
+
   // Parse voice (Gemini transcribes + classifies) or text.
   let result: unknown;
   try {
@@ -280,7 +373,8 @@ async function handleMessage(message: TgMessage, supabase: Db): Promise<void> {
       const fileUrl = await getFileUrl(message.voice!.file_id!);
       const base64 = fileUrl ? await downloadFileAsBase64(fileUrl) : null;
       if (!base64) {
-        await sendMessage(chatId, "Ovozni o'qib bo'lmadi. Qayta urinib ko'ring.");
+        if (stopProgress) await stopProgress();
+        await reply("Ovozni o'qib bo'lmadi. Qayta urinib ko'ring.");
         return;
       }
       result = await generateJSONFromAudio(
@@ -293,9 +387,13 @@ async function handleMessage(message: TgMessage, supabase: Db): Promise<void> {
     }
   } catch (err) {
     console.error("Telegram parse error:", err);
-    await sendMessage(chatId, "Tahlil qilishda xatolik. Qayta urinib ko'ring.");
+    if (stopProgress) await stopProgress();
+    await reply("Tahlil qilishda xatolik. Qayta urinib ko'ring.");
     return;
   }
+
+  // Stop the ticker before we reuse the status message for the result.
+  if (stopProgress) await stopProgress();
 
   const norm = normalizeTransactions(result);
   if (
@@ -303,36 +401,50 @@ async function handleMessage(message: TgMessage, supabase: Db): Promise<void> {
     norm.incomes.length === 0 &&
     norm.debts.length === 0
   ) {
-    await sendMessage(chatId, "Tushunmadim, qaytadan urinib ko'ring.");
+    await reply("Tushunmadim, qaytadan urinib ko'ring.");
     return;
   }
 
-  // Stash the understood payload and ask for confirmation.
-  const { data: pending, error } = await supabase
+  // If the user tapped "✏️ Tahrirlash", replace that pending row's payload in
+  // place; otherwise stash a fresh one. Either way we re-ask for confirmation.
+  const { data: editingRow } = await supabase
     .from("telegram_pending")
-    .insert({ user_id: link.user_id, telegram_id: telegramId, payload: norm })
     .select("id")
-    .single();
+    .eq("telegram_id", telegramId)
+    .eq("editing", true)
+    .order("created_at", { ascending: false })
+    .limit(1)
+    .maybeSingle();
 
-  if (error || !pending) {
-    console.error("telegram_pending insert error:", error);
-    await sendMessage(chatId, "Xatolik. Qayta urinib ko'ring.");
-    return;
+  let pendingId: string;
+  if (editingRow) {
+    const { error } = await supabase
+      .from("telegram_pending")
+      .update({ payload: norm, editing: false })
+      .eq("id", editingRow.id);
+    if (error) {
+      console.error("telegram_pending update error:", error);
+      await reply("Xatolik. Qayta urinib ko'ring.");
+      return;
+    }
+    pendingId = editingRow.id as string;
+  } else {
+    const { data: pending, error } = await supabase
+      .from("telegram_pending")
+      .insert({ user_id: link.user_id, telegram_id: telegramId, payload: norm })
+      .select("id")
+      .single();
+    if (error || !pending) {
+      console.error("telegram_pending insert error:", error);
+      await reply("Xatolik. Qayta urinib ko'ring.");
+      return;
+    }
+    pendingId = pending.id as string;
   }
 
-  const keyboard: InlineKeyboardMarkup = {
-    inline_keyboard: [
-      [
-        { text: "✅ Tasdiqlash", callback_data: `c:${pending.id}` },
-        { text: "❌ Bekor", callback_data: `x:${pending.id}` },
-      ],
-    ],
-  };
-
-  await sendMessage(
-    chatId,
+  await reply(
     `Quyidagilarni tushundim:\n${summarize(norm)}\n\nTasdiqlaysizmi?`,
-    keyboard,
+    confirmKeyboard(pendingId),
   );
 }
 

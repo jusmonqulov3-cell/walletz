@@ -19,9 +19,10 @@ function botToken(): string | null {
 }
 
 // POST a JSON body to a Bot API method. Never throws; logs on failure.
-async function callApi(method: string, body: unknown): Promise<void> {
+// Returns the parsed response JSON (or null) so callers can read result fields.
+async function callApi(method: string, body: unknown): Promise<unknown> {
   const token = botToken();
-  if (!token) return;
+  if (!token) return null;
   try {
     const res = await fetch(`${TELEGRAM_API}/bot${token}/${method}`, {
       method: "POST",
@@ -30,24 +31,31 @@ async function callApi(method: string, body: unknown): Promise<void> {
     });
     if (!res.ok) {
       console.error(`Telegram ${method} failed:`, res.status, await res.text());
+      return null;
     }
+    return await res.json();
   } catch (err) {
     console.error(`Telegram ${method} error:`, err);
+    return null;
   }
 }
 
 /**
  * Sends a plain-text message, optionally with an inline keyboard. Never throws —
- * failures are logged so the webhook can always return 200 quickly.
+ * failures are logged so the webhook can always return 200 quickly. Returns the
+ * new message_id (so it can later be edited), or null on failure.
  */
 export async function sendMessage(
   chatId: number | string,
   text: string,
   replyMarkup?: InlineKeyboardMarkup,
-): Promise<void> {
+): Promise<number | null> {
   const body: Record<string, unknown> = { chat_id: chatId, text };
   if (replyMarkup) body.reply_markup = replyMarkup;
-  await callApi("sendMessage", body);
+  const res = (await callApi("sendMessage", body)) as {
+    result?: { message_id?: number };
+  } | null;
+  return res?.result?.message_id ?? null;
 }
 
 /**

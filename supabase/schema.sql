@@ -233,8 +233,14 @@ create table if not exists public.telegram_pending (
   user_id     uuid not null references auth.users (id) on delete cascade,
   telegram_id bigint not null,
   payload     jsonb not null,
+  editing     boolean not null default false,
   created_at  timestamptz not null default now()
 );
+
+-- Added later: when true, the user's next message replaces this row's payload
+-- (the "✏️ Tahrirlash" confirmation flow) instead of creating a new pending row.
+alter table public.telegram_pending
+  add column if not exists editing boolean not null default false;
 
 create index if not exists telegram_pending_telegram_id_idx
   on public.telegram_pending (telegram_id);
