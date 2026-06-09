@@ -1,17 +1,11 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { formatAmount, formatDate } from "@/lib/format";
+import { formatAmount } from "@/lib/format";
 import { getTashkentMonthInfo } from "@/lib/dates";
 import AppShell from "@/components/AppShell";
 import { getDict } from "@/lib/i18n/server";
 import QuickIncome from "./QuickIncome";
-
-type IncomeRow = {
-  id: string;
-  source: string | null;
-  amount: number;
-  received_at: string;
-};
+import IncomeList, { type IncomeRow } from "./IncomeList";
 
 export default async function IncomePage() {
   const supabase = await createClient();
@@ -83,22 +77,7 @@ export default async function IncomePage() {
               </div>
             </div>
           ) : (
-            <div className="card list">
-              {recent.map((r) => (
-                <div className="li" key={r.id}>
-                  <div className="badge" style={{ background: "var(--positive-weak)" }}>
-                    <span style={{ background: "var(--positive)" }} />
-                  </div>
-                  <div className="meta">
-                    <div className="m1 truncate">{r.source || "—"}</div>
-                    <div className="m2">{formatDate(r.received_at)}</div>
-                  </div>
-                  <div className="right">
-                    <div className="ramt pos mono">+{formatAmount(r.amount)}</div>
-                  </div>
-                </div>
-              ))}
-            </div>
+            <IncomeList rows={recent} />
           )}
         </section>
       </div>

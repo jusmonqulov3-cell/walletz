@@ -18,6 +18,7 @@ export const LANGUAGE_NAMES: Record<Locale, string> = {
 const uz = {
   menu: {
     settings: "Sozlamalar",
+    profile: "Profil",
     telegram: "Telegram ulanish",
     darkMode: "Tungi rejim",
     lightMode: "Yorug' rejim",
@@ -94,6 +95,7 @@ export type Dict = typeof uz;
 const ru = {
   menu: {
     settings: "Настройки",
+    profile: "Профиль",
     telegram: "Подключить Telegram",
     darkMode: "Тёмная тема",
     lightMode: "Светлая тема",
@@ -168,6 +170,7 @@ const ru = {
 const en = {
   menu: {
     settings: "Settings",
+    profile: "Profile",
     telegram: "Connect Telegram",
     darkMode: "Dark mode",
     lightMode: "Light mode",

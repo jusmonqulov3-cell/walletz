@@ -1,20 +1,20 @@
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
-import { formatAmount } from "@/lib/format";
 import { getTashkentPeriods } from "@/lib/dates";
-import { CATEGORIES, categoryColor, type Category } from "@/lib/categories";
 import AppShell from "@/components/AppShell";
 import AvatarMenu from "@/components/AvatarMenu";
+import { isAdmin } from "@/lib/admin";
 import { getDict } from "@/lib/i18n/server";
 import { buildInsights } from "@/lib/insights";
 import InsightsCard from "./InsightsCard";
 import ExpenseInput from "./ExpenseInput";
 import FinancialCoach from "./FinancialCoach";
 import BudgetCard from "./BudgetCard";
+import BreakdownCard from "./BreakdownCard";
 import ExpenseSearch from "./ExpenseSearch";
 
-type MonthRow = { amount: number; category: string | null; spent_at: string };
+type MonthRow = { amount: number; spent_at: string };
 type RecentRow = {
   id: string;
   note: string | null;
@@ -63,14 +63,15 @@ export default async function DashboardPage() {
     redirect("/login");
   }
 
-  const { startOfToday, startOfWeek, startOfMonth } = getTashkentPeriods();
+  const { startOfToday, startOfWeek, startOfMonth, periodStart } =
+    getTashkentPeriods();
   const todayMs = new Date(startOfToday).getTime();
   const weekMs = new Date(startOfWeek).getTime();
 
   const [monthRes, recentRes, budgetRes] = await Promise.all([
     supabase
       .from("expenses")
-      .select("amount, category, spent_at")
+      .select("amount, spent_at")
       .gte("spent_at", startOfMonth),
     supabase
       .from("expenses")
@@ -97,7 +98,6 @@ export default async function DashboardPage() {
   let todayTotal = 0;
   let weekTotal = 0;
   let monthTotal = 0;
-  const byCategory = new Map<string, number>();
 
   for (const row of monthRows) {
     const amount = Number(row.amount) || 0;
@@ -105,45 +105,21 @@ export default async function DashboardPage() {
     monthTotal += amount;
     if (ms >= weekMs) weekTotal += amount;
     if (ms >= todayMs) todayTotal += amount;
-
-    const cat: Category = (CATEGORIES as readonly string[]).includes(
-      row.category ?? "",
-    )
-      ? (row.category as Category)
-      : "Boshqa";
-    byCategory.set(cat, (byCategory.get(cat) ?? 0) + amount);
   }
-
-  const breakdown = [...byCategory.entries()]
-    .filter(([, total]) => total > 0)
-    .map(([category, total]) => ({
-      category,
-      total,
-      percent: monthTotal > 0 ? Math.round((total / monthTotal) * 100) : 0,
-    }))
-    .sort((a, b) => b.total - a.total);
-
-  // Donut geometry: cumulative arc segments over a circle (r=80, C≈502.65).
-  const R = 80;
-  const C = 2 * Math.PI * R;
-  const fractions = breakdown.map((b) =>
-    monthTotal > 0 ? b.total / monthTotal : 0,
-  );
-  const segments = breakdown.map((b, i) => ({
-    color: categoryColor(b.category),
-    dash: fractions[i] * C,
-    // Offset = cumulative arc length of all preceding segments.
-    offset: fractions.slice(0, i).reduce((sum, f) => sum + f, 0) * C,
-  }));
-
-  const totalCompact = compact(monthTotal);
 
   // Uzbek long date anchored to Tashkent (UTC+5).
   const tash = new Date(new Date(startOfToday).getTime() + 5 * 3600 * 1000);
   const dateLabel = `${tash.getUTCDate()}-${UZ_MONTHS[tash.getUTCMonth()]}, ${UZ_DAYS[tash.getUTCDay()]}`;
+  // Default breakdown range: 1st of the month → today (Tashkent calendar dates).
+  const todayDate = `${tash.getUTCFullYear()}-${String(tash.getUTCMonth() + 1).padStart(2, "0")}-${String(tash.getUTCDate()).padStart(2, "0")}`;
   const email =
     typeof auth.claims.email === "string" ? auth.claims.email : "";
-  const name = email.split("@")[0] || "foydalanuvchi";
+  // Prefer the user's chosen display name (stored in auth metadata), falling
+  // back to the email prefix.
+  const meta = auth.claims.user_metadata as { name?: unknown } | undefined;
+  const displayName =
+    typeof meta?.name === "string" && meta.name.trim() ? meta.name.trim() : "";
+  const name = displayName || email.split("@")[0] || "foydalanuvchi";
   const t = await getDict();
 
   const userId = typeof auth.claims.sub === "string" ? auth.claims.sub : "";
@@ -169,7 +145,7 @@ export default async function DashboardPage() {
                 <path d="M14 8h5v5" />
               </svg>
             </Link>
-            <AvatarMenu name={name} />
+            <AvatarMenu name={name} isAdmin={isAdmin({ id: userId, email })} />
           </div>
         </div>
 
@@ -186,49 +162,8 @@ export default async function DashboardPage() {
         {/* insights & forecast */}
         {hasInsights && <InsightsCard insights={insights} t={t} />}
 
-        {/* category breakdown donut */}
-        {breakdown.length > 0 && (
-          <div className="section">
-            <div className="card chart-card">
-              <div className="ch-head">
-                <h3>{t.dashboard.breakdown}</h3>
-              </div>
-              <div className="donut-wrap">
-                <svg width="200" height="200" viewBox="0 0 200 200">
-                  <circle
-                    cx="100" cy="100" r={R} fill="none"
-                    stroke="var(--track)" strokeWidth="26"
-                  />
-                  {segments.map((s, i) => (
-                    <circle
-                      key={i}
-                      cx="100" cy="100" r={R} fill="none"
-                      stroke={s.color} strokeWidth="26"
-                      strokeDasharray={`${s.dash} ${C - s.dash}`}
-                      strokeDashoffset={-s.offset}
-                      transform="rotate(-90 100 100)"
-                    />
-                  ))}
-                </svg>
-                <div className="donut-center">
-                  <div className="t-lbl">{t.dashboard.total}</div>
-                  <div className="t-val mono">{totalCompact.v}</div>
-                  <div className="t-unit">{totalCompact.u} {t.dashboard.som}</div>
-                </div>
-              </div>
-              <div className="legend">
-                {breakdown.map((c) => (
-                  <div className="row" key={c.category}>
-                    <span className="dot" style={{ background: categoryColor(c.category) }} />
-                    <span className="nm">{c.category}</span>
-                    <span className="pc">{c.percent}%</span>
-                    <span className="am mono">{formatAmount(c.total)}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        )}
+        {/* breakdown (custom date range + Chiqim ↔ Kirim toggle) */}
+        <BreakdownCard initialFrom={periodStart} initialTo={todayDate} />
 
         {/* new entry (text / receipt / voice) */}
         <div className="section">

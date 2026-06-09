@@ -10,7 +10,13 @@ import { LANGUAGE_NAMES, locales } from "@/lib/i18n/dictionaries";
 // The circular initials avatar in the page header doubles as the settings
 // menu: tapping it opens a dropdown with Telegram linking, language, theme
 // switch, and sign-out — the controls that used to live in the removed top bar.
-export default function AvatarMenu({ name }: { name: string }) {
+export default function AvatarMenu({
+  name,
+  isAdmin = false,
+}: {
+  name: string;
+  isAdmin?: boolean;
+}) {
   const { resolvedTheme, setTheme } = useTheme();
   const { locale, t, setLocale } = useI18n();
   const [open, setOpen] = useState(false);
@@ -55,6 +61,57 @@ export default function AvatarMenu({ name }: { name: string }) {
           role="menu"
           className="absolute right-0 top-[46px] z-40 w-52 overflow-hidden rounded-xl border border-border bg-surface p-1 shadow-[0_8px_28px_rgba(20,20,30,0.16)]"
         >
+          {isAdmin && (
+            <>
+              <Link
+                role="menuitem"
+                href="/admin"
+                onClick={() => setOpen(false)}
+                className={`${itemClass} font-semibold text-accent`}
+              >
+                <svg
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.9"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  aria-hidden
+                >
+                  <path d="M12 3l8 4v5c0 4.4-3.4 7.7-8 9-4.6-1.3-8-4.6-8-9V7z" />
+                  <path d="M9 12l2 2 4-4" />
+                </svg>
+                Admin Panel
+              </Link>
+              <div className="my-1 h-px bg-border" />
+            </>
+          )}
+
+          <Link
+            role="menuitem"
+            href="/profile"
+            onClick={() => setOpen(false)}
+            className={itemClass}
+          >
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.9"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              aria-hidden
+            >
+              <circle cx="12" cy="8" r="4" />
+              <path d="M4 21c0-4 3.6-7 8-7s8 3 8 7" />
+            </svg>
+            {t.menu.profile}
+          </Link>
+
           <Link
             role="menuitem"
             href="/telegram"
