@@ -148,6 +148,7 @@ export default async function InvestmentsPage() {
       profitLoss,
       interestRate,
       termMonths,
+      createdAt: r.created_at,
       deposit,
     };
   });

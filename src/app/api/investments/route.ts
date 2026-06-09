@@ -29,6 +29,18 @@ function optionalTerm(value: unknown): number | null {
   return Number.isFinite(n) && n > 0 ? n : null;
 }
 
+// jamgarma opening date — the accrual anchor. Accepts "YYYY-MM-DD" (read as
+// Tashkent midnight) or a full ISO string. Must not be in the future. Returns
+// an ISO timestamp, or null when absent/invalid.
+function optionalOpenedAt(value: unknown): string | null {
+  if (typeof value !== "string" || !value) return null;
+  const d = new Date(value.length === 10 ? `${value}T00:00:00+05:00` : value);
+  if (Number.isNaN(d.getTime())) return null;
+  // Allow a day of slack so a "today" pick can't be rejected by tz skew.
+  if (d.getTime() > Date.now() + 86_400_000) return null;
+  return d.toISOString();
+}
+
 export async function POST(request: Request) {
   const supabase = await createClient();
 
@@ -62,6 +74,7 @@ export async function POST(request: Request) {
   const manualPrice = optionalPrice(raw.manual_price);
   const interestRate = optionalRate(raw.interest_rate);
   const termMonths = optionalTerm(raw.term_months);
+  const openedAt = optionalOpenedAt(raw.opened_at);
 
   if (!isType(type)) {
     return NextResponse.json({ error: "Noto'g'ri tur" }, { status: 400 });
@@ -76,19 +89,24 @@ export async function POST(request: Request) {
     );
   }
 
+  const insertRow: Record<string, unknown> = {
+    user_id: user.id,
+    type,
+    name,
+    symbol,
+    quantity,
+    buy_price: buyPrice,
+    manual_price: manualPrice,
+    interest_rate: interestRate,
+    term_months: termMonths,
+  };
+  // For a jamgarma, created_at doubles as the accrual anchor, so a user-set
+  // opening date backdates accrual (e.g. a deposit opened years ago).
+  if (type === "jamgarma" && openedAt) insertRow.created_at = openedAt;
+
   const { data, error } = await supabase
     .from("investments")
-    .insert({
-      user_id: user.id,
-      type,
-      name,
-      symbol,
-      quantity,
-      buy_price: buyPrice,
-      manual_price: manualPrice,
-      interest_rate: interestRate,
-      term_months: termMonths,
-    })
+    .insert(insertRow)
     .select("id")
     .single();
 

@@ -22,6 +22,16 @@ function optionalTerm(value: unknown): number | null {
   return Number.isFinite(n) && n > 0 ? n : null;
 }
 
+// jamgarma opening date — the accrual anchor (created_at). Accepts "YYYY-MM-DD"
+// (Tashkent midnight) or full ISO; must not be in the future. null if invalid.
+function optionalOpenedAt(value: unknown): string | null {
+  if (typeof value !== "string" || !value) return null;
+  const d = new Date(value.length === 10 ? `${value}T00:00:00+05:00` : value);
+  if (Number.isNaN(d.getTime())) return null;
+  if (d.getTime() > Date.now() + 86_400_000) return null;
+  return d.toISOString();
+}
+
 export async function POST(request: Request) {
   const supabase = await createClient();
 
@@ -52,7 +62,7 @@ export async function POST(request: Request) {
   }
 
   // Build a patch from only the fields that were provided.
-  const patch: Record<string, number> = {};
+  const patch: Record<string, number | string> = {};
   if (raw.quantity !== undefined) {
     const quantity = Number(raw.quantity);
     if (!Number.isFinite(quantity) || quantity <= 0) {
@@ -78,6 +88,10 @@ export async function POST(request: Request) {
   if (raw.term_months !== undefined) {
     const termMonths = optionalTerm(raw.term_months);
     if (termMonths !== null) patch.term_months = termMonths;
+  }
+  if (raw.opened_at !== undefined) {
+    const openedAt = optionalOpenedAt(raw.opened_at);
+    if (openedAt !== null) patch.created_at = openedAt;
   }
 
   if (Object.keys(patch).length === 0) {

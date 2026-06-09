@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { formatAmount } from "@/lib/format";
+import { formatAmount, formatDate } from "@/lib/format";
 
 export type InvestmentType = "valyuta" | "kripto" | "aksiya" | "jamgarma";
 
@@ -36,6 +36,7 @@ export type ComputedHolding = {
   value: number;
   priceMissing: boolean;
   profitLoss: number | null;
+  createdAt: string; // jamgarma: the accrual anchor (opening date)
   deposit: DepositInfo | null;
 };
 
@@ -79,6 +80,12 @@ function formatRate(n: number): string {
   return String(+Number(n).toFixed(2));
 }
 
+// ISO timestamp -> "YYYY-MM-DD" (Tashkent) for a <input type="date"> value.
+function toDateInput(iso: string): string {
+  const d = new Date(new Date(iso).getTime() + 5 * 60 * 60 * 1000);
+  return d.toISOString().slice(0, 10);
+}
+
 type RatePeriod = "yearly" | "monthly";
 
 // Re-expresses a typed rate when the user flips the Yillik/Oylik toggle so the
@@ -112,6 +119,8 @@ function HoldingRow({ holding }: { holding: ComputedHolding }) {
   const [termMonths, setTermMonths] = useState(
     holding.termMonths != null ? String(holding.termMonths) : "",
   );
+  // jamgarma opening date (= the accrual anchor / created_at).
+  const [openedAt, setOpenedAt] = useState(toDateInput(holding.createdAt));
   const [toppingUp, setToppingUp] = useState(false);
   const [topUpAmount, setTopUpAmount] = useState("");
   const [busy, setBusy] = useState(false);
@@ -136,6 +145,7 @@ function HoldingRow({ holding }: { holding: ComputedHolding }) {
         ratePeriod === "monthly" ? Number(annualRate) * 12 : Number(annualRate);
     if (isJamgarma && termMonths !== "")
       payload.term_months = Number(termMonths);
+    if (isJamgarma && openedAt) payload.opened_at = openedAt;
 
     try {
       const res = await fetch("/api/investments/update", {
@@ -237,6 +247,8 @@ function HoldingRow({ holding }: { holding: ComputedHolding }) {
                         : `${holding.deposit.monthsElapsed}/${holding.deposit.termMonths} oy`}
                     </>
                   )}
+                  {" · "}
+                  {formatDate(holding.createdAt)} dan
                 </>
               ) : (
                 <span className="mono">{formatAmount(holding.quantity)}</span>
@@ -445,6 +457,17 @@ function HoldingRow({ holding }: { holding: ComputedHolding }) {
                   style={{ padding: "8px 11px" }}
                 />
               </label>
+              <label className="text-[12px] text-muted">
+                Ochilgan sana
+                <input
+                  type="date"
+                  value={openedAt}
+                  max={toDateInput(new Date().toISOString())}
+                  onChange={(e) => setOpenedAt(e.target.value)}
+                  className="input mono mt-1 block w-40"
+                  style={{ padding: "8px 11px" }}
+                />
+              </label>
             </>
           )}
 
@@ -481,6 +504,8 @@ function AddForm() {
   // Stored rate is always yearly; the toggle only changes how it's entered.
   const [ratePeriod, setRatePeriod] = useState<RatePeriod>("yearly");
   const [termMonths, setTermMonths] = useState("");
+  // Optional jamgarma opening date — backdate to accrue from when it was opened.
+  const [openedAt, setOpenedAt] = useState("");
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -492,6 +517,7 @@ function AddForm() {
     setManualPrice("");
     setAnnualRate("");
     setTermMonths("");
+    setOpenedAt("");
   }
 
   async function add() {
@@ -528,6 +554,7 @@ function AddForm() {
         payload.interest_rate =
           ratePeriod === "monthly" ? Number(annualRate) * 12 : Number(annualRate);
       if (termMonths) payload.term_months = Number(termMonths);
+      if (openedAt) payload.opened_at = openedAt;
     }
 
     if (!Number.isFinite(qty) || qty <= 0)
@@ -721,6 +748,16 @@ function AddForm() {
               placeholder="Muddat — oy (ixtiyoriy)"
               className={inputCls}
             />
+            <label className="text-[12px] text-muted sm:col-span-2">
+              Ochilgan sana (ixtiyoriy — eskirgan jamg&apos;arma uchun)
+              <input
+                type="date"
+                value={openedAt}
+                max={toDateInput(new Date().toISOString())}
+                onChange={(e) => setOpenedAt(e.target.value)}
+                className={`${inputCls} mt-1`}
+              />
+            </label>
           </>
         )}
       </div>
