@@ -6,15 +6,19 @@ import { formatAmount } from "@/lib/format";
 
 export type InvestmentType = "valyuta" | "kripto" | "aksiya" | "jamgarma";
 
-// Server-computed deposit timeline for a jamgarma holding (null = plain savings).
+// Server-computed deposit state for a jamgarma holding (null = plain savings).
+// term fields are null for open-ended deposits.
 export type DepositInfo = {
   annualRate: number;
-  termMonths: number;
-  monthsElapsed: number;
-  monthsRemaining: number;
-  matured: boolean;
   principal: number;
-  maturityValue: number;
+  earned: number;
+  dailyEarn: number;
+  monthlyEarn: number;
+  termMonths: number | null;
+  monthsElapsed: number;
+  monthsRemaining: number | null;
+  matured: boolean;
+  maturityValue: number | null;
 };
 
 // A holding with server-computed live values folded in.
@@ -89,6 +93,8 @@ function HoldingRow({ holding }: { holding: ComputedHolding }) {
   const [termMonths, setTermMonths] = useState(
     holding.termMonths != null ? String(holding.termMonths) : "",
   );
+  const [toppingUp, setToppingUp] = useState(false);
+  const [topUpAmount, setTopUpAmount] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -120,6 +126,33 @@ function HoldingRow({ holding }: { holding: ComputedHolding }) {
       const data = await res.json();
       if (!res.ok) throw new Error(data?.error ?? "Xatolik");
       setEditing(false);
+      router.refresh();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Xatolik");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function topUp() {
+    if (busy) return;
+    const amt = Number(topUpAmount);
+    if (!Number.isFinite(amt) || amt <= 0) {
+      setError("Summani kiriting");
+      return;
+    }
+    setBusy(true);
+    setError(null);
+    try {
+      const res = await fetch("/api/investments/topup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: holding.id, amount: amt }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data?.error ?? "Xatolik");
+      setToppingUp(false);
+      setTopUpAmount("");
       router.refresh();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Xatolik");
@@ -174,11 +207,15 @@ function HoldingRow({ holding }: { holding: ComputedHolding }) {
                   <span className="mono">
                     {formatAmount(holding.deposit.principal)}
                   </span>{" "}
-                  ·{" "}
-                  {holding.deposit.matured
-                    ? "muddat tugadi"
-                    : `${holding.deposit.monthsElapsed}/${holding.deposit.termMonths} oy`}{" "}
                   · yillik {holding.deposit.annualRate}%
+                  {holding.deposit.termMonths != null && (
+                    <>
+                      {" · "}
+                      {holding.deposit.matured
+                        ? "muddat tugadi"
+                        : `${holding.deposit.monthsElapsed}/${holding.deposit.termMonths} oy`}
+                    </>
+                  )}
                 </>
               ) : (
                 <span className="mono">{formatAmount(holding.quantity)}</span>
@@ -197,19 +234,19 @@ function HoldingRow({ holding }: { holding: ComputedHolding }) {
           {isJamgarma && holding.deposit && (
             <div className="mt-0.5 text-[11px] text-[var(--muted-2)]">
               {holding.deposit.matured ? (
-                <>
-                  Yetildi:{" "}
-                  <span className="mono">
-                    {formatAmount(holding.deposit.maturityValue)}
-                  </span>
-                </>
+                <>Muddat tugadi · foiz to&apos;xtadi</>
               ) : (
                 <>
-                  Yetilganda{" "}
-                  <span className="mono">
-                    {formatAmount(holding.deposit.maturityValue)}
+                  Kunlik{" "}
+                  <span className="mono text-positive">
+                    +{formatAmount(holding.deposit.dailyEarn)}
                   </span>{" "}
-                  · {holding.deposit.monthsRemaining} oy qoldi
+                  · Oylik{" "}
+                  <span className="mono text-positive">
+                    +{formatAmount(holding.deposit.monthlyEarn)}
+                  </span>
+                  {holding.deposit.monthsRemaining != null &&
+                    ` · ${holding.deposit.monthsRemaining} oy qoldi`}
                 </>
               )}
             </div>
@@ -239,6 +276,17 @@ function HoldingRow({ holding }: { holding: ComputedHolding }) {
         </div>
 
         <div className="flex items-center gap-0.5">
+          {isJamgarma && (
+            <button
+              type="button"
+              onClick={() => setToppingUp((v) => !v)}
+              aria-label="To'ldirish"
+              title="To'ldirish (reinvest)"
+              className="rounded-md px-1.5 py-1 text-muted transition hover:bg-[var(--subtle)] hover:text-foreground"
+            >
+              ＋
+            </button>
+          )}
           <button
             type="button"
             onClick={() => setEditing((v) => !v)}
@@ -258,6 +306,35 @@ function HoldingRow({ holding }: { holding: ComputedHolding }) {
           </button>
         </div>
       </div>
+
+      {toppingUp && (
+        <div className="mt-3 flex flex-wrap items-end gap-2 rounded-[10px] bg-[var(--subtle)] p-3">
+          <label className="text-[12px] text-muted">
+            To&apos;ldirish summasi (so&apos;m)
+            <input
+              type="number"
+              inputMode="numeric"
+              value={topUpAmount}
+              onChange={(e) => setTopUpAmount(e.target.value)}
+              className="input mono mt-1 block w-36"
+              style={{ padding: "8px 11px" }}
+            />
+          </label>
+          <button
+            type="button"
+            onClick={topUp}
+            disabled={busy}
+            className="btn"
+            style={{ width: "auto", padding: "9px 14px" }}
+          >
+            {busy ? "..." : "Qo'shish"}
+          </button>
+          <p className="w-full text-[11px] text-[var(--muted-2)]">
+            Hozirgi foiz balansga qo&apos;shiladi va to&apos;liq summadan davom
+            etadi.
+          </p>
+        </div>
+      )}
 
       {editing && (
         <div className="mt-3 flex flex-wrap items-end gap-2 rounded-[10px] bg-[var(--subtle)] p-3">
@@ -565,7 +642,7 @@ function AddForm() {
               inputMode="numeric"
               value={termMonths}
               onChange={(e) => setTermMonths(e.target.value)}
-              placeholder="Muddat — oy (masalan, 7)"
+              placeholder="Muddat — oy (ixtiyoriy)"
               className={inputCls}
             />
           </>
@@ -580,7 +657,7 @@ function AddForm() {
             {type === "aksiya"
               ? "Narxni o'zingiz yangilab turasiz"
               : type === "jamgarma"
-                ? "Summa so'mda · oylik kapitalizatsiya, yillik foiz"
+                ? "Summa so'mda · kunlik kapitalizatsiya · muddat ixtiyoriy"
                 : "Narxlar avtomatik yangilanadi"}
           </span>
         )}

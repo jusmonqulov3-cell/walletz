@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { getCryptoPrices, getUzsRates } from "@/lib/prices";
+import { computeJamgarma } from "@/lib/jamgarma";
 import AppShell from "@/components/AppShell";
 import { getDict } from "@/lib/i18n/server";
 import InvestmentsClient, {
@@ -20,21 +21,6 @@ type InvestmentRow = {
   term_months: number | null;
   created_at: string;
 };
-
-// Asia/Tashkent is UTC+5 year-round (matches dates.ts / format.ts).
-const TASHKENT_OFFSET_MS = 5 * 60 * 60 * 1000;
-
-// Whole completed months between an ISO start and now, anchored to Tashkent —
-// a deposit "completes" a month on each monthly anniversary of its start date.
-function monthsElapsed(startIso: string, now: Date): number {
-  const s = new Date(new Date(startIso).getTime() + TASHKENT_OFFSET_MS);
-  const n = new Date(now.getTime() + TASHKENT_OFFSET_MS);
-  let m =
-    (n.getUTCFullYear() - s.getUTCFullYear()) * 12 +
-    (n.getUTCMonth() - s.getUTCMonth());
-  if (n.getUTCDate() < s.getUTCDate()) m -= 1;
-  return Math.max(0, m);
-}
 
 export default async function InvestmentsPage() {
   const supabase = await createClient();
@@ -117,31 +103,31 @@ export default async function InvestmentsPage() {
         break;
       }
       case "jamgarma": {
-        // Term deposit: principal (= quantity, in UZS) compounds monthly at
-        // annualRate/12. Value = amount accrued so far; once the term ends the
-        // accrual is capped (held at the maturity amount).
+        // Savings deposit: principal (= quantity, in UZS) compounds DAILY at
+        // annualRate/365 from created_at (the accrual anchor). Value = balance
+        // accrued so far. term_months is optional — open-ended when null, and
+        // capped at the maturity amount once a set term ends. See lib/jamgarma.
         unitPriceUZS = 1;
         const principal = quantity;
         const annualRate = interestRate ?? 0;
-        const term = termMonths ?? 0;
-        const monthlyRate = annualRate / 100 / 12;
-        const elapsed = monthsElapsed(r.created_at, now);
-        const effective = term > 0 ? Math.min(elapsed, term) : elapsed;
-        const accrued = principal * Math.pow(1 + monthlyRate, effective);
-        value = accrued;
+        const j = computeJamgarma(principal, annualRate, termMonths, r.created_at, now);
+        value = j.accrued;
 
-        // Only treat it as a real deposit (with interest/timeline) when both a
-        // term and a positive rate are set; otherwise it's plain savings.
-        if (term > 0 && annualRate > 0) {
-          profitLoss = accrued - principal;
+        // Only treat it as an interest-bearing deposit when a positive rate is
+        // set; otherwise it's plain savings (no timeline, no earnings shown).
+        if (annualRate > 0) {
+          profitLoss = j.earned;
           deposit = {
-            annualRate,
-            termMonths: term,
-            monthsElapsed: Math.min(elapsed, term),
-            monthsRemaining: Math.max(0, term - elapsed),
-            matured: elapsed >= term,
-            principal,
-            maturityValue: principal * Math.pow(1 + monthlyRate, term),
+            annualRate: j.annualRate,
+            principal: j.principal,
+            earned: j.earned,
+            dailyEarn: j.dailyEarn,
+            monthlyEarn: j.monthlyEarn,
+            termMonths: j.termMonths,
+            monthsElapsed: j.monthsElapsed,
+            monthsRemaining: j.monthsRemaining,
+            matured: j.matured,
+            maturityValue: j.maturityValue,
           };
         }
         break;

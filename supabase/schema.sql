@@ -340,8 +340,12 @@ create policy "debts_delete_own"
 --   'valyuta'  — symbol = currency code (e.g. "USD", "EUR", "RUB")
 --   'aksiya'   — manual_price = current UZS price per share (user-updated)
 --   'jamgarma' — quantity = the UZS principal; interest_rate = annual % compounded
---                monthly over term_months. Value accrues from created_at and is
---                held at the maturity amount once the term ends.
+--                DAILY from created_at (the accrual anchor, not just a creation
+--                time). term_months is OPTIONAL: null = open-ended (earns until
+--                withdrawn); when set, accrual caps at the maturity amount. A
+--                top-up (/api/investments/topup) capitalizes interest into
+--                quantity and resets created_at to now, so the deposit keeps
+--                compounding on the full balance ("reinvest").
 
 create table if not exists public.investments (
   id            uuid primary key default gen_random_uuid(),
