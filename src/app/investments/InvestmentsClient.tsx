@@ -73,6 +73,23 @@ function formatQty(n: number): string {
   });
 }
 
+// Trims a percentage to at most 2 decimals without trailing zeros (24 -> "24",
+// 1.5 -> "1.5"). Used to show the yearly rate and its monthly equivalent.
+function formatRate(n: number): string {
+  return String(+Number(n).toFixed(2));
+}
+
+type RatePeriod = "yearly" | "monthly";
+
+// Re-expresses a typed rate when the user flips the Yillik/Oylik toggle so the
+// underlying deposit stays the same (yearly 24% <-> monthly 2%). Empty/invalid
+// input is left untouched.
+function convertRate(value: string, to: RatePeriod): string {
+  if (value === "" || !Number.isFinite(Number(value))) return value;
+  const v = Number(value);
+  return String(+(to === "monthly" ? v / 12 : v * 12).toFixed(2));
+}
+
 // ---------------------------------------------------------------------------
 // Per-row edit + delete
 // ---------------------------------------------------------------------------
@@ -90,6 +107,8 @@ function HoldingRow({ holding }: { holding: ComputedHolding }) {
   const [annualRate, setAnnualRate] = useState(
     holding.interestRate != null ? String(holding.interestRate) : "",
   );
+  // Stored rate is always yearly; the toggle only changes how it's entered.
+  const [ratePeriod, setRatePeriod] = useState<RatePeriod>("yearly");
   const [termMonths, setTermMonths] = useState(
     holding.termMonths != null ? String(holding.termMonths) : "",
   );
@@ -113,7 +132,8 @@ function HoldingRow({ holding }: { holding: ComputedHolding }) {
     if (isAksiya && manualPrice) payload.manual_price = Number(manualPrice);
     if (!isJamgarma && buyPrice) payload.buy_price = Number(buyPrice);
     if (isJamgarma && annualRate !== "")
-      payload.interest_rate = Number(annualRate);
+      payload.interest_rate =
+        ratePeriod === "monthly" ? Number(annualRate) * 12 : Number(annualRate);
     if (isJamgarma && termMonths !== "")
       payload.term_months = Number(termMonths);
 
@@ -207,7 +227,8 @@ function HoldingRow({ holding }: { holding: ComputedHolding }) {
                   <span className="mono">
                     {formatAmount(holding.deposit.principal)}
                   </span>{" "}
-                  · yillik {holding.deposit.annualRate}%
+                  · yillik {formatRate(holding.deposit.annualRate)}% · oylik{" "}
+                  {formatRate(holding.deposit.annualRate / 12)}%
                   {holding.deposit.termMonths != null && (
                     <>
                       {" · "}
@@ -381,7 +402,7 @@ function HoldingRow({ holding }: { holding: ComputedHolding }) {
           {isJamgarma && (
             <>
               <label className="text-[12px] text-muted">
-                Yillik foiz (%)
+                Foiz (%)
                 <input
                   type="number"
                   inputMode="decimal"
@@ -391,6 +412,28 @@ function HoldingRow({ holding }: { holding: ComputedHolding }) {
                   style={{ padding: "8px 11px" }}
                 />
               </label>
+              <div className="seg" style={{ alignSelf: "flex-end" }}>
+                <button
+                  type="button"
+                  className={ratePeriod === "yearly" ? "active" : ""}
+                  onClick={() => {
+                    setAnnualRate((v) => convertRate(v, "yearly"));
+                    setRatePeriod("yearly");
+                  }}
+                >
+                  Yillik
+                </button>
+                <button
+                  type="button"
+                  className={ratePeriod === "monthly" ? "active" : ""}
+                  onClick={() => {
+                    setAnnualRate((v) => convertRate(v, "monthly"));
+                    setRatePeriod("monthly");
+                  }}
+                >
+                  Oylik
+                </button>
+              </div>
               <label className="text-[12px] text-muted">
                 Muddat (oy)
                 <input
@@ -435,6 +478,8 @@ function AddForm() {
   const [buyPrice, setBuyPrice] = useState("");
   const [manualPrice, setManualPrice] = useState("");
   const [annualRate, setAnnualRate] = useState("");
+  // Stored rate is always yearly; the toggle only changes how it's entered.
+  const [ratePeriod, setRatePeriod] = useState<RatePeriod>("yearly");
   const [termMonths, setTermMonths] = useState("");
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -475,10 +520,13 @@ function AddForm() {
       payload.manual_price = Number(manualPrice);
     } else {
       // jamgarma: label + amount (amount IS the quantity in so'm), plus an
-      // optional annual rate (%) and term (months) to make it a real deposit.
+      // optional rate (%) and term (months) to make it a real deposit. The rate
+      // is stored yearly; a monthly entry is converted (monthly x 12).
       if (!name.trim()) return setError("Nom kiriting");
       payload.name = name.trim();
-      if (annualRate) payload.interest_rate = Number(annualRate);
+      if (annualRate)
+        payload.interest_rate =
+          ratePeriod === "monthly" ? Number(annualRate) * 12 : Number(annualRate);
       if (termMonths) payload.term_months = Number(termMonths);
     }
 
@@ -629,14 +677,42 @@ function AddForm() {
 
         {type === "jamgarma" && (
           <>
-            <input
-              type="number"
-              inputMode="decimal"
-              value={annualRate}
-              onChange={(e) => setAnnualRate(e.target.value)}
-              placeholder="Yillik foiz % (masalan, 24)"
-              className={inputCls}
-            />
+            <div className="flex gap-2">
+              <input
+                type="number"
+                inputMode="decimal"
+                value={annualRate}
+                onChange={(e) => setAnnualRate(e.target.value)}
+                placeholder={
+                  ratePeriod === "monthly"
+                    ? "Oylik foiz % (masalan, 2)"
+                    : "Yillik foiz % (masalan, 24)"
+                }
+                className={`${inputCls} flex-1`}
+              />
+              <div className="seg shrink-0">
+                <button
+                  type="button"
+                  className={ratePeriod === "yearly" ? "active" : ""}
+                  onClick={() => {
+                    setAnnualRate((v) => convertRate(v, "yearly"));
+                    setRatePeriod("yearly");
+                  }}
+                >
+                  Yillik
+                </button>
+                <button
+                  type="button"
+                  className={ratePeriod === "monthly" ? "active" : ""}
+                  onClick={() => {
+                    setAnnualRate((v) => convertRate(v, "monthly"));
+                    setRatePeriod("monthly");
+                  }}
+                >
+                  Oylik
+                </button>
+              </div>
+            </div>
             <input
               type="number"
               inputMode="numeric"
