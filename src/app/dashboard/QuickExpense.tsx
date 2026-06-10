@@ -4,16 +4,21 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { CATEGORIES, type Category } from "@/lib/categories";
 import { formatAmount } from "@/lib/format";
+import { todayYmd, ymdDaysAgo } from "@/lib/dates";
 
 type ParsedItem = {
   note: string;
   amount: number;
   category: Category;
+  // YYYY-MM-DD (Tashkent) the expense is dated to; defaults to today, but the
+  // parser can backdate it ("kecha …") and the user can adjust the picker.
+  date: string;
   confidence: number;
 };
 
 export default function QuickExpense() {
   const router = useRouter();
+  const today = todayYmd();
   const [text, setText] = useState("");
   const [items, setItems] = useState<ParsedItem[]>([]);
 
@@ -41,9 +46,17 @@ export default function QuickExpense() {
       if (!res.ok) {
         throw new Error(data?.error ?? "Tahlil qilishda xatolik");
       }
-      const parsed: ParsedItem[] = Array.isArray(data.expenses)
+      const raw: Array<Record<string, unknown>> = Array.isArray(data.expenses)
         ? data.expenses
         : [];
+      // Turn the model's relative daysAgo into a concrete date for the picker.
+      const parsed: ParsedItem[] = raw.map((e) => ({
+        note: String(e.note ?? ""),
+        amount: Number(e.amount) || 0,
+        category: e.category as Category,
+        date: ymdDaysAgo(Number(e.daysAgo) || 0),
+        confidence: Number(e.confidence) || 0,
+      }));
       setItems(parsed);
       if (parsed.length === 0) {
         setParseError("Hech qanday xarajat aniqlanmadi.");
@@ -85,10 +98,11 @@ export default function QuickExpense() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          expenses: items.map(({ note, amount, category }) => ({
+          expenses: items.map(({ note, amount, category, date }) => ({
             note,
             amount,
             category,
+            date,
           })),
         }),
       });
@@ -200,6 +214,20 @@ export default function QuickExpense() {
                     </option>
                   ))}
                 </select>
+
+                {/* Date — defaults to today; lets the user log a forgotten
+                    expense on an earlier day. Future dates are blocked. */}
+                <input
+                  type="date"
+                  max={today}
+                  value={item.date}
+                  onChange={(e) =>
+                    updateItem(i, { date: e.target.value || today })
+                  }
+                  className="input"
+                  style={{ width: "auto", padding: "8px 11px" }}
+                  title="Sana"
+                />
 
                 <button
                   type="button"

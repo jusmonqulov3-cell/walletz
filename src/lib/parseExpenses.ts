@@ -1,6 +1,7 @@
 import "server-only";
 import { generateJSON } from "@/lib/gemini";
 import { toCategory, type Category } from "@/lib/categories";
+import { todayYmd } from "@/lib/dates";
 
 const SYSTEM_INSTRUCTION = `You are an expense parser for an Uzbek personal finance app. The user writes one or more expenses in informal Uzbek/Russian shorthand, on one line or several. Split the input into individual expense items.
 
@@ -8,6 +9,7 @@ For each item extract:
 - note: short description (item or merchant), capitalized
 - amount: integer in so'm (UZS)
 - category: exactly one of [Oziq-ovqat, Transport, Uy, Kommunal, Kiyim, Sog'liq, O'yin-kulgi, Boshqa]
+- daysAgo: integer — how many whole days before today the expense happened. 0 = today or unspecified, 1 = yesterday ('kecha'), 2 = day before yesterday ('avvalgi kun'). Resolve relative words ('kecha'=1, 'bugun'=0, 'shu kuni'/'o'tgan dushanba' etc.) and explicit calendar dates against TODAY'S DATE given at the end of this prompt. Never use negative or future values.
 - confidence: number 0 to 1
 
 Amount rules:
@@ -19,7 +21,7 @@ Amount rules:
 Categorize with Uzbek context: taksi / Yandex Go / avtobus / benzin / metro = Transport; Korzinka / Makro / Havas / non / somsa / EVOS / KFC / qahva / choy / restoran = Oziq-ovqat; ijara / kvartira = Uy; svet / gaz / suv / internet / kommunal = Kommunal; kiyim / krossovka / futbolka = Kiyim; dori / shifokor / klinika = Sog'liq; kino / o'yin / konsert = O'yin-kulgi; anything unclear = Boshqa.
 
 Return ONLY valid JSON in exactly this shape, nothing else:
-{"expenses": [{"note": "Taksi", "amount": 20000, "category": "Transport", "confidence": 0.95}]}`;
+{"expenses": [{"note": "Taksi", "amount": 20000, "category": "Transport", "daysAgo": 1, "confidence": 0.95}]}`;
 
 // Force consistent categories for known merchants (case-insensitive substring
 // match on the note). Applied in code after the model returns.
@@ -58,8 +60,16 @@ export type ParsedExpense = {
   note: string;
   amount: number;
   category: Category;
+  daysAgo: number;
   confidence: number;
 };
+
+// Clamps the model's daysAgo into a sane non-negative window (0 = today).
+export function normalizeDaysAgo(value: unknown): number {
+  const n = Math.round(Number(value));
+  if (!Number.isFinite(n) || n <= 0) return 0;
+  return Math.min(366, n);
+}
 
 function normalize(item: unknown): ParsedExpense | null {
   if (!item || typeof item !== "object") return null;
@@ -75,7 +85,13 @@ function normalize(item: unknown): ParsedExpense | null {
 
   const category = applyMerchantOverride(note, toCategory(raw.category));
 
-  return { note, amount, category, confidence };
+  return {
+    note,
+    amount,
+    category,
+    daysAgo: normalizeDaysAgo(raw.daysAgo),
+    confidence,
+  };
 }
 
 /**
@@ -87,7 +103,10 @@ function normalize(item: unknown): ParsedExpense | null {
  * @throws If the Gemini call fails (callers should handle and report).
  */
 export async function parseExpenses(text: string): Promise<ParsedExpense[]> {
-  const result = await generateJSON(SYSTEM_INSTRUCTION, text);
+  // Append today's date so the model can resolve "kecha" / explicit calendar
+  // dates into a daysAgo offset.
+  const instruction = `${SYSTEM_INSTRUCTION}\n\nTODAY'S DATE: ${todayYmd()} (Asia/Tashkent).`;
+  const result = await generateJSON(instruction, text);
   const rawList = (result as { expenses?: unknown })?.expenses;
   return Array.isArray(rawList)
     ? rawList.map(normalize).filter((e): e is ParsedExpense => e !== null)

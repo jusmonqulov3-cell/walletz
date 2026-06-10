@@ -45,6 +45,77 @@ export function getTashkentPeriods(now: Date = new Date()): TashkentPeriods {
   };
 }
 
+/** Today as YYYY-MM-DD anchored to Asia/Tashkent. */
+export function todayYmd(now: Date = new Date()): string {
+  const local = new Date(now.getTime() + TASHKENT_OFFSET_MS);
+  const y = local.getUTCFullYear();
+  const m = String(local.getUTCMonth() + 1).padStart(2, "0");
+  const d = String(local.getUTCDate()).padStart(2, "0");
+  return `${y}-${m}-${d}`;
+}
+
+/**
+ * The YYYY-MM-DD (Tashkent) that is `daysAgo` whole days before today. Used to
+ * seed the date picker when the parser reports a backdated entry.
+ */
+export function ymdDaysAgo(daysAgo: number, now: Date = new Date()): string {
+  const d = Math.max(0, Math.min(366, Math.round(Number(daysAgo) || 0)));
+  const local = new Date(now.getTime() + TASHKENT_OFFSET_MS - d * DAY_MS);
+  const y = local.getUTCFullYear();
+  const m = String(local.getUTCMonth() + 1).padStart(2, "0");
+  const day = String(local.getUTCDate()).padStart(2, "0");
+  return `${y}-${m}-${day}`;
+}
+
+/**
+ * Resolves a YYYY-MM-DD (Tashkent calendar day) into the UTC ISO instant to
+ * store in `spent_at` / `received_at`. Today keeps the live `now()` so fresh
+ * entries sort newest-first; any other day is anchored to 12:00 Tashkent, well
+ * clear of the midnight boundary so the row lands on the intended calendar day.
+ * Returns null for a missing/invalid date or one in the future.
+ */
+export function isoForYmd(
+  ymd: unknown,
+  now: Date = new Date(),
+): string | null {
+  if (typeof ymd !== "string") return null;
+  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(ymd.trim());
+  if (!match) return null;
+
+  const today = todayYmd(now);
+  if (ymd.trim() === today) return now.toISOString();
+
+  const y = Number(match[1]);
+  const m = Number(match[2]);
+  const d = Number(match[3]);
+  // Noon Tashkent on that day, expressed as the real UTC instant.
+  const noonLocalMs = Date.UTC(y, m - 1, d, 12, 0, 0);
+  if (!Number.isFinite(noonLocalMs)) return null;
+  const iso = new Date(noonLocalMs - TASHKENT_OFFSET_MS);
+  // Reject future dates (a small skew allowance covers clock drift).
+  if (iso.getTime() > now.getTime() + DAY_MS) return null;
+  return iso.toISOString();
+}
+
+/** Resolves a relative `daysAgo` count directly into a storable UTC ISO. */
+export function isoFromDaysAgo(
+  daysAgo: number,
+  now: Date = new Date(),
+): string {
+  return isoForYmd(ymdDaysAgo(daysAgo, now), now) ?? now.toISOString();
+}
+
+/**
+ * Short Uzbek label for a backdated entry ("kecha", "2 kun oldin"). Empty
+ * string when the entry is for today, so callers can append it conditionally.
+ */
+export function daysAgoLabel(daysAgo: number): string {
+  const d = Math.max(0, Math.round(Number(daysAgo) || 0));
+  if (d === 0) return "";
+  if (d === 1) return "kecha";
+  return `${d} kun oldin`;
+}
+
 export type TashkentMonthInfo = {
   /** UTC instant of the 1st of this month (Tashkent) */
   startOfMonth: string;

@@ -4,11 +4,14 @@ import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { CATEGORIES, type Category, toCategory } from "@/lib/categories";
 import { formatAmount } from "@/lib/format";
+import { todayYmd, ymdDaysAgo } from "@/lib/dates";
 
 type VoiceItem = {
   note: string;
   amount: number;
   category: Category;
+  // YYYY-MM-DD (Tashkent); defaults to today but can be backdated ("kecha …").
+  date: string;
   confidence: number;
 };
 
@@ -139,6 +142,7 @@ async function blobToWav(blob: Blob): Promise<Blob> {
 
 export default function VoiceExpense() {
   const router = useRouter();
+  const today = todayYmd();
 
   const recorderRef = useRef<MediaRecorder | null>(null);
   const chunksRef = useRef<Blob[]>([]);
@@ -228,10 +232,11 @@ export default function VoiceExpense() {
       if (!res.ok) throw new Error(data?.error ?? "Tushunmadim");
 
       const parsed: VoiceItem[] = Array.isArray(data.expenses)
-        ? data.expenses.map((it: VoiceItem) => ({
+        ? data.expenses.map((it: VoiceItem & { daysAgo?: number }) => ({
             note: it.note,
             amount: it.amount,
             category: toCategory(it.category),
+            date: ymdDaysAgo(Number(it.daysAgo) || 0),
             confidence: it.confidence,
           }))
         : [];
@@ -275,10 +280,11 @@ export default function VoiceExpense() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          expenses: items.map(({ note, amount, category }) => ({
+          expenses: items.map(({ note, amount, category, date }) => ({
             note,
             amount,
             category,
+            date,
           })),
         }),
       });
@@ -387,6 +393,20 @@ export default function VoiceExpense() {
                     </option>
                   ))}
                 </select>
+
+                {/* Date — defaults to today; allows logging a forgotten
+                    expense on an earlier day. Future dates are blocked. */}
+                <input
+                  type="date"
+                  max={today}
+                  value={item.date}
+                  onChange={(e) =>
+                    updateItem(i, { date: e.target.value || today })
+                  }
+                  className="input"
+                  style={{ width: "auto", padding: "8px 11px" }}
+                  title="Sana"
+                />
 
                 <button
                   type="button"

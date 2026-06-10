@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { toCategory } from "@/lib/categories";
+import { isoForYmd } from "@/lib/dates";
 
 export async function POST(request: Request) {
   const supabase = await createClient();
@@ -36,6 +37,9 @@ export async function POST(request: Request) {
       const note = typeof raw.note === "string" ? raw.note.trim() : "";
       const amount = Math.round(Number(raw.amount));
       if (!Number.isFinite(amount) || amount <= 0) return null;
+      // Optional backdating: client sends the chosen day as YYYY-MM-DD. An
+      // invalid or future value resolves to null and the column defaults to now().
+      const spentAt = isoForYmd(raw.date);
       return {
         user_id: user.id,
         raw_text: note,
@@ -43,6 +47,7 @@ export async function POST(request: Request) {
         amount,
         category: toCategory(raw.category),
         currency: "UZS",
+        ...(spentAt ? { spent_at: spentAt } : {}),
       };
     })
     .filter((r): r is NonNullable<typeof r> => r !== null);

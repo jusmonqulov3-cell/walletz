@@ -10,11 +10,12 @@ import {
 } from "@/lib/telegram";
 import { generateJSON, generateJSONFromAudio } from "@/lib/gemini";
 import {
-  TRANSACTION_INSTRUCTION,
+  transactionInstruction,
   normalizeTransactions,
   type ParsedTransactions,
 } from "@/lib/parseTransactions";
 import { formatAmount } from "@/lib/format";
+import { isoFromDaysAgo, daysAgoLabel } from "@/lib/dates";
 import { appUrl } from "@/lib/appUrl";
 
 // Allow up to 30s for the Gemini round-trip on Vercel.
@@ -49,13 +50,23 @@ function summarize(p: ParsedTransactions): string {
   if (p.expenses.length) {
     lines.push("💸 Xarajatlar:");
     for (const e of p.expenses) {
-      lines.push(`• ${e.note} — ${formatAmount(e.amount)} (${e.category})`);
+      const when = daysAgoLabel(e.daysAgo);
+      lines.push(
+        `• ${e.note} — ${formatAmount(e.amount)} (${e.category})${
+          when ? ` · 📅 ${when}` : ""
+        }`,
+      );
     }
   }
   if (p.incomes.length) {
     lines.push("💰 Daromad:");
     for (const i of p.incomes) {
-      lines.push(`• ${i.source} — ${formatAmount(i.amount)}`);
+      const when = daysAgoLabel(i.daysAgo);
+      lines.push(
+        `• ${i.source} — ${formatAmount(i.amount)}${
+          when ? ` · 📅 ${when}` : ""
+        }`,
+      );
     }
   }
   if (p.debts.length) {
@@ -267,6 +278,7 @@ async function handleCallback(
         amount: e.amount,
         category: e.category,
         currency: "UZS",
+        spent_at: isoFromDaysAgo(e.daysAgo),
       })),
     );
     if (error) {
@@ -280,6 +292,7 @@ async function handleCallback(
         user_id: userId,
         source: i.source,
         amount: i.amount,
+        received_at: isoFromDaysAgo(i.daysAgo),
       })),
     );
     if (error) {
@@ -434,12 +447,12 @@ async function handleMessage(message: TgMessage, supabase: Db): Promise<void> {
         return;
       }
       result = await generateJSONFromAudio(
-        TRANSACTION_INSTRUCTION,
+        transactionInstruction(),
         base64,
         "audio/ogg",
       );
     } else {
-      result = await generateJSON(TRANSACTION_INSTRUCTION, text);
+      result = await generateJSON(transactionInstruction(), text);
     }
   } catch (err) {
     console.error("Telegram parse error:", err);

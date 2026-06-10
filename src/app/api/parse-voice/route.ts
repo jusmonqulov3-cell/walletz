@@ -2,17 +2,19 @@ import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { generateJSONFromAudio } from "@/lib/gemini";
 import { toCategory } from "@/lib/categories";
-import { applyMerchantOverride } from "@/lib/parseExpenses";
+import { applyMerchantOverride, normalizeDaysAgo } from "@/lib/parseExpenses";
+import { todayYmd } from "@/lib/dates";
 
 // Allow up to 30s for the Gemini audio round-trip on Vercel.
 export const maxDuration = 30;
 
-const SYSTEM_INSTRUCTION = `You receive an audio recording where the user describes one or more expenses in spoken Uzbek or Russian (e.g. 'bugun taksiga yigirma ming, somsaga o'n sakkiz ming ishlatdim'). First transcribe what they said, then extract the expense items. For each item: note (short label, capitalized), amount (integer in so'm — convert spoken numbers: 'yigirma ming' = 20000, 'o'n sakkiz ming' = 18000, 'besh million' = 5000000; a bare small number means thousands), category (one of [Oziq-ovqat, Transport, Uy, Kommunal, Kiyim, Sog'liq, O'yin-kulgi, Boshqa]), confidence 0–1. Return ONLY JSON: {"transcript":"...","expenses":[{"note":"Taksi","amount":20000,"category":"Transport","confidence":0.9}]}`;
+const SYSTEM_INSTRUCTION = `You receive an audio recording where the user describes one or more expenses in spoken Uzbek or Russian (e.g. 'bugun taksiga yigirma ming, somsaga o'n sakkiz ming ishlatdim'). First transcribe what they said, then extract the expense items. For each item: note (short label, capitalized), amount (integer in so'm — convert spoken numbers: 'yigirma ming' = 20000, 'o'n sakkiz ming' = 18000, 'besh million' = 5000000; a bare small number means thousands), category (one of [Oziq-ovqat, Transport, Uy, Kommunal, Kiyim, Sog'liq, O'yin-kulgi, Boshqa]), daysAgo (integer: whole days before today the expense happened — 0 = today/unspecified, 1 = 'kecha' yesterday, 2 = day before; resolve relative words and explicit dates against TODAY'S DATE below; never negative or future), confidence 0–1. Return ONLY JSON: {"transcript":"...","expenses":[{"note":"Taksi","amount":20000,"category":"Transport","daysAgo":0,"confidence":0.9}]}`;
 
 type ParsedExpense = {
   note: string;
   amount: number;
   category: string;
+  daysAgo: number;
   confidence: number;
 };
 
@@ -30,7 +32,13 @@ function normalizeExpense(item: unknown): ParsedExpense | null {
 
   const category = applyMerchantOverride(note, toCategory(raw.category));
 
-  return { note, amount, category, confidence };
+  return {
+    note,
+    amount,
+    category,
+    daysAgo: normalizeDaysAgo(raw.daysAgo),
+    confidence,
+  };
 }
 
 export async function POST(request: Request) {
@@ -65,7 +73,7 @@ export async function POST(request: Request) {
   let result: unknown;
   try {
     result = await generateJSONFromAudio(
-      SYSTEM_INSTRUCTION,
+      `${SYSTEM_INSTRUCTION}\n\nTODAY'S DATE: ${todayYmd()} (Asia/Tashkent).`,
       audioBase64,
       mimeType,
     );
